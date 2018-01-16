@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //Some array helping array operations
 namespace Image
@@ -35,7 +31,7 @@ namespace Image
             {
                 Console.WriteLine("Number of cols in firts array dismatch with number of rows in second. Operation -> MultArrays(double[,] x, double[,] y) <-");
             }
-            
+
             return z;
         }
 
@@ -267,10 +263,10 @@ namespace Image
         }
 
         //Take natural log of array elements
-        public double[,] logArrayElements(double[,] x)
+        public double[,] LogArrayElements(double[,] x)
         {
             int rows = x.GetLength(0);
-            int cols  = x.GetLength(1);
+            int cols = x.GetLength(1);
             double[,] y = new double[rows, cols];
 
             for (int k = 0; k < rows; k++)
@@ -284,7 +280,7 @@ namespace Image
         }
 
         //Exponent array elements
-        public double[,] expArrayElements(double[,] x)
+        public double[,] ExpArrayElements(double[,] x)
         {
             int rows = x.GetLength(0);
             int cols = x.GetLength(1);
@@ -421,7 +417,7 @@ namespace Image
             }
 
             return arrayMax;
-        }               
+        }
 
         //Prevent more than border. if more, take the border value
         public double[,] ToBorderGreaterZero(double[,] x, double border)
@@ -446,13 +442,13 @@ namespace Image
                     {
                         z[k, m] = x[k, m];
                     }
-                    
+
                 }
             }
             return z;
         }
 
-        public double[] MinInColumns( double[,] x)
+        public double[] MinInColumns(double[,] x)
         {
             int rows = x.GetLength(0);
             int cols = x.GetLength(1);
@@ -464,10 +460,10 @@ namespace Image
             {
                 arr[count] = x[0, i];
                 for (int j = 0; j < rows; j++)
-                {                    
+                {
                     if (arr[count] > x[j, i])
                     {
-                        arr[count] = x[j, i];                        
+                        arr[count] = x[j, i];
                     }
                 }
                 count++;
@@ -557,8 +553,8 @@ namespace Image
                 for (int m = 0; m < cols; m++)
                 {
                     if ((int)(x[k, m] * 255) < 0) { z[k, m] = 0; }
-                    else if ((int)(x[k, m] * 255) > 255) { z[k, m] = 255; } 
-                    else { z[k, m] = (int)(x[k, m] * 255); }               
+                    else if ((int)(x[k, m] * 255) > 255) { z[k, m] = 255; }
+                    else { z[k, m] = (int)(x[k, m] * 255); }
                 }
             }
             return z;
@@ -731,7 +727,7 @@ namespace Image
             {
                 for (int m = 0; m < cols; m++)
                 {
-                    if(x[k,m] < 0)
+                    if (x[k, m] < 0)
                     {
                         res[k, m] = 0;
                     }
@@ -739,7 +735,7 @@ namespace Image
                     {
                         res[k, m] = 255;
                     }
-                    else { res[k, m] = x[k, m]; }                    
+                    else { res[k, m] = x[k, m]; }
                 }
             }
 
@@ -857,7 +853,7 @@ namespace Image
 
             for (int k = 0; k < x.Length; k++)
             {
-                z[k] = Math.Pow(x[k],pow);
+                z[k] = Math.Pow(x[k], pow);
             }
             return z;
         }
@@ -905,23 +901,23 @@ namespace Image
 
             for (int k = 0; k < x.Length; k++)
             {
-               if((int)(x[k] * 255) > 255) { z[k] = 255; } else { z[k] = (int)(x[k] * 255); }
+                if ((int)(x[k] * 255) > 255) { z[k] = 255; } else { z[k] = (int)(x[k] * 255); }
             }
             return z;
         }
         #endregion
 
         #region WTF
-       
+
         #endregion WTF
     }
 
-    public class arrGen<T> 
+    public class ArrGen<T>
     {
         //arrGen<int> d;
         //d = new arrGen<int>();
         //var p = d.arrOfSingle(4, 5, 1);
-        public T[,] arrOfSingle(int r, int c, T value)
+        public T[,] ArrOfSingle(int r, int c, T value)
         {
             T[,] arr = new T[r, c];
             for (int i = 0; i < r; i++)
@@ -935,10 +931,10 @@ namespace Image
             return arr;
         }
 
-        public T[,] vecorToArrayRowByRow(int r, int c, T[] inVector)
+        public T[,] VecorToArrayRowByRow(int r, int c, T[] inVector)
         {
-            T[,] arr = new T[r,c];
-           
+            T[,] arr = new T[r, c];
+
             int count = 0;
             for (int i = 0; i < r; i++)
             {
@@ -952,7 +948,7 @@ namespace Image
             return arr;
         }
 
-        public T[,] vecorToArrayColbyCol(int r, int c, T[] inVector)
+        public T[,] VecorToArrayColbyCol(int r, int c, T[] inVector)
         {
             T[,] arr = new T[r, c];
 
@@ -976,12 +972,12 @@ namespace Image
             int cols = inArr.GetLength(0);
 
             T[,] arr = new T[rows, cols];
-           
+
             for (int i = 0; i < cols; i++)
             {
                 for (int j = 0; j < rows; j++)
                 {
-                    arr[j, i] = inArr[i,j];                   
+                    arr[j, i] = inArr[i, j];
                 }
             }
 
@@ -1007,6 +1003,6 @@ namespace Image
             }
 
             return arr;
-        } 
+        }
     }
 }

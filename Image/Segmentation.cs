@@ -17,7 +17,7 @@ namespace Image
             int[,] lineRes = new int[img.Height, img.Width];
             string outName = String.Empty;
 
-            var im = Helpers.rgbToGrayArray(img);
+            var im = Helpers.RGBToGrayArray(img);
 
             switch (lineDir.ToString())
             {
@@ -51,7 +51,7 @@ namespace Image
             }
 
 
-            image = Helpers.setPixels(image, lineRes, lineRes, lineRes);
+            image = Helpers.SetPixels(image, lineRes, lineRes, lineRes);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -62,7 +62,7 @@ namespace Image
             ArrayOperations ArrOp = new ArrayOperations();
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
 
-            var temp = ArrOp.AbsArrayElements(Filter.filter_double(ArrOp.ImageUint8ToDouble(arr), filter, PadType.replicate));
+            var temp = ArrOp.AbsArrayElements(Filter.Filter_double(ArrOp.ImageUint8ToDouble(arr), filter, PadType.replicate));
 
             var max = temp.Cast<double>().ToArray().Max();
 
@@ -97,28 +97,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             if (var.ToString() == "var1")
@@ -132,7 +132,7 @@ namespace Image
                 outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar2.jpg";
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -150,28 +150,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             if (var.ToString() == "var1")
@@ -185,7 +185,7 @@ namespace Image
                 outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar2.jpg";
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -202,28 +202,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             switch (method.ToString())
@@ -274,7 +274,7 @@ namespace Image
                     break;
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -292,28 +292,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             switch (method.ToString())
@@ -364,7 +364,7 @@ namespace Image
                     break;
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -381,28 +381,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             switch (method.ToString())
@@ -453,7 +453,7 @@ namespace Image
                     break;
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -471,28 +471,28 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             switch (method.ToString())
@@ -543,7 +543,7 @@ namespace Image
                     break;
             }
 
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -557,11 +557,11 @@ namespace Image
             int[,] b = new int[im.GetLength(0), im.GetLength(1)];
 
             double cutoff = 0;
-            double tresh  = 0;
+            double tresh = 0;
 
             //Sobel approximation to derivative
-            var bx = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filterT, fdiv), PadType.replicate));
-            var by = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate));
+            var bx = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filterT, fdiv), PadType.replicate));
+            var by = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate));
 
             //compute the magnitude
             if (direction.ToString() == "horizontal")
@@ -612,11 +612,11 @@ namespace Image
             double[,] b = new double[im.GetLength(0), im.GetLength(1)];
 
             double cutoff = 0;
-            double tresh  = 0;
+            double tresh = 0;
 
             //Sobel approximation to derivative   
-            var bx = Filter.filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filterT, fdiv), PadType.replicate);
-            var by = Filter.filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
+            var bx = Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filterT, fdiv), PadType.replicate);
+            var by = Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
 
             //compute the magnitude
             if (direction.ToString() == "horizontal")
@@ -669,34 +669,34 @@ namespace Image
 
             Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
             int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.getPixels(img);
+            var ColorList = Helpers.GetPixels(img);
 
             if (inIm.ToString() == "BW8b")
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
             else if (inIm.ToString() == "rgb")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
-                { im = Helpers.rgbToGrayArray(img); }
+                { im = Helpers.RGBToGrayArray(img); }
             }
             else if (inIm.ToString() == "BW24b")
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
                 else
-                { im = ColorList[0].c; }
+                { im = ColorList[0].Color; }
             }
 
             double T = 0.5 * (im.Cast<int>().ToArray().Min() + im.Cast<int>().ToArray().Max());
             bool done = false;
             double Tnext = 0;
-           
+
             List<double> tempTrue = new List<double>();
             List<double> tempFalse = new List<double>();
             while (!done)
@@ -745,7 +745,7 @@ namespace Image
             }
 
             outName = Directory.GetCurrentDirectory() + "\\Rand\\GrayTresh.jpg";
-            image = Helpers.setPixels(image, result, result, result);
+            image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
@@ -759,7 +759,7 @@ namespace Image
         plus45,
         minus45
     }
-    
+
     public enum inEdge
     {
         rgb,

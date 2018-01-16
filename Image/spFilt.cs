@@ -19,14 +19,14 @@ namespace Image
             //Q - filter order Q for Contraharmonic mean
 
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
 
             double[,] filter;
             int[,] resultR = new int[height, width];
@@ -34,20 +34,20 @@ namespace Image
             int[,] resultB = new int[height, width];
             string outName = String.Empty;
 
-            arrGen<double> arrGen;
-            arrGen = new arrGen<double>();
+            ArrGen<double> arrGen;
+            arrGen = new ArrGen<double>();
 
-            if(m < 4 & n < 4)
+            if (m < 4 & n < 4)
             {
                 switch (spfiltType.ToString())
                 {
                     //Arithmetic mean filtering.
                     //help with salt noize
                     case "amean":
-                        filter = Filter.fspecial(m, n, "average");
-                        resultR = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
-                        resultG = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
-                        resultB = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
+                        filter = Filter.Fspecial(m, n, "average");
+                        resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
+                        resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
+                        resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
 
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\ameanspFilt.jpg";
                         break;
@@ -55,11 +55,11 @@ namespace Image
                     //Geometric mean filtering.
                     //help with salt noize
                     case "gmean":
-                        filter = arrGen.arrOfSingle(m, n, 1);
+                        filter = arrGen.ArrOfSingle(m, n, 1);
 
-                        var r_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
-                        var g_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
-                        var b_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
+                        var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
+                        var g_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
+                        var b_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
 
                         resultR = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
                         resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
@@ -71,11 +71,11 @@ namespace Image
                     //harmonic mean filter
                     //help with salt noize
                     case "hmean":
-                        filter = arrGen.arrOfSingle(m, n, 1);
+                        filter = arrGen.ArrOfSingle(m, n, 1);
 
-                        var r_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                        var g_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                        var b_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                        var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                        var g_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                        var b_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
 
                         resultR = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, r_harmean));
                         resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
@@ -86,15 +86,15 @@ namespace Image
 
                     //contraharmonic mean filter Q>0 for pepper & <0 for salt
                     case "chmean":
-                        filter = arrGen.arrOfSingle(m, n, 1);
+                        filter = arrGen.ArrOfSingle(m, n, 1);
 
-                        var r_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
-                        var g_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
-                        var b_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
+                        var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
+                        var g_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
+                        var b_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
 
-                        r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
-                        g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
-                        b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
+                        r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
+                        g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
+                        b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
 
                         resultR = ArrOp.ImageArrayToUint8(r_charmean);
                         resultG = ArrOp.ImageArrayToUint8(g_charmean);
@@ -112,13 +112,13 @@ namespace Image
 
                 if (spfiltType.ToString() == "chmean" & unsharp)
                 {
-                    var im = Helpers.setPixels(image, resultR, resultG, resultB);
-                    image = Helpers.sharpRes(im);
+                    var im = Helpers.SetPixels(image, resultR, resultG, resultB);
+                    image = Helpers.FastSharpImage(im);
 
                 }
                 else
                 {
-                    image = Helpers.setPixels(image, resultR, resultG, resultB);
+                    image = Helpers.SetPixels(image, resultR, resultG, resultB);
                 }
 
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
@@ -127,7 +127,7 @@ namespace Image
             else
             {
                 Console.WriteLine("Can`t if filter larger, than 3x3, sorry");
-            }  
+            }
         }
 
         public static void spfilt(Bitmap img, int m, int n, SpfiltType spfiltType)
@@ -138,14 +138,14 @@ namespace Image
             var Q = 1.5; //default
 
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
 
             double[,] filter;
             int[,] resultR = new int[height, width];
@@ -153,18 +153,18 @@ namespace Image
             int[,] resultB = new int[height, width];
             string outName = String.Empty;
 
-            arrGen<double> arrGen;
-            arrGen = new arrGen<double>();
+            ArrGen<double> arrGen;
+            arrGen = new ArrGen<double>();
 
             switch (spfiltType.ToString())
             {
                 //Arithmetic mean filtering.
                 //help with salt noize
                 case "amean":
-                    filter = Filter.fspecial(m, n, "average");
-                    resultR = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
-                    resultG = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
-                    resultB = ArrOp.ArrayToUint8(Filter.filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
+                    filter = Filter.Fspecial(m, n, "average");
+                    resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
+                    resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
+                    resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
 
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\ameanspFilt.jpg";
                     break;
@@ -172,11 +172,11 @@ namespace Image
                 //Geometric mean filtering.
                 //help with salt noize
                 case "gmean":
-                    filter = arrGen.arrOfSingle(m, n, 1);
+                    filter = arrGen.ArrOfSingle(m, n, 1);
 
-                    var r_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
-                    var g_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
-                    var b_gmean = ArrOp.expArrayElements(Filter.filter_double(ArrOp.logArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
+                    var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
+                    var g_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
+                    var b_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
 
                     resultR = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
                     resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
@@ -188,11 +188,11 @@ namespace Image
                 //harmonic mean filter
                 //help with salt noize
                 case "hmean":
-                    filter = arrGen.arrOfSingle(m, n, 1);
+                    filter = arrGen.ArrOfSingle(m, n, 1);
 
-                    var r_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                    var g_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                    var b_harmean = Filter.filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                    var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                    var g_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
+                    var b_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
 
                     resultR = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, r_harmean));
                     resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
@@ -203,15 +203,15 @@ namespace Image
 
                 //contraharmonic mean filter Q>0 for pepper & <0 for salt
                 case "chmean":
-                    filter = arrGen.arrOfSingle(m, n, 1);
+                    filter = arrGen.ArrOfSingle(m, n, 1);
 
-                    var r_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
-                    var g_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
-                    var b_charmean = Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
+                    var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
+                    var g_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
+                    var b_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
 
-                    r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
-                    g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
-                    b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
+                    r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
+                    g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
+                    b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
 
                     resultR = ArrOp.ImageArrayToUint8(r_charmean);
                     resultG = ArrOp.ImageArrayToUint8(g_charmean);
@@ -225,8 +225,8 @@ namespace Image
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\wrongspFilt.jpg";
                     break;
             }
-            
-            image = Helpers.setPixels(image, resultR, resultG, resultB);          
+
+            image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);

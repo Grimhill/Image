@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -13,20 +9,20 @@ namespace Image
 {
     public static class SomeLittle
     {
-        public static void rgbArrayToImage(int[,] Rc, int[,] Gc, int[,] Bc)
+        public static void RGBArrayToImage(int[,] Rc, int[,] Gc, int[,] Bc)
         {
             //write image back from rgb array into file            
             int height = Rc.GetLength(0);
-            int width  = Rc.GetLength(1);
+            int width = Rc.GetLength(1);
 
             var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            bitmap = Helpers.setPixels(bitmap, Rc, Gc, Bc);
+            bitmap = Helpers.SetPixels(bitmap, Rc, Gc, Bc);
 
             bitmap.Save("rgbArrayToImage.jpg");
         }
 
-        public static void rgbToGray(Bitmap image)
+        public static void RGBToGray(Bitmap image)
         {
             // Loop through the images pixels to reset color.
             for (int x = 0; x < image.Height; x++)
@@ -108,22 +104,22 @@ namespace Image
         public static void MakeNegativeAndBack(Bitmap img)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
 
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             var Rcn = ArrOp.ConstSubArrayElements(255, Rc);
             var Gcn = ArrOp.ConstSubArrayElements(255, Gc);
             var Bcn = ArrOp.ConstSubArrayElements(255, Bc);
 
-            image = Helpers.setPixels(image, Rcn, Gcn, Bcn);
+            image = Helpers.SetPixels(image, Rcn, Gcn, Bcn);
 
             outName = Directory.GetCurrentDirectory() + "\\NegativeAndBack\\NegativeOrRestored.jpg";
             //dont forget, that directory NegativeAndBack must exist. Later add if not exist - creat
@@ -134,15 +130,15 @@ namespace Image
         public static void GammaCorrectionFun(Bitmap img, double c, double gamma)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
 
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             //higher c and gamma - lighter image after correction
@@ -150,7 +146,7 @@ namespace Image
             var Gcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Gc), gamma), c));
             var Bcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Bc), gamma), c)); ;
 
-            image = Helpers.setPixels(image, Rcg, Gcg, Bcg);
+            image = Helpers.SetPixels(image, Rcg, Gcg, Bcg);
 
             outName = Directory.GetCurrentDirectory() + "\\Rand\\GammaCorrection.jpg";
             //dont forget, that directory Rand must exist. Later add if not exist - creat
@@ -165,10 +161,10 @@ namespace Image
 
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
 
             int[,] resultR = new int[height, width];
             int[,] resultG = new int[height, width];
@@ -209,10 +205,17 @@ namespace Image
                 }
             }
 
-            image = Helpers.setPixels(image, resultR, resultG, resultB);
+            image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             image.Save(outName);
+        }
+
+        public static void SaveImageInOtherFormat(Bitmap image, string name, SupportFormats newFormat)
+        {
+            string outName = name + "." + newFormat.ToString();
+            //string outName = Directory.GetCurrentDirectory() + "\\Rand\\" + name + "." + newFormat.ToString();
+            Helpers.SaveOptions(image, outName, newFormat.ToString().ToLower());
         }
     }
 

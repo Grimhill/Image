@@ -12,19 +12,19 @@ namespace Image
     //Linear image filter
     public static class Filter
     {
-        public static double[,] filter_double(double[,] arr, double[,] filter, PadType padType)
+        public static double[,] Filter_double(double[,] arr, double[,] filter, PadType padType)
         {
             //helpers definition
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = arr.GetLength(1);
-            int height = arr.GetLength(0);          
+            int width = arr.GetLength(1);
+            int height = arr.GetLength(0);
 
             //padarray or not, here we save  
             double[,] temp;
-            
+
             padMyArray<double> padArr;
             padArr = new padMyArray<double>();
-            
+
             if (padType.ToString() == "replicate")
             {
                 temp = padArr.padArray(arr, 1, 1, PadType.replicate, Direction.both);
@@ -32,9 +32,9 @@ namespace Image
             else
             {
                 //Symmetric? why not, coz 1 row and col, lul
-                temp = padArr.padArray(arr,1, 1, PadType.symmetric, Direction.both);
-            } 
-            
+                temp = padArr.padArray(arr, 1, 1, PadType.symmetric, Direction.both);
+            }
+
             double[,] result = new double[height, width];
             double[,] toConv = new double[filter.GetLength(0), filter.GetLength(1)];
 
@@ -63,20 +63,20 @@ namespace Image
             }
             catch (Exception e)
             {
-                Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" + 
+                Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" +
                     e.Message);
-            }            
+            }
 
             return result;
         }
 
-        public static double[,] filter_double(double[,] arr, double[,] filter)
+        public static double[,] Filter_double(double[,] arr, double[,] filter)
         {
             //helpers definition
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = arr.GetLength(1);
+            int width = arr.GetLength(1);
             int height = arr.GetLength(0);
-            
+
             double[,] result = new double[height, width];
             double[,] toConv = new double[filter.GetLength(0), filter.GetLength(1)];
 
@@ -107,17 +107,23 @@ namespace Image
             {
                 Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" +
                     e.Message);
-            } 
+            }
 
             return result;
         }
 
-        public static int[,] filter_int(int[,] arr, int[,] filter, PadType padType)
+        public static double[,] Filter_double(int[,] arr, string filterType)
+        {
+            ArrayOperations ArrOp = new ArrayOperations();
+            return Filter_double(ArrOp.ArrayToDouble(arr), Filter.Dx3FWindow(filterType), PadType.replicate);
+        }
+
+        public static int[,] Filter_int(int[,] arr, int[,] filter, PadType padType)
         {
             //helpers definition
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = arr.GetLength(1);
-            int height = arr.GetLength(0);                     
+            int width = arr.GetLength(1);
+            int height = arr.GetLength(0);
 
             //padarray or not, here we save         
             int[,] temp;
@@ -134,7 +140,7 @@ namespace Image
                 //Symmetric? why not, coz 1 row and col, lul
                 temp = padArr.padArray(arr, 1, 1, PadType.symmetric, Direction.both);
             }
-            
+
             int[,] result = new int[height, width];
             int[,] toConv = new int[filter.GetLength(0), filter.GetLength(1)];
 
@@ -168,18 +174,18 @@ namespace Image
             {
                 Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" +
                     e.Message);
-            } 
+            }
 
             return result;
         }
 
-        public static int[,] filter_int(int[,] arr, int[,] filter)
+        public static int[,] Filter_int(int[,] arr, int[,] filter)
         {
             //helpers definition
             ArrayOperations ArrOp = new ArrayOperations();
-            int width  = arr.GetLength(1);
+            int width = arr.GetLength(1);
             int height = arr.GetLength(0);
-            
+
             int[,] result = new int[height, width];
             int[,] toConv = new int[filter.GetLength(0), filter.GetLength(1)];
 
@@ -218,25 +224,26 @@ namespace Image
             return result;
         }
 
-        public static double[,] Dx3FWindow (string fWindowName)
+        //double 3x3 filters
+        public static double[,] Dx3FWindow(string fWindowName)
         {
-            double[,] result = new double[3,3];
+            double[,] result = new double[3, 3];
             switch (fWindowName)
             {
                 case "Sobel":
-                    double[,] Sobel  = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+                    double[,] Sobel = { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
                     result = Sobel;
                     break;
                 case "SobelT":
-                    double[,] SobelT = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+                    double[,] SobelT = { { 1, 0, -1 }, { 2, 0, -2 }, { 1, 0, -1 } };
                     result = SobelT;
                     break;
                 case "Prewitt":
-                    double[,] Prewitt = {{1, 1, 1}, {0, 0, 0}, {-1, -1, -1}};
+                    double[,] Prewitt = { { 1, 1, 1 }, { 0, 0, 0 }, { -1, -1, -1 } };
                     result = Prewitt;
                     break;
                 case "PrewittT":
-                    double[,] PrewittT = { { 1, 0, -1 }, {1, 0, -1 }, { 1, 0, -1 } };
+                    double[,] PrewittT = { { 1, 0, -1 }, { 1, 0, -1 }, { 1, 0, -1 } };
                     result = PrewittT;
                     break;
                 case "Laplassian1":
@@ -248,7 +255,7 @@ namespace Image
                     result = Laplassian2;
                     break;
                 case "unsharp":
-                    double[,] unsharp = {{-0.1667, -0.6667, -0.1667}, {-0.6667, 4.3333, -0.6667}, {-0.1667, -0.6667, -0.1667}};
+                    double[,] unsharp = { { -0.1667, -0.6667, -0.1667 }, { -0.6667, 4.3333, -0.6667 }, { -0.1667, -0.6667, -0.1667 } };
                     result = unsharp;
                     break;
                 case "Roberts":
@@ -260,13 +267,14 @@ namespace Image
                     result = RobertsT;
                     break;
                 default:
-                    double[,] def = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+                    double[,] def = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } };
                     result = def;
                     break;
             }
-            return result;            
+            return result;
         }
 
+        //int 3x3 filters
         public static int[,] Ix3FWindow(string fWindowName)
         {
             int[,] result = new int[3, 3];
@@ -312,24 +320,24 @@ namespace Image
             return result;
         }
 
-        public static double[,] fspecial(int m, int n, string type)
+        public static double[,] Fspecial(int m, int n, string type)
         {
-	        double[,] result = new double[m,n];
-	
-	        switch(type)
-	        {
-		        case "average":
-			        for(int i = 0; i < m; i++)
-			        {
-				        for(int j = 0; j < n; j++)
-				        {
-					        result[i,j] = (double)1/(double)(m*n);
-				        }
-			        }
-		            break;
-	         }
-	
-	        return result;
+            double[,] result = new double[m, n];
+
+            switch (type)
+            {
+                case "average":
+                    for (int i = 0; i < m; i++)
+                    {
+                        for (int j = 0; j < n; j++)
+                        {
+                            result[i, j] = (double)1 / (double)(m * n);
+                        }
+                    }
+                    break;
+            }
+
+            return result;
         }
     }
 }

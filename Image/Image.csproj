@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnotherVariants.cs" />
     <Compile Include="ArrayOperations.cs" />
     <Compile Include="ColorSpace.cs" />
     <Compile Include="Contour.cs" />

@@ -16,22 +16,22 @@ namespace Image
 
         #region Contrast_BW
         //default BW contrast low and high intensities of image in 1% of image
-        public static void ContrastBW(Bitmap img)
+        public static void ContrastBW(Bitmap img, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var GrayC = ColorList[0].c;
+            var ColorList = Helpers.GetPixels(img);
+            var GrayC = ColorList[0].Color;
             string outName = String.Empty;
 
             //In values between low_in and high_in
             //Find In limits to contrast image Based on it`s intensity
             //No sence for values 0.5 and more. 0.01 - here use only default value
-            var In = stretchlims(GrayC, 0.01); //number - intensity in % pixels saturated at low and high intensities of image
+            var In = Stretchlims(GrayC, 0.01); //number - intensity in % pixels saturated at low and high intensities of image
 
             //Only positive values in range 0.01 - 0.99
             //var In = stretchlims(Gc, [0.01, 0.99]);
@@ -42,29 +42,31 @@ namespace Image
             double[] Out = { 0, 1 }; //default value
             double gamma = 1; //gamma defaults to 1 (linear mapping)       
 
-            var Cont = inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+            var Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
 
-            image = Helpers.setPixels(image, Cont, Cont, Cont);
-          
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastDefault.jpg";
+            image = Helpers.SetPixels(image, Cont, Cont, Cont);
+
+            outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastDefault" + ImgExtension;
+
             //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         //low & high Adjust the grayscale image, specifying the contrast limits
-        public static void ContrastBW(Bitmap img, double low_in, double high_in)
+        public static void ContrastBW(Bitmap img, double low_in, double high_in, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var GrayC = ColorList[0].c;
+            var ColorList = Helpers.GetPixels(img);
+            var GrayC = ColorList[0].Color;
             string outName = String.Empty;
 
-            if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0) 
+            if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0)
             {
                 Console.WriteLine("low_in and high_in limits must be in range [0:1]");
             }
@@ -75,39 +77,40 @@ namespace Image
             else
             {
                 //In values between low_in and high_in                             
-                double[] In = new double[2] {low_in, high_in}; //low and high specifying the contrast limits 
-                             
+                double[] In = new double[2] { low_in, high_in }; //low and high specifying the contrast limits 
+
                 //make Out intensity to values between low_out and high_out
                 //Only positive values in range [0:1; 0:1]
                 //If high_out < low_out, the output image is reversed, as in a photographic negative.               
                 double[] Out = { 0, 1 }; //default value
                 double gamma = 1; //gamma defaults to 1 (linear mapping)
 
-                var Cont = inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+                var Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, Cont, Cont, Cont);
+                image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLim.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
 
         //low_in & high_in Adjust the grayscale image, specifying the contrast limits at input
         //low_out & high_out make Out intensity to values between low_out and high_out
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out)
+        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var GrayC = ColorList[0].c;
+            var ColorList = Helpers.GetPixels(img);
+            var GrayC = ColorList[0].Color;
             string outName = String.Empty;
 
-            if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0 || 
+            if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0 ||
                 low_out > 1 || high_out > 1 || low_out < 0 || high_out < 0)
             {
                 Console.WriteLine("low_in and high_in limits must be in range [0:1] \n" +
@@ -121,34 +124,35 @@ namespace Image
             {
                 //In values between low_in and high_in                             
                 double[] In = new double[2] { low_in, high_in }; //low and high specifying the contrast limits
-                
+
                 //If high_out < low_out, the output image is reversed, as in a photographic negative. 
                 //Only positive values in range [0:1; 0:1]
                 double[] Out = new double[2] { low_out, high_out };
                 double gamma = 1; //gamma defaults to 1 (linear mapping)
 
-                var Cont = inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+                var Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, Cont, Cont, Cont);
+                image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLim.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
 
         //low & high Adjust the grayscale image, specifying the contrast limits.
         //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double gamma)
+        public static void ContrastBW(Bitmap img, double low_in, double high_in, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var GrayC = ColorList[0].c;
+            var ColorList = Helpers.GetPixels(img);
+            var GrayC = ColorList[0].Color;
             string outName = String.Empty;
 
             if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0)
@@ -169,29 +173,30 @@ namespace Image
                 //If high_out < low_out, the output image is reversed, as in a photographic negative.                
                 double[] Out = { 0, 1 }; //default value   
 
-                var Cont = inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+                var Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, Cont, Cont, Cont);
+                image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLimGam.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
 
         //low_in & high_in Adjust the grayscale image, specifying the contrast limits at input
         //low_out & high_out make Out intensity to values between low_out and high_out
         //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma)
+        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var GrayC = ColorList[0].c;
+            var ColorList = Helpers.GetPixels(img);
+            var GrayC = ColorList[0].Color;
             string outName = String.Empty;
 
             if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0 ||
@@ -211,34 +216,36 @@ namespace Image
 
                 //Only positive values in range [0:1; 0:1]
                 //If high_out < low_out, the output image is reversed, as in a photographic negative.               
-                double[] Out = new double[2] { low_out, high_out };             
+                double[] Out = new double[2] { low_out, high_out };
 
-                var Cont = inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+                var Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, Cont, Cont, Cont);
+                image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLimGam.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
-        
+
         #endregion Contrast_BW
 
-        
+
         #region Contrast_RGB
-        public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in)
+        //low_in & high_in specifying the contrast limits at input for each color component        
+        public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1)
@@ -254,40 +261,43 @@ namespace Image
                 //low and high specifying the contrast limits                              
                 double[] InRc = new double[2] { Rc_low_in, Rc_high_in };
                 double[] InGc = new double[2] { Gc_low_in, Gc_high_in };
-                double[] InBc = new double[2] { Bc_low_in, Bc_high_in }; 
+                double[] InBc = new double[2] { Bc_low_in, Bc_high_in };
 
                 //make Out intensity to values between low_out and high_out
                 //Only positive values in range [0:1; 0:1]
                 //If high_out < low_out, the output image is reversed, as in a photographic negative.                
                 double[] Out = { 0, 1 }; //default value
                 double gamma = 1; //gamma defaults to 1 (linear mapping)
-                
+
                 //Look up table
-                var ContRc = inlut(Rc, CountLut(InRc, Out, gamma));  //Convert integer values using lookup table
-                var ContGc = inlut(Gc, CountLut(InGc, Out, gamma));  //Convert integer values using lookup table
-                var ContBc = inlut(Bc, CountLut(InBc, Out, gamma));  //Convert integer values using lookup table
+                var ContRc = Inlut(Rc, CountLut(InRc, Out, gamma));  //Convert integer values using lookup table
+                var ContGc = Inlut(Gc, CountLut(InGc, Out, gamma));  //Convert integer values using lookup table
+                var ContBc = Inlut(Bc, CountLut(InBc, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, ContRc, ContGc, ContBc);
+                image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLim.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         } //double [] L_in, double [] H_in
 
+        //low_in & high_in specifying the contrast limits at input for each color component
+        //low_out & high_out make Out intensity to values between low_out and high_out for each color component
         public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in,
-            double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out)
+            double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1
@@ -317,30 +327,33 @@ namespace Image
                 double gamma = 1; //gamma defaults to 1 (linear mapping)
 
                 //Look up table
-                var ContRc = inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
-                var ContGc = inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
-                var ContBc = inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
+                var ContRc = Inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
+                var ContGc = Inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
+                var ContBc = Inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, ContRc, ContGc, ContBc);
+                image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLim.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }  //double [,] Lh_in, double [,] Lh_out
 
-        public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in, double gamma)
+        //low_in & high_in specifying the contrast limits at input for each color component    
+        //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
+        public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1)
@@ -364,31 +377,35 @@ namespace Image
                 double[] Out = { 0, 1 }; //default value              
 
                 //Look up table
-                var ContRc = inlut(Rc, CountLut(RcIn, Out, gamma));  //Convert integer values using lookup table
-                var ContGc = inlut(Gc, CountLut(GcIn, Out, gamma));  //Convert integer values using lookup table
-                var ContBc = inlut(Bc, CountLut(BcIn, Out, gamma));  //Convert integer values using lookup table
+                var ContRc = Inlut(Rc, CountLut(RcIn, Out, gamma));  //Convert integer values using lookup table
+                var ContGc = Inlut(Gc, CountLut(GcIn, Out, gamma));  //Convert integer values using lookup table
+                var ContBc = Inlut(Bc, CountLut(BcIn, Out, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, ContRc, ContGc, ContBc);
+                image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLimGam.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         } //double [] L_in, double [] H_in
 
+        //low_in & high_in specifying the contrast limits at input for each color component
+        //low_out & high_out make Out intensity to values between low_out and high_out for each color component
+        //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
         public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in,
-            double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, double gamma)
+            double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
-            int width  = img.Width;
+            int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.getPixels(img);
-            var Rc = ColorList[0].c;
-            var Gc = ColorList[1].c;
-            var Bc = ColorList[2].c;
+            var ColorList = Helpers.GetPixels(img);
+            var Rc = ColorList[0].Color;
+            var Gc = ColorList[1].Color;
+            var Bc = ColorList[2].Color;
             string outName = String.Empty;
 
             if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1
@@ -413,45 +430,46 @@ namespace Image
                 //low and high specifying the Out contrast limits                              
                 double[] RcOut = new double[2] { Rc_low_out, Rc_high_out };
                 double[] GcOut = new double[2] { Gc_low_out, Gc_high_out };
-                double[] BcOut = new double[2] { Bc_low_out, Bc_high_out };           
+                double[] BcOut = new double[2] { Bc_low_out, Bc_high_out };
 
                 //Look up table
-                var ContRc = inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
-                var ContGc = inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
-                var ContBc = inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
+                var ContRc = Inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
+                var ContGc = Inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
+                var ContBc = Inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
 
-                image = Helpers.setPixels(image, ContRc, ContGc, ContBc);
+                image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLimGam.jpg";
+                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
-                image.Save(outName);
+                //image.Save(outName);
+                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         } //double [,] Lh_in, double [,] Lh_out
         #endregion Contrast_RGB
 
 
-        //Find limits to contrast stretch an image\\
+        //Find limits to contrast stretch an image\\ Using for default BW contrast
         //IntensityProcent - intensity in % pixels saturated at low and high intensities of image
-        public static double[] stretchlims(int[,] Gc, double IntensityProcent)
+        public static double[] Stretchlims(int[,] Gc, double IntensityProcent)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             double[] ImLH = new double[2]; //contatin a pair of gray values, which represent image low & high limits to contrast stretch an image
-            double[] tol  = new double[2]; //tol saturates equal fractions at low and high pixel values
+            double[] tol = new double[2]; //tol saturates equal fractions at low and high pixel values
 
-            if(IntensityProcent == 0.01)
+            if (IntensityProcent == 0.01)
             {
-                tol[0] =  .01; //default
-                tol[1] =  .99; //default
+                tol[0] = .01; //default
+                tol[1] = .99; //default
             }
             else
             {
-                tol[0] =  IntensityProcent;
-                tol[1] =  1 - IntensityProcent ;                
+                tol[0] = IntensityProcent;
+                tol[1] = 1 - IntensityProcent;
             }
 
             if (tol[0] < tol[1]) // tol[0] - low, tol[1] - high
             {
-                var ImHist = imHist(Gc); //obtain img histohram
+                var ImHist = Contrast.ImHist(Gc); //obtain img histohram
 
                 int[] CumulativeSum = new int[256];
                 //CumulativeSum[0] = ImHist[0];
@@ -464,12 +482,12 @@ namespace Image
                     else
                     {
                         CumulativeSum[i] = ImHist[i] + CumulativeSum[i - 1];
-                    } 
+                    }
                 }
 
                 //cumulative distribution function
-                var cdf   = ArrOp.VectorDivByConst(ArrOp.VectorToDouble(CumulativeSum), ImHist.Sum());
-                var ilow  = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
+                var cdf = ArrOp.VectorDivByConst(ArrOp.VectorToDouble(CumulativeSum), ImHist.Sum());
+                var ilow = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
                 var ihigh = Array.IndexOf(cdf, cdf.First(x => x >= tol[1])); //index first high
 
                 if (ilow == ihigh) //this could happen if img is flat
@@ -490,16 +508,16 @@ namespace Image
         }
 
         //if want for use for RGB image, input Rc, Gc, Bc args
-        public static double[] stretchlims(int[,] Gc, double low, double high)
+        public static double[] Stretchlims(int[,] Gc, double low, double high)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             double[] ImLH = new double[2];
 
-            double[] tol = { low, high };            
+            double[] tol = { low, high };
 
             if (tol[0] < tol[1]) // tol[0] - low, tol[1] - high
             {
-                var ImHist = imHist(Gc); //obtain img histohram
+                var ImHist = Contrast.ImHist(Gc); //obtain img histohram
 
                 int[] CumulativeSum = new int[256];
                 //CumulativeSum[0] = ImHist[0];
@@ -512,12 +530,12 @@ namespace Image
                     else
                     {
                         CumulativeSum[i] = ImHist[i] + CumulativeSum[i - 1];
-                    } 
+                    }
                 }
 
                 //cumulative distribution function
-                var cdf   = ArrOp.VectorDivByConst(ArrOp.VectorToDouble(CumulativeSum), ImHist.Sum());
-                var ilow  = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
+                var cdf = ArrOp.VectorDivByConst(ArrOp.VectorToDouble(CumulativeSum), ImHist.Sum());
+                var ilow = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
                 var ihigh = Array.IndexOf(cdf, cdf.First(x => x >= tol[1])); //index first high
 
                 if (ilow == ihigh) //this could happen if img is flat
@@ -540,7 +558,7 @@ namespace Image
 
         //image histogram (for BW or RC\GC\Bc)
         //only for uint8 images realization
-        public static int[] imHist(int[,] Im) //imHist(int[,] Im, n) where n - uint size. 8 - 256, 16 - 65536
+        public static int[] ImHist(int[,] Im) //imHist(int[,] Im, n) where n - uint size. 8 - 256, 16 - 65536
         {
             int[] tempData = Im.Cast<int>().ToArray();
             int[] imHistResult = new int[256];
@@ -583,7 +601,7 @@ namespace Image
 
             double[] Lut = new double[256];
 
-            if(Out[0] == 0 && Out[1] == 1) //if out [0 1]
+            if (Out[0] == 0 && Out[1] == 1) //if out [0 1]
             {
                 //(arr - low_in) ./ (high_in - low_in)) .^ gamma
                 Lut = ArrOp.PowVectorElements(ArrOp.VectorDivByConst(ArrOp.VectorSubConst(temp, In[0]), In[1] - In[0]), gamma);
@@ -613,11 +631,11 @@ namespace Image
                 double[] partOne = new double[256];
                 for (int i = 0; i < partOne.Length; i++)
                 {
-                    if(temp[i] < In[0])
+                    if (temp[i] < In[0])
                     {
                         partOne[i] = Out[0];
                     }
-                    else { partOne[i] = 0; }                
+                    else { partOne[i] = 0; }
                 }
 
                 //arr >= low_in & arr < high_in
@@ -635,17 +653,17 @@ namespace Image
                 double[] partThree = new double[256];
                 for (int i = 0; i < partThree.Length; i++)
                 {
-                    if(temp[i] >= In[1])
+                    if (temp[i] >= In[1])
                     {
                         partThree[i] = Out[1];
                     }
-                    else { partThree[i] = 0; }                
+                    else { partThree[i] = 0; }
                 }
 
                 //  1) = (arr < low_in) .* low_out
                 //  2) = (1) + (arr >= low_in & arr < high_in) .* (low_out + (high_out - low_out) .* ((arr - low_in) ./ (high_in - low_in)) .^ gamma)
                 //  3) = (2) + (arr >= hign_in) .* high_out
-                
+
                 Lut = ArrOp.PowVectorElements(ArrOp.VectorDivByConst(ArrOp.VectorSubConst(temp, In[0]), (In[1] - In[0])), gamma);
                 Lut = ArrOp.VectorSumConst(ArrOp.VectorMultByConst(Lut, (Out[1] - Out[0])), Out[0]);
 
@@ -656,14 +674,14 @@ namespace Image
                 //sum with (arr >= hign_in) .* high_out
                 Lut = ArrOp.SumVectors(Lut, partThree);
             }
-            
+
 
             return Lut;
         }
 
 
         //redefine array using look up table 
-        public static int[,] inlut(int[,] im, double[] lut) 
+        public static int[,] Inlut(int[,] im, double[] lut)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             int[,] lutResult = new int[im.GetLength(0), im.GetLength(1)];
@@ -680,7 +698,7 @@ namespace Image
                     else
                     {
                         lutResult[i, j] = luts[im[i, j] + 1];
-                    }                    
+                    }
                 }
             }
 
