@@ -16,9 +16,10 @@ namespace Image
 
         #region Contrast_BW
         //default BW contrast low and high intensities of image in 1% of image
-        public static void ContrastBW(Bitmap img, string ImgExtension)
+        public static void ContrastBlackWhite(Bitmap img, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -46,7 +47,7 @@ namespace Image
 
             image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastDefault" + ImgExtension;
+            outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastDefault" + ImgExtension;
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
             //image.Save(outName);
@@ -54,9 +55,10 @@ namespace Image
         }
 
         //low & high Adjust the grayscale image, specifying the contrast limits
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, string ImgExtension)
+        public static void ContrastBlackWhite(Bitmap img, double low_in, double high_in, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -89,7 +91,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLim" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastInLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -98,9 +100,10 @@ namespace Image
 
         //low_in & high_in Adjust the grayscale image, specifying the contrast limits at input
         //low_out & high_out make Out intensity to values between low_out and high_out
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out, string ImgExtension)
+        public static void ContrastBlackWhite(Bitmap img, double low_in, double high_in, double low_out, double high_out, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -134,7 +137,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLim" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastInOutLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -143,9 +146,10 @@ namespace Image
 
         //low & high Adjust the grayscale image, specifying the contrast limits.
         //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double gamma, string ImgExtension)
+        public static void ContrastBlackWhite(Bitmap img, double low_in, double high_in, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -177,7 +181,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInLimGam" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastInLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -187,9 +191,10 @@ namespace Image
         //low_in & high_in Adjust the grayscale image, specifying the contrast limits at input
         //low_out & high_out make Out intensity to values between low_out and high_out
         //GAMMA specifies the shape of the curve describing the relationship between the values in Input and Output Image
-        public static void ContrastBW(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma, string ImgExtension)
+        public static void ContrastBlackWhite(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -222,7 +227,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, Cont, Cont, Cont);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastInOutLimGam" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastInOutLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -237,6 +242,7 @@ namespace Image
         public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -276,7 +282,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLim" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastRGBInLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -289,6 +295,7 @@ namespace Image
             double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -333,7 +340,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLim" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastRGBInOutLim" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -345,6 +352,7 @@ namespace Image
         public static void ContrastRGB(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -383,7 +391,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInLimGam" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastRGBInLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
@@ -397,6 +405,7 @@ namespace Image
             double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, double gamma, string ImgExtension)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
 
             int width = img.Width;
             int height = img.Height;
@@ -439,7 +448,7 @@ namespace Image
 
                 image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
 
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\ContrastRGBInOutLimGam" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contrast\\ContrastRGBInOutLimGam" + ImgExtension;
                 //dont forget, that directory Rand must exist. Later add if not exist - creat
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);

@@ -11,7 +11,7 @@ namespace Image
 {
     public static class Segmentation
     {
-        public static void findLines(Bitmap img, lineDirection lineDir)
+        public static void FindLines(Bitmap img, LineDirection lineDir)
         {
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] lineRes = new int[img.Height, img.Width];
@@ -19,33 +19,33 @@ namespace Image
 
             var im = Helpers.RGBToGrayArray(img);
 
-            switch (lineDir.ToString())
+            switch (lineDir)
             {
-                case "horizontal":
+                case LineDirection.horizontal:
                     double[,] horisontalFilter = { { -1, -1, -1 }, { 2, 2, 2 }, { -1, -1, -1 } };
 
-                    lineRes = findLineHelper(im, horisontalFilter);
+                    lineRes = FindLineHelper(im, horisontalFilter);
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\HorisontalLine.jpg";
                     break;
 
-                case "vertical":
+                case LineDirection.vertical:
                     double[,] verticalFilter = { { -1, 2, -1 }, { -1, 2, -1 }, { -1, 2, -1 } };
 
-                    lineRes = findLineHelper(im, verticalFilter);
+                    lineRes = FindLineHelper(im, verticalFilter);
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\verticalLine.jpg";
                     break;
 
-                case "plus45":
+                case LineDirection.plus45:
                     double[,] plus45Filter = { { -1, -1, 2 }, { -1, 2, -1 }, { 2, -1, -1 } };
 
-                    lineRes = findLineHelper(im, plus45Filter);
+                    lineRes = FindLineHelper(im, plus45Filter);
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\plus45Line.jpg";
                     break;
 
-                case "minus45":
+                case LineDirection.minus45:
                     double[,] minus45Filter = { { 2, -1, -1 }, { -1, 2, -1 }, { -1, -1, 2 } };
 
-                    lineRes = findLineHelper(im, minus45Filter);
+                    lineRes = FindLineHelper(im, minus45Filter);
                     outName = Directory.GetCurrentDirectory() + "\\Rand\\minus45Line.jpg";
                     break;
             }
@@ -57,7 +57,7 @@ namespace Image
             image.Save(outName);
         }
 
-        public static int[,] findLineHelper(int[,] arr, double[,] filter)
+        public static int[,] FindLineHelper(int[,] arr, double[,] filter)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
@@ -86,8 +86,10 @@ namespace Image
 
         //
         //bad, very bad. worth
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var)
         {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -99,21 +101,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -121,15 +123,15 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            if (var.ToString() == "var1")
+            if (var == Edgevar.var1)
             {
-                result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both, "EdgeDefaultVar1_temp");
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar1.jpg";
+                result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both, "EdgeDefaultVar1_temp");
+                outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeDefaultVar1.jpg";
             }
             else
             {
-                result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both);
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar2.jpg";
+                result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both);
+                outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeDefaultVar2.jpg";
             }
 
             image = Helpers.SetPixels(image, result, result, result);
@@ -139,8 +141,10 @@ namespace Image
         }
 
         //if absolutelu black image - low the tresh value
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var, double tresh)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var, double tresh)
         {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -152,21 +156,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -174,15 +178,15 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            if (var.ToString() == "var1")
+            if (var == Edgevar.var1)
             {
-                result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both, "EdgeDefaultVar1_temp");
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar1.jpg";
+                result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both, "EdgeDefaultVar1_temp");
+                outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeDefaultVar1.jpg";
             }
             else
             {
-                result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both);
-                outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeDefaultVar2.jpg";
+                result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both);
+                outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeDefaultVar2.jpg";
             }
 
             image = Helpers.SetPixels(image, result, result, result);
@@ -191,8 +195,10 @@ namespace Image
             image.Save(outName);
         }
 
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var, edgeMethod method)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var, EdgeMethod method)
         {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -204,21 +210,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -226,49 +232,49 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            switch (method.ToString())
+            switch (method)
             {
-                case "Sobel":
+                case EdgeMethod.Sobel:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both, "EdgeSobelVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar1.jpg";
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both, "EdgeSobelVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar2.jpg";
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both);
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar2.jpg";
                     }
                     break;
 
-                case "Prewitt":
+                case EdgeMethod.Prewitt:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, edgeDirection.both, "EdgePrewittVar1_temp");
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, EdgeDirection.both, "EdgePrewittVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, edgeDirection.both);
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, EdgeDirection.both);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar2.jpg";
                     }
                     break;
 
-                case "Roberts":
+                case EdgeMethod.Roberts:
                     scale = 6;
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, edgeDirection.both, "EdgeRobertsVar1_temp");
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, EdgeDirection.both, "EdgeRobertsVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, edgeDirection.both);
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, EdgeDirection.both);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar2.jpg";
                     }
                     break;
@@ -281,8 +287,10 @@ namespace Image
         }
 
         //if absolutelu black image - low the tresh value
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var, edgeMethod method, double tresh)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var, EdgeMethod method, double tresh)
         {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -294,21 +302,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -316,49 +324,49 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            switch (method.ToString())
+            switch (method)
             {
-                case "Sobel":
+                case EdgeMethod.Sobel:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both, "EdgeSobelVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar1.jpg";
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both, "EdgeSobelVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, edgeDirection.both);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar2.jpg";
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both);
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar2.jpg";
                     }
                     break;
 
-                case "Prewitt":
+                case EdgeMethod.Prewitt:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, edgeDirection.both, "EdgePrewittVar1_temp");
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, EdgeDirection.both, "EdgePrewittVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, edgeDirection.both);
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, EdgeDirection.both);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar2.jpg";
                     }
                     break;
 
-                case "Roberts":
+                case EdgeMethod.Roberts:
                     scale = 6;
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, edgeDirection.both, "EdgeRobertsVar1_temp");
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, EdgeDirection.both, "EdgeRobertsVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, edgeDirection.both);
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, EdgeDirection.both);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar2.jpg";
                     }
                     break;
@@ -370,9 +378,11 @@ namespace Image
             image.Save(outName);
         }
 
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var, edgeMethod method, edgeDirection direction)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var, EdgeMethod method, EdgeDirection direction, string ImgExtension)
         {
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
+            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, img.PixelFormat);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
 
@@ -383,21 +393,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -405,50 +415,50 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            switch (method.ToString())
+            switch (method)
             {
-                case "Sobel":
+                case EdgeMethod.Sobel:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction, "EdgeSobelVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar1.jpg";
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction, "EdgeSobelVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar1" + ImgExtension;
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar2.jpg";
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction);
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar2" + ImgExtension;
                     }
                     break;
 
-                case "Prewitt":
+                case EdgeMethod.Prewitt:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction, "EdgePrewittVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar1.jpg";
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction, "EdgePrewittVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar1" + ImgExtension;
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar2.jpg";
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction);
+                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar2" + ImgExtension;
                     }
                     break;
 
-                case "Roberts":
+                case EdgeMethod.Roberts:
                     scale = 6;
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction, "EdgeRobertsVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar1.jpg";
+                        result = EdgeHelperv1(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction, "EdgeRobertsVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar1" + ImgExtension;
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar2.jpg";
+                        result = EdgeHelperv2(scale, im, 0, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction);
+                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar2" + ImgExtension;
                     }
                     break;
             }
@@ -456,12 +466,15 @@ namespace Image
             image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         //if absolutelu black image - low the tresh value
-        public static void Edge(Bitmap img, inEdge inIm, edgevar var, edgeMethod method, edgeDirection direction, double tresh)
+        public static void Edge(Bitmap img, InEdgeImage inIm, Edgevar var, EdgeMethod method, EdgeDirection direction, double tresh)
         {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -473,21 +486,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -495,49 +508,49 @@ namespace Image
                 { im = ColorList[0].Color; }
             }
 
-            switch (method.ToString())
+            switch (method)
             {
-                case "Sobel":
+                case EdgeMethod.Sobel:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction, "EdgeSobelVar1_temp");
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar1.jpg";
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction, "EdgeSobelVar1_temp");
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction);
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeSobelVar2.jpg";
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, direction);
+                        outName = Directory.GetCurrentDirectory() + "\\Segmentation\\EdgeSobelVar2.jpg";
                     }
                     break;
 
-                case "Prewitt":
+                case EdgeMethod.Prewitt:
                     scale = 4; // for calculating the automatic threshold
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction, "EdgePrewittVar1_temp");
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction, "EdgePrewittVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction);
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Prewitt"), Filter.Dx3FWindow("PrewittT"), 8, direction);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgePrewittVar2.jpg";
                     }
                     break;
 
-                case "Roberts":
+                case EdgeMethod.Roberts:
                     scale = 6;
 
-                    if (var.ToString() == "var1")
+                    if (var == Edgevar.var1)
                     {
-                        result = edgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction, "EdgeRobertsVar1_temp");
+                        result = EdgeHelperv1(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction, "EdgeRobertsVar1_temp");
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar1.jpg";
                     }
                     else
                     {
-                        result = edgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction);
+                        result = EdgeHelperv2(scale, im, tresh, Filter.Dx3FWindow("Roberts"), Filter.Dx3FWindow("RobertsT"), 2, direction);
                         outName = Directory.GetCurrentDirectory() + "\\Rand\\EdgeRobertsVar2.jpg";
                     }
                     break;
@@ -549,7 +562,7 @@ namespace Image
             image.Save(outName);
         }
 
-        public static int[,] edgeHelperv1(double scale, int[,] im, double Tresh, double[,] filter, double[,] filterT, double fdiv, edgeDirection direction, string tempName)
+        public static int[,] EdgeHelperv1(double scale, int[,] im, double Tresh, double[,] filter, double[,] filterT, double fdiv, EdgeDirection direction, string tempName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
 
@@ -564,11 +577,11 @@ namespace Image
             var by = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate));
 
             //compute the magnitude
-            if (direction.ToString() == "horizontal")
+            if (direction == EdgeDirection.horizontal)
             { b = ArrOp.Uint8Range(ArrOp.PowArrayElements(by, 2)); }
-            else if (direction.ToString() == "vertical")
+            else if (direction == EdgeDirection.vertical)
             { b = ArrOp.Uint8Range(ArrOp.PowArrayElements(bx, 2)); }
-            else if (direction.ToString() == "both")
+            else if (direction == EdgeDirection.both)
             {
                 b = ArrOp.Uint8Range(ArrOp.SumArrays(ArrOp.Uint8Range(ArrOp.PowArrayElements(bx, 2)), ArrOp.Uint8Range(ArrOp.PowArrayElements(by, 2))));
             }
@@ -605,7 +618,7 @@ namespace Image
             return result;
         }
 
-        public static int[,] edgeHelperv2(double scale, int[,] im, double Tresh, double[,] filter, double[,] filterT, double fdiv, edgeDirection direction)
+        public static int[,] EdgeHelperv2(double scale, int[,] im, double Tresh, double[,] filter, double[,] filterT, double fdiv, EdgeDirection direction)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             int[,] result = new int[im.GetLength(0), im.GetLength(1)];
@@ -619,11 +632,11 @@ namespace Image
             var by = Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
 
             //compute the magnitude
-            if (direction.ToString() == "horizontal")
+            if (direction == EdgeDirection.horizontal)
             { b = ArrOp.PowArrayElements(by, 2); }
-            else if (direction.ToString() == "vertical")
+            else if (direction == EdgeDirection.vertical)
             { b = ArrOp.PowArrayElements(bx, 2); }
-            else if (direction.ToString() == "both")
+            else if (direction == EdgeDirection.both)
             {
                 b = ArrOp.SumArrays(ArrOp.PowArrayElements(bx, 2), ArrOp.PowArrayElements(by, 2));
             }
@@ -659,9 +672,11 @@ namespace Image
         }
 
         //
-        public static void Graytresh(Bitmap img, inEdge inIm)
+        public static void Graytresh(Bitmap img, InEdgeImage inIm)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
+
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -671,21 +686,21 @@ namespace Image
             int[,] im = new int[img.Height, img.Width];
             var ColorList = Helpers.GetPixels(img);
 
-            if (inIm.ToString() == "BW8b")
+            if (inIm == InEdgeImage.BW8b)
             {
                 if (Depth != 8)
                 { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
                 else
                 { im = ColorList[0].Color; }
             }
-            else if (inIm.ToString() == "rgb")
+            else if (inIm == InEdgeImage.rgb)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not rgb"); }
                 else
                 { im = Helpers.RGBToGrayArray(img); }
             }
-            else if (inIm.ToString() == "BW24b")
+            else if (inIm == InEdgeImage.BW24b)
             {
                 if (Depth != 24)
                 { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
@@ -744,7 +759,7 @@ namespace Image
                 }
             }
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\GrayTresh.jpg";
+            outName = Directory.GetCurrentDirectory() + "\\Segmentation\\GrayTresh.jpg";
             image = Helpers.SetPixels(image, result, result, result);
 
             //dont forget, that directory Rand must exist. Later add if not exist - creat
@@ -752,7 +767,7 @@ namespace Image
         }
     }
 
-    public enum lineDirection
+    public enum LineDirection
     {
         horizontal,
         vertical,
@@ -760,27 +775,27 @@ namespace Image
         minus45
     }
 
-    public enum inEdge
+    public enum InEdgeImage
     {
         rgb,
         BW8b,
         BW24b
     }
 
-    public enum edgevar
+    public enum Edgevar
     {
         var1,
         var2
     }
 
-    public enum edgeMethod
+    public enum EdgeMethod
     {
         Sobel,
         Prewitt,
         Roberts
     }
 
-    public enum edgeDirection
+    public enum EdgeDirection
     {
         both,
         horizontal,

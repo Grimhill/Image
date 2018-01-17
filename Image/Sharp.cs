@@ -16,10 +16,9 @@ namespace Image
         public static void UnSharp(Bitmap img, UnSharpInColorSpace cSpace, FilterType filterType)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width = img.Width;
-            int height = img.Height;
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
@@ -27,70 +26,70 @@ namespace Image
 
             string outName = String.Empty;
 
-            switch (cSpace.ToString())
+            switch (cSpace)
             {
-                case "RGB":
+                case UnSharpInColorSpace.RGB:
                     Result.Add(new ArraysListInt() { Color = UnSharpHelperInt(ColorList[0].Color, filterType.ToString()) }); //R
                     Result.Add(new ArraysListInt() { Color = UnSharpHelperInt(ColorList[1].Color, filterType.ToString()) }); //G
                     Result.Add(new ArraysListInt() { Color = UnSharpHelperInt(ColorList[2].Color, filterType.ToString()) }); //B             
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpRGB" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpRGB" + filterType.ToString() + ".jpg";
                     break;
 
-                case "HSVi":
-                    var hsvi = ColorSpace.rgb2hsv(img);
+                case UnSharpInColorSpace.HSVi:
+                    var hsvi = ColorSpace.RGB2HSV(img);
 
                     var hsvi_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(hsvi[2].Color, 100)), filterType.ToString());
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.hsv2rgb(hsvi[0].Color, hsvi[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(hsvi_temp), 100), 1));
+                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(hsvi_temp), 100), 1));
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpHSVi" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpHSVi" + filterType.ToString() + ".jpg";
                     break;
 
-                case "HSVd":
-                    var hsvd = ColorSpace.rgb2hsv(img);
+                case UnSharpInColorSpace.HSVd:
+                    var hsvd = ColorSpace.RGB2HSV(img);
 
                     var hsvd_temp = UnSharpHelperDouble(ArrOp.ArrayMultByConst(hsvd[2].Color, 100), filterType.ToString()); //can with out mult, coz using double
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.hsv2rgb(hsvd[0].Color, hsvd[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(hsvd_temp, 100), 1)); //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(hsvd_temp, 100), 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpHSVd" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpHSVd" + filterType.ToString() + ".jpg";
                     break;
 
-                case "Labi":
-                    var labi = ColorSpace.rgb2lab(img);
+                case UnSharpInColorSpace.Labi:
+                    var labi = ColorSpace.RGB2Lab(img);
 
                     var labi_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(labi[0].Color), filterType.ToString());
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ArrayToDouble(labi_temp), labi[1].Color, labi[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayToDouble(labi_temp), labi[1].Color, labi[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpLabi" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpLabi" + filterType.ToString() + ".jpg";
                     break;
 
-                case "Labd":
-                    var labd = ColorSpace.rgb2lab(img);
+                case UnSharpInColorSpace.Labd:
+                    var labd = ColorSpace.RGB2Lab(img);
 
                     var labd_temp = UnSharpHelperDouble(labd[0].Color, filterType.ToString());
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ToBorderGreaterZero(labd_temp, 255), labd[1].Color, labd[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(labd_temp, 255), labd[1].Color, labd[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpLabd" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpLabd" + filterType.ToString() + ".jpg";
                     break;
 
-                case "fakeCIE1976L":
+                case UnSharpInColorSpace.fakeCIE1976L:
 
-                    var fakeCIE1976L = ColorSpace.rgb2lab(img);
+                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
 
                     var fakeCIE1976L_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57)), filterType.ToString());
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\unSharpfakeCIE1976L" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpfakeCIE1976L" + filterType.ToString() + ".jpg";
 
                     break;
             }
@@ -142,10 +141,9 @@ namespace Image
         public static void Smooth(Bitmap img, SmoothFilterWindow filWindow, SmoothInColorSpace cSpace)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width = img.Width;
-            int height = img.Height;
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
@@ -154,7 +152,7 @@ namespace Image
             double[,] filter;
             string outName = String.Empty;
 
-            if (filWindow.ToString() == "window2")
+            if (filWindow == SmoothFilterWindow.window2x2)
             {
                 filter = Filter.Fspecial(2, 2, "average"); //default 3x3, still problem with filter more than
             }
@@ -163,48 +161,48 @@ namespace Image
                 filter = Filter.Fspecial(3, 3, "average"); //default 3x3, still problem with filter more than
             }
 
-            switch (cSpace.ToString())
+            switch (cSpace)
             {
-                case "RGB":
+                case SmoothInColorSpace.RGB:
                     Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[0].Color), filter, PadType.replicate)) });
                     Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[1].Color), filter, PadType.replicate)) });
                     Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[2].Color), filter, PadType.replicate)) });
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\SmoothRGB.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothRGB.jpg";
                     break;
 
-                case "HSV":
-                    var hsv = ColorSpace.rgb2hsv(img);
+                case SmoothInColorSpace.HSV:
+                    var hsv = ColorSpace.RGB2HSV(img);
 
                     var hsv_temp = Filter.Filter_double(hsv[2].Color, filter, PadType.replicate);
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.hsv2rgb(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(hsv_temp, 1)); //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(hsv_temp, 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\SmoothHSV.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothHSV.jpg";
                     break;
 
-                case "Lab":
-                    var lab = ColorSpace.rgb2lab(img);
+                case SmoothInColorSpace.Lab:
+                    var lab = ColorSpace.RGB2Lab(img);
 
                     var lab_temp = Filter.Filter_double(lab[0].Color, filter, PadType.replicate);
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ToBorderGreaterZero(lab_temp, 255), lab[1].Color, lab[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(lab_temp, 255), lab[1].Color, lab[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\SmoothLab.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothLab.jpg";
                     break;
 
-                case "fakeCIE1976L":
+                case SmoothInColorSpace.fakeCIE1976L:
 
-                    var fakeCIE1976L = ColorSpace.rgb2lab(img);
+                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
 
                     var fakeCIE1976L_temp = Filter.Filter_double(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57), filter, PadType.replicate);
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ArrayDivByConst(fakeCIE1976L_temp, 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(fakeCIE1976L_temp, 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\SmoothfakeCIE1976L.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothfakeCIE1976L.jpg";
 
                     break;
             }
@@ -224,58 +222,57 @@ namespace Image
         public static void Hist(Bitmap img, HisteqColorSpace cSpace)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width = img.Width;
-            int height = img.Height;
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListInt> Result = new List<ArraysListInt>();
             string outName = String.Empty;
 
-            switch (cSpace.ToString())
+            switch (cSpace)
             {
-                case "RGB":
+                case HisteqColorSpace.RGB:
                     Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[0].Color) });
                     Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[1].Color) });
                     Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[2].Color) });
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\HisteqRGB.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqRGB.jpg";
                     break;
 
-                case "HSV":
-                    var hsv = ColorSpace.rgb2hsv(img);
+                case HisteqColorSpace.HSV:
+                    var hsv = ColorSpace.RGB2HSV(img);
 
                     var hsv_temp = HisteqHelper(ArrOp.ImageArrayToUint8(hsv[2].Color));
 
                     //Filter by V - Value (Brightness/яркость)                 
-                    Result = ColorSpace.hsv2rgb(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ImageUint8ToDouble(hsv_temp), 1)); //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ImageUint8ToDouble(hsv_temp), 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\HisteqHSV.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqHSV.jpg";
                     break;
 
-                case "Lab":
-                    var lab = ColorSpace.rgb2lab(img);
+                case HisteqColorSpace.Lab:
+                    var lab = ColorSpace.RGB2Lab(img);
 
                     var lab_temp = HisteqHelper(ArrOp.ArrayToUint8(lab[0].Color));
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ToBorderGreaterZero(ArrOp.ArrayToDouble(lab_temp), 255), lab[1].Color, lab[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(ArrOp.ArrayToDouble(lab_temp), 255), lab[1].Color, lab[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\HisteqLab.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqLab.jpg";
                     break;
 
-                case "fakeCIE1976L":
+                case HisteqColorSpace.fakeCIE1976L:
 
-                    var fakeCIE1976L = ColorSpace.rgb2lab(img);
+                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
 
                     var fakeCIE1976L_temp = HisteqHelper(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57)));
 
                     //Filter by L - lightness
-                    Result = ColorSpace.lab2rgb(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\HisteqfakeCIE1976L.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqfakeCIE1976L.jpg";
 
                     break;
             }
@@ -498,8 +495,8 @@ namespace Image
 
     public enum SmoothFilterWindow
     {
-        window2,
-        window3
+        window2x2,
+        window3x3
     }
 
     public enum HisteqColorSpace

@@ -1,31 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //padArray operations
 namespace Image
 {
-    public class padMyArray <T>
+    public class PadMyArray<T>
     {
         //padR and padC both cant be 0 in one time, coz there is no sence 
         //call
         //padMyArray<double> padArr;
         //padArr = new padMyArray<double>();
-       
-        public T[,] padArrayByNum(T[,] arr, int padR, int padC, int num, Direction direction)
+
+        public T[,] PadArrayByNum(T[,] arr, int padR, int padC, int num, Direction direction)
         {
-            int width  = arr.GetLength(1);
+            int width = arr.GetLength(1);
             int height = arr.GetLength(0);
 
-            List<T> arrlits    = arr.Cast<T>().ToList();
-            List<T> temp       = new List<T>();
+            List<T> arrlits = arr.Cast<T>().ToList();
+            List<T> temp = new List<T>();
             List<T> newarrList = new List<T>();
-            List<T> numRepeat  = new List<T>();
+            List<T> numRepeat = new List<T>();
 
             T[,] prePost = new T[height + padR, width + padC];
-            T[,] Both    = new T[height + 2 * padR, width + 2 * padC];
+            T[,] Both = new T[height + 2 * padR, width + 2 * padC];
             T[,] result;
 
             switch (direction.ToString())
@@ -241,17 +239,17 @@ namespace Image
             return result;
         }
 
-        public T[,] padArray(T[,] arr, int padR, int padC) //pad array by zeros both
+        public T[,] PadArray(T[,] arr, int padR, int padC) //pad array by zeros both
         {
             //default direction = both
             //default type = pad by zeros
 
-            int width  = arr.GetLength(1);
+            int width = arr.GetLength(1);
             int height = arr.GetLength(0);
 
-            List<T> arrlits    = arr.Cast<T>().ToList();
-            List<T> temp       = new List<T>();
-            List<T> newarrList = new List<T>();           
+            List<T> arrlits = arr.Cast<T>().ToList();
+            List<T> temp = new List<T>();
+            List<T> newarrList = new List<T>();
 
             T[,] result = new T[height + 2 * padR, width + 2 * padC];
 
@@ -342,18 +340,18 @@ namespace Image
 
             return result;
         }
-      
+
         //
         /*public T[,] padArray(T[,] arr, int padR, int padC, string type)
         {
             //default direction - both            
         }*/
 
-        public T[,] padArray(T[,] arr, int padR, int padC, PadType padType, Direction direct) //BDSM array function
+        public T[,] PadArray(T[,] arr, int padR, int padC, PadType padType, Direction direct) //BDSM array function
         {
             //type - symmetric, replicate, zeros
             //direction - pre, post, both
-            int width  = arr.GetLength(1);
+            int width = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             //padding helpers
@@ -364,10 +362,10 @@ namespace Image
 
             //pre & post
             T[,] temp_cols = new T[height, width + padC]; //temp for cols
-            T[,] temp      = new T[temp_cols.GetLength(0) + padR, temp_cols.GetLength(1)];
+            T[,] temp = new T[temp_cols.GetLength(0) + padR, temp_cols.GetLength(1)];
             //both
             T[,] temp_colsBoth = new T[height, width + 2 * padC]; //temp for cols   
-            T[,] tempBoth      = new T[temp_colsBoth.GetLength(0) + 2 * padR, temp_colsBoth.GetLength(1)];
+            T[,] tempBoth = new T[temp_colsBoth.GetLength(0) + 2 * padR, temp_colsBoth.GetLength(1)];
 
             T[,] result;
             string type = padType.ToString();
@@ -385,7 +383,7 @@ namespace Image
                     case "pre": //add left and\or top border\mirror\circular\zeros
                         if (padR == 0) //add left border\mirror\circular\zeros cols
                         {
-                            switch(type)
+                            switch (type)
                             {
                                 case "replicate":
                                     //obtain left image border
@@ -428,10 +426,10 @@ namespace Image
                                     //left zeros
                                     b_l = new List<T>(new T[height]);
                                     break;
-                                default:                                    
+                                default:
                                     b_l = new List<T>(new T[height]);
                                     break;
-                            } 
+                            }
 
                             var l_mc = 0;
                             //add left border\mirror\circular\zeros cols
@@ -446,7 +444,7 @@ namespace Image
                                         if (type == "symmetric" || type == "circular" || type == "circmirror")
                                         {
                                             l_mc = l_mc + height;
-                                        }                         
+                                        }
                                     }
                                     else
                                     {
@@ -502,10 +500,10 @@ namespace Image
                                     //top zeros
                                     b_t = new List<T>(new T[width]);
                                     break;
-                                default:                                   
+                                default:
                                     b_t = new List<T>(new T[width]);
                                     break;
-                            }           
+                            }
 
                             var t_mr = 0;
                             //add top top border\mirror\circular\zeros rows
@@ -574,10 +572,10 @@ namespace Image
                                     //left zeros
                                     b_l = new List<T>(new T[height]);
                                     break;
-                                default:                                   
+                                default:
                                     b_l = new List<T>(new T[height]);
                                     break;
-                            }                            
+                            }
 
                             var l_mc = 0;
                             //add left border\mirror\zeros cols
@@ -608,7 +606,7 @@ namespace Image
                                     for (int k = 0; k < width + padC; k++)
                                     {
                                         b_t.Add(temp_cols[0, k]);
-                                    }                           
+                                    }
                                     break;
                                 case "symmetric":
                                     //obtain top rows for mirror
@@ -647,7 +645,7 @@ namespace Image
                                 default:
                                     b_t = new List<T>(new T[width + padC]);
                                     break;
-                            }                            
+                            }
 
                             var t_mr = 0;
                             //add top border\mirror\circular\zeros rows
@@ -670,7 +668,7 @@ namespace Image
                                     t_mr = 0;
                                 }
                             }
-                        }                                                
+                        }
                         break;
 
                     case "post":  //add right and\or bot border\mirror\circular\zeros                            
@@ -719,10 +717,10 @@ namespace Image
                                     //right zeros
                                     b_r = new List<T>(new T[height]);
                                     break;
-                                default:                                   
+                                default:
                                     b_r = new List<T>(new T[height]);
                                     break;
-                            }              
+                            }
 
                             var r_mc = 0;
                             //add right border\mirror\zeros cols
@@ -793,10 +791,10 @@ namespace Image
                                     //bot zeros
                                     b_b = new List<T>(new T[width]);
                                     break;
-                                default:                                  
+                                default:
                                     b_b = new List<T>(new T[width]);
                                     break;
-                            }                  
+                            }
 
                             var b_mr = 0;
                             //add bot border\mirror\circular\zeros rows
@@ -865,7 +863,7 @@ namespace Image
                                     //right zeros
                                     b_r = new List<T>(new T[height]);
                                     break;
-                                default:                                 
+                                default:
                                     b_r = new List<T>(new T[height]);
                                     break;
                             }
@@ -935,7 +933,7 @@ namespace Image
                                     //bot zeros
                                     b_b = new List<T>(new T[width + padC]);
                                     break;
-                                default:                                  
+                                default:
                                     b_b = new List<T>(new T[width + padC]);
                                     break;
                             }
@@ -961,7 +959,7 @@ namespace Image
                                     b_mr = 0;
                                 }
                             }
-                        }                                               
+                        }
                         break;
 
                     case "both":  //add right, left and\or top, bot border\mirror\circular\zeros 
@@ -1046,9 +1044,9 @@ namespace Image
                                     //right zeros
                                     b_r = new List<T>(new T[height]);
                                     break;
-                                default:                                  
+                                default:
                                     b_l = new List<T>(new T[height]);
-                                   
+
                                     b_r = new List<T>(new T[height]);
                                     break;
                             }
@@ -1168,9 +1166,9 @@ namespace Image
                                     //bot zeros
                                     b_b = new List<T>(new T[width]);
                                     break;
-                                default:                               
+                                default:
                                     b_t = new List<T>(new T[width]);
-                               
+
                                     b_b = new List<T>(new T[width]);
                                     break;
                             }
@@ -1285,9 +1283,9 @@ namespace Image
                                     //right zeros
                                     b_r = new List<T>(new T[height]);
                                     break;
-                                default:                                  
+                                default:
                                     b_l = new List<T>(new T[height]);
-                                 
+
                                     b_r = new List<T>(new T[height]);
                                     break;
                             }
@@ -1403,12 +1401,12 @@ namespace Image
                                     //bot zeros
                                     b_b = new List<T>(new T[width + 2 * padC]);
                                     break;
-                                default:                                   
+                                default:
                                     b_t = new List<T>(new T[width + 2 * padC]);
 
                                     b_b = new List<T>(new T[width + 2 * padC]);
                                     break;
-                            }            
+                            }
 
                             var t_mr = 0;
                             var b_mr = 0;
@@ -1438,20 +1436,20 @@ namespace Image
                                     b_mr = 0;
                                 }
                             }
-                        }                                                
+                        }
                         break;
                     default:
                         result = arr;
                         break;
-                }                
+                }
             }
             if (direction == "both")
             { result = tempBoth; }
-            else if(direction == "pre" || direction == "post"){ result = temp; }
+            else if (direction == "pre" || direction == "post") { result = temp; }
             else { result = arr; }
 
             return result;
-        }  
+        }
     }
 
     public enum PadType

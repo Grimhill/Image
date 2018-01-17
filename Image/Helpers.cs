@@ -100,7 +100,7 @@ namespace Image
                 case "png":
                     imageFormat = ImageFormat.Png;
                     break;
-                case "tiff":
+                case "tif":
                     imageFormat = ImageFormat.Tiff;
                     break;
                 case "gif":
@@ -112,21 +112,6 @@ namespace Image
             }
 
             image.Save(name, imageFormat);
-        }
-        public static List<string> AvailableFormats = new List<string>() { ".jpg", ".jpeg", ".bmp", ".png", ".tiff", ".gif" };
-        public static bool CheckForInputFormat(string ImgExtension)
-        {
-            if (!AvailableFormats.Contains(ImgExtension))
-            {
-                Console.WriteLine("Unsupport image format (extension. Support: jpg, jpeg, bmp, png, tiff, gif (only first picture for animation)");
-                return false;
-            }
-            else if (ImgExtension == ".gif")
-            {
-                Console.WriteLine("Worning! For gif animation take only first picture");
-                return true;
-            }
-            return true;
         }
 
         //dont know what doing wrong and alpha didnt work correctly
@@ -180,7 +165,7 @@ namespace Image
         //some bad
         #region obtain image in binary view for some operations
         //Look SomeLittle -> ImageTo1Bpp to obtain binary image with write to file
-        public static int[,] Image2Binary(Bitmap img, inEdge inIm)
+        public static int[,] Image2Binary(Bitmap img, InEdgeImage inIm)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format1bppIndexed);
@@ -233,7 +218,7 @@ namespace Image
             return result;
         }
 
-        public static int[,] Image2Binary(Bitmap img, double level, inEdge inIm)
+        public static int[,] Image2Binary(Bitmap img, double level, InEdgeImage inIm)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format1bppIndexed);

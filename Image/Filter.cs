@@ -22,17 +22,17 @@ namespace Image
             //padarray or not, here we save  
             double[,] temp;
 
-            padMyArray<double> padArr;
-            padArr = new padMyArray<double>();
+            PadMyArray<double> padArr;
+            padArr = new PadMyArray<double>();
 
             if (padType.ToString() == "replicate")
             {
-                temp = padArr.padArray(arr, 1, 1, PadType.replicate, Direction.both);
+                temp = padArr.PadArray(arr, 1, 1, PadType.replicate, Direction.both);
             }
             else
             {
                 //Symmetric? why not, coz 1 row and col, lul
-                temp = padArr.padArray(arr, 1, 1, PadType.symmetric, Direction.both);
+                temp = padArr.PadArray(arr, 1, 1, PadType.symmetric, Direction.both);
             }
 
             double[,] result = new double[height, width];
@@ -112,6 +112,7 @@ namespace Image
             return result;
         }
 
+        //shotter double
         public static double[,] Filter_double(int[,] arr, string filterType)
         {
             ArrayOperations ArrOp = new ArrayOperations();
@@ -128,17 +129,17 @@ namespace Image
             //padarray or not, here we save         
             int[,] temp;
 
-            padMyArray<int> padArr;
-            padArr = new padMyArray<int>();
+            PadMyArray<int> padArr;
+            padArr = new PadMyArray<int>();
 
             if (padType.ToString() == "replicate")
             {
-                temp = padArr.padArray(arr, 1, 1, padType, Direction.both);
+                temp = padArr.PadArray(arr, 1, 1, padType, Direction.both);
             }
             else
             {
                 //Symmetric? why not, coz 1 row and col, lul
-                temp = padArr.padArray(arr, 1, 1, PadType.symmetric, Direction.both);
+                temp = padArr.PadArray(arr, 1, 1, PadType.symmetric, Direction.both);
             }
 
             int[,] result = new int[height, width];
@@ -222,6 +223,13 @@ namespace Image
             }
 
             return result;
+        }
+
+        //shotter int
+        public static int[,] Filter_int(int[,] arr, string filterType)
+        {
+            ArrayOperations ArrOp = new ArrayOperations();
+            return Filter_int(arr, Filter.Ix3FWindow(filterType), PadType.replicate);
         }
 
         //double 3x3 filters

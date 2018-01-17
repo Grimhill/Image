@@ -50,6 +50,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="Gradient.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="MoreHelpers.cs" />
     <Compile Include="padMyArray.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

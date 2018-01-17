@@ -10,15 +10,16 @@ using System.Drawing.Imaging;
 //for salt and pepper noize
 namespace Image
 {
-    public static class spFilt
+    public static class SaltPepperFilter
     {
         //SPFILT Performs linear and nonlinear spatial filtering
-        public static void spfilt(Bitmap img, int m, int n, double Q, SpfiltType spfiltType, bool unsharp)
+        public static void SaltPepperfilter(Bitmap img, int m, int n, double Q, SaltPepperfilterType spfiltType, bool unsharp)
         {
             //m & n - filter window dimentions (m - row, n - col)
             //Q - filter order Q for Contraharmonic mean
 
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\SaltPepper");
             int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
@@ -39,22 +40,22 @@ namespace Image
 
             if (m < 4 & n < 4)
             {
-                switch (spfiltType.ToString())
+                switch (spfiltType)
                 {
                     //Arithmetic mean filtering.
                     //help with salt noize
-                    case "amean":
+                    case SaltPepperfilterType.amean:
                         filter = Filter.Fspecial(m, n, "average");
                         resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
                         resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
                         resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
 
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\ameanspFilt.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\ameanspFilt.jpg";
                         break;
 
                     //Geometric mean filtering.
                     //help with salt noize
-                    case "gmean":
+                    case SaltPepperfilterType.gmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
 
                         var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
@@ -65,12 +66,12 @@ namespace Image
                         resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
                         resultB = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
 
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\gmeanspFilt.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\gmeanspFilt.jpg";
                         break;
 
                     //harmonic mean filter
                     //help with salt noize
-                    case "hmean":
+                    case SaltPepperfilterType.hmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
 
                         var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
@@ -81,11 +82,11 @@ namespace Image
                         resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
                         resultB = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, b_harmean));
 
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\hmeanspFilt.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\hmeanspFilt.jpg";
                         break;
 
                     //contraharmonic mean filter Q>0 for pepper & <0 for salt
-                    case "chmean":
+                    case SaltPepperfilterType.chmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
 
                         var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
@@ -100,17 +101,17 @@ namespace Image
                         resultG = ArrOp.ImageArrayToUint8(g_charmean);
                         resultB = ArrOp.ImageArrayToUint8(b_charmean);
 
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\chmeanspFilt.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\chmeanspFilt.jpg";
                         break;
 
                     default:
                         resultR = Rc; resultG = Gc; resultB = Bc;
 
-                        outName = Directory.GetCurrentDirectory() + "\\Rand\\wrongspFilt.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\wrongspFilt.jpg";
                         break;
                 }
 
-                if (spfiltType.ToString() == "chmean" & unsharp)
+                if (spfiltType == SaltPepperfilterType.chmean & unsharp)
                 {
                     var im = Helpers.SetPixels(image, resultR, resultG, resultB);
                     image = Helpers.FastSharpImage(im);
@@ -130,7 +131,7 @@ namespace Image
             }
         }
 
-        public static void spfilt(Bitmap img, int m, int n, SpfiltType spfiltType)
+        public static void SaltPepperfilter(Bitmap img, int m, int n, SaltPepperfilterType spfiltType)
         {
             //m & n - filter window dimentions (m - row, n - col)
             //Q - filter order Q for Contraharmonic mean
@@ -138,6 +139,7 @@ namespace Image
             var Q = 1.5; //default
 
             ArrayOperations ArrOp = new ArrayOperations();
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\SaltPepper");
             int width = img.Width;
             int height = img.Height;
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
@@ -156,22 +158,22 @@ namespace Image
             ArrGen<double> arrGen;
             arrGen = new ArrGen<double>();
 
-            switch (spfiltType.ToString())
+            switch (spfiltType)
             {
                 //Arithmetic mean filtering.
                 //help with salt noize
-                case "amean":
+                case SaltPepperfilterType.amean:
                     filter = Filter.Fspecial(m, n, "average");
                     resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
                     resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
                     resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\ameanspFilt.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\ameanspFilt.jpg";
                     break;
 
                 //Geometric mean filtering.
                 //help with salt noize
-                case "gmean":
+                case SaltPepperfilterType.gmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
 
                     var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
@@ -182,12 +184,12 @@ namespace Image
                     resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
                     resultB = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\gmeanspFilt.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\gmeanspFilt.jpg";
                     break;
 
                 //harmonic mean filter
                 //help with salt noize
-                case "hmean":
+                case SaltPepperfilterType.hmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
 
                     var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
@@ -198,11 +200,11 @@ namespace Image
                     resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
                     resultB = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, b_harmean));
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\hmeanspFilt.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\hmeanspFilt.jpg";
                     break;
 
                 //contraharmonic mean filter Q>0 for pepper & <0 for salt
-                case "chmean":
+                case SaltPepperfilterType.chmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
 
                     var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
@@ -216,13 +218,13 @@ namespace Image
                     resultR = ArrOp.ImageArrayToUint8(r_charmean);
                     resultG = ArrOp.ImageArrayToUint8(g_charmean);
                     resultB = ArrOp.ImageArrayToUint8(b_charmean);
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\charmeanspFilt.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\charmeanspFilt.jpg";
                     break;
 
                 default:
                     resultR = Rc; resultG = Gc; resultB = Bc;
 
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\wrongspFilt.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\wrongspFilt.jpg";
                     break;
             }
 
@@ -233,7 +235,7 @@ namespace Image
         }
     }
 
-    public enum SpfiltType
+    public enum SaltPepperfilterType
     {
         amean,
         gmean,
