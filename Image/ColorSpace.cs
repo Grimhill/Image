@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
@@ -1528,7 +1526,7 @@ namespace Image
             ArrayOperations ArrOp = new ArrayOperations();
             int width = colorPlane[0].Color.GetLength(1);
             int height = colorPlane[0].Color.GetLength(0);
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
 
@@ -1556,7 +1554,7 @@ namespace Image
                         colorPlaneTwo = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\hsv2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\hsv2rgb.jpeg";
                         break;
 
                     case "ntsc2rgb":
@@ -1568,7 +1566,7 @@ namespace Image
 
                         //when ntsc2rgb from file
                         //approximate result in file, coz we lost negative values in I and Q when saving ntsc result in file [0..255]
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\ntsc2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\ntsc2rgb.jpeg";
                         break;
 
                     case "cmy2rgb":
@@ -1578,7 +1576,7 @@ namespace Image
                         colorPlaneTwo = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\cmy2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\cmy2rgb.jpeg";
                         break;
 
                     case "YCbCr2rgb":
@@ -1588,7 +1586,7 @@ namespace Image
                         colorPlaneTwo = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\YCbCr2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\YCbCr2rgb.jpeg";
                         break;
 
                     case "xyz2rgb":
@@ -1599,7 +1597,7 @@ namespace Image
                         colorPlaneThree = rgbResult[2].Color;
 
                         //bad when from file, coz using heavy rounded X Y Z values, when writing them to file
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2rgb.jpeg";
                         break;
 
                     case "xyz2lab":
@@ -1610,7 +1608,7 @@ namespace Image
                         colorPlaneThree = ArrOp.ArrayToUint8(xyzlabResult[2].Color);
 
                         //bad when from file, coz xyz values rounded, and lost negative value in a & b when saving in [0..255] range into file
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2lab.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2lab.jpeg";
                         break;
 
                     case "lab2xyz":
@@ -1621,7 +1619,7 @@ namespace Image
                         colorPlaneThree = ArrOp.ArrayToUint8(labxyzResult[2].Color);
 
                         //bad when from file, coz lost a and b negative value when save to file. And lost X Y Z values when round before save in [0..255] range into file
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2xyz.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2xyz.jpeg";
                         break;
 
                     case "lab2rgb":
@@ -1633,7 +1631,7 @@ namespace Image
 
                         //if from file
                         //very bad, coz lost a lot in converting and round everywhere...
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2rgb.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2rgb.jpeg";
                         break;
 
                     default:
@@ -1642,15 +1640,18 @@ namespace Image
                         colorPlaneTwo = Helpers.RandArray(height, width, 0, 255);
                         colorPlaneThree = Helpers.RandArray(height, width, 0, 255);
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpeg";
                         break;
                 }
             }
 
             image = Helpers.SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
 
-            //dont forget, that directory ColorSpace must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ".jpeg");
         }
 
         //some rgb2 looks good, some lost negative values, when ranged to [0..255] for saving
@@ -1659,7 +1660,7 @@ namespace Image
             ArrayOperations ArrOp = new ArrayOperations();
             int width = colorPlane[0].Color.GetLength(1);
             int height = colorPlane[0].Color.GetLength(0);
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
 
@@ -1685,7 +1686,7 @@ namespace Image
                         colorPlaneTwo = ArrOp.ImageArrayToUint8(hsvResult[1].Color);
                         colorPlaneThree = ArrOp.ImageArrayToUint8(hsvResult[2].Color);
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2hsv.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2hsv.jpeg";
                         break;
 
                     case "rgb2ntsc":
@@ -1697,7 +1698,7 @@ namespace Image
 
                         //if we want to save rgb2ntsc result in file
                         //approximate result in file, coz we lost negative values in I and Q
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2ntsc.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2ntsc.jpeg";
                         break;
 
                     case "rgb2cmy":
@@ -1707,7 +1708,7 @@ namespace Image
                         colorPlaneTwo = ArrOp.ImageArrayToUint8(cmyResult[1].Color);
                         colorPlaneThree = ArrOp.ImageArrayToUint8(cmyResult[2].Color);
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2cmy.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2cmy.jpeg";
                         break;
 
                     case "rgb2YCbCr":
@@ -1717,7 +1718,7 @@ namespace Image
                         colorPlaneTwo = ArrOp.ArrayToUint8(YCbCrResult[1].Color);
                         colorPlaneThree = ArrOp.ArrayToUint8(YCbCrResult[2].Color);
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2YCbCr.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2YCbCr.jpeg";
                         break;
 
                     case "rgb2xyz":
@@ -1728,7 +1729,7 @@ namespace Image
                         colorPlaneThree = ArrOp.ArrayToUint8(xyzrgbResult[2].Color);
 
                         //approximate result in file, coz we lost values after comma in saving ntsc result in file [0..255] and heavy round them
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2xyz.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2xyz.jpeg";
                         break;
 
                     case "rgb2lab":
@@ -1739,7 +1740,7 @@ namespace Image
                         colorPlaneThree = ArrOp.ArrayToUint8(rgblabResult[2].Color);
 
                         //bad, coz lost negative value in a & b when saving in [0..255] range into file
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2lab.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2lab.jpeg";
                         break;
 
                     default:
@@ -1747,31 +1748,34 @@ namespace Image
                         colorPlaneTwo = colorPlane[1].Color;
                         colorPlaneThree = colorPlane[2].Color;
 
-                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpg";
+                        outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpeg";
                         break;
                 }
             }
 
             image = Helpers.SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
 
-            //dont forget, that directory ColorSpace must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ".jpeg");
         }
 
         //if direct from file
-        public static void ColorSpaceToFileDirectFromImage(Bitmap img, ColorSpaceType colorSpace)
+        public static void ColorSpaceToFileDirectFromImage(Bitmap img, ColorSpaceType colorSpace, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
-            int width = img.Width;
-            int height = img.Height;
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
-
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
 
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+
             //back result [0 .. 255]
-            int[,] colorPlaneOne = new int[height, width];
-            int[,] colorPlaneTwo = new int[height, width];
-            int[,] colorPlaneThree = new int[height, width];
+            int[,] colorPlaneOne = new int[img.Height, img.Width];
+            int[,] colorPlaneTwo = new int[img.Height, img.Width];
+            int[,] colorPlaneThree = new int[img.Height, img.Width];
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -1786,7 +1790,7 @@ namespace Image
                     colorPlaneTwo = ArrOp.ImageArrayToUint8(hsvResult[1].Color);
                     colorPlaneThree = ArrOp.ImageArrayToUint8(hsvResult[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2hsv.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2hsv" + ImgExtension;
                     break;
 
                 case "hsv2rgb":
@@ -1796,7 +1800,7 @@ namespace Image
                     colorPlaneTwo = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\hsv2rgb.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_hsv2rgb" + ImgExtension;
                     break;
 
                 case "rgb2ntsc":
@@ -1808,7 +1812,7 @@ namespace Image
 
                     //if we want to save rgb2ntsc result in file
                     //approximate result in file, coz we lost negative values in I and Q
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2ntsc.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2ntsc" + ImgExtension;
                     break;
 
                 case "ntsc2rgb":
@@ -1820,7 +1824,7 @@ namespace Image
 
                     //when ntsc2rgb from file
                     //approximate result in file, coz we lost negative values in I and Q when saving ntsc result in file [0..255]
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\ntsc2rgb.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_ntsc2rgb" + ImgExtension;
                     break;
 
                 case "rgb2cmy":
@@ -1830,7 +1834,7 @@ namespace Image
                     colorPlaneTwo = ArrOp.ImageArrayToUint8(cmyResult[1].Color);
                     colorPlaneThree = ArrOp.ImageArrayToUint8(cmyResult[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2cmy.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2cmy" + ImgExtension;
                     break;
 
                 case "cmy2rgb":
@@ -1840,7 +1844,7 @@ namespace Image
                     colorPlaneTwo = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\cmy2rgb.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_cmy2rgb" + ImgExtension;
                     break;
 
                 case "rgb2YCbCr":
@@ -1850,7 +1854,7 @@ namespace Image
                     colorPlaneTwo = ArrOp.ArrayToUint8(YCbCrResult[1].Color);
                     colorPlaneThree = ArrOp.ArrayToUint8(YCbCrResult[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2YCbCr.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2YCbCr" + ImgExtension;
                     break;
 
                 case "YCbCr2rgb":
@@ -1860,7 +1864,7 @@ namespace Image
                     colorPlaneTwo = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\YCbCr2rgb.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_YCbCr2rgb" + ImgExtension;
                     break;
 
                 case "rgb2xyz":
@@ -1870,8 +1874,8 @@ namespace Image
                     colorPlaneTwo = ArrOp.ArrayToUint8(xyzrgbResult[1].Color);
                     colorPlaneThree = ArrOp.ArrayToUint8(xyzrgbResult[2].Color);
 
-                    //approximate result in file, coz we lost values after comma in saving ntsc result in file [0..255] and heavy round them
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2xyz.jpg";
+                    //approximate result in file, coz we lost values after comma in saving ntsc result in file [0..255] and heavy round them                    
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2xyz" + ImgExtension;
                     break;
 
                 case "xyz2rgb":
@@ -1881,8 +1885,8 @@ namespace Image
                     colorPlaneTwo = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
-                    //bad when from file, coz using heavy rounded X Y Z values, when writing them to file
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2rgb.jpg";
+                    //bad when from file, coz using heavy rounded X Y Z values, when writing them to file                  
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_xyz2rgb" + ImgExtension;
                     break;
 
                 case "xyz2lab":
@@ -1892,8 +1896,8 @@ namespace Image
                     colorPlaneTwo = ArrOp.ArrayToUint8(xyzlabResult[1].Color);
                     colorPlaneThree = ArrOp.ArrayToUint8(xyzlabResult[2].Color);
 
-                    //bad when from file, coz xyz values rounded, and lost negative value in a & b when saving in [0..255] range into file
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2lab.jpg";
+                    //bad when from file, coz xyz values rounded, and lost negative value in a & b when saving in [0..255] range into file                    
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_xyz2lab" + ImgExtension;
                     break;
 
                 case "lab2xyz":
@@ -1903,8 +1907,8 @@ namespace Image
                     colorPlaneTwo = ArrOp.ArrayToUint8(labxyzResult[1].Color);
                     colorPlaneThree = ArrOp.ArrayToUint8(labxyzResult[2].Color);
 
-                    //bad when from file, coz lost a and b negative value when save to file. And lost X Y Z values when round before save in [0..255] range into file
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2xyz.jpg";
+                    //bad when from file, coz lost a and b negative value when save to file. And lost X Y Z values when round before save in [0..255] range into file                    
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_lab2xyz" + ImgExtension;
                     break;
 
                 case "rgb2lab":
@@ -1914,8 +1918,8 @@ namespace Image
                     colorPlaneTwo = ArrOp.ArrayToUint8(rgblabResult[1].Color);
                     colorPlaneThree = ArrOp.ArrayToUint8(rgblabResult[2].Color);
 
-                    //bad, coz lost negative value in a & b when saving in [0..255] range into file
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2lab.jpg";
+                    //bad, coz lost negative value in a & b when saving in [0..255] range into file                    
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2lab" + ImgExtension;
                     break;
 
                 case "lab2rgb":
@@ -1925,8 +1929,8 @@ namespace Image
                     colorPlaneTwo = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
-                    //very bad, coz lost a lot in converting and round everywhere...
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2rgb.jpg";
+                    //very bad, coz lost a lot in converting and round everywhere...                    
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_lab2rgb" + ImgExtension;
                     break;
 
                 default:
@@ -1934,23 +1938,29 @@ namespace Image
                     colorPlaneTwo = Helpers.GetPixels(img)[1].Color;
                     colorPlaneThree = Helpers.GetPixels(img)[2].Color;
 
-                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_defaultNonColorSpace" + ImgExtension;
                     break;
             }
 
             image = Helpers.SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
 
-            //dont forget, that directory ColorSpace must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void FakeCIE1976LtoFile(Bitmap img)
+        public static void FakeCIE1976LtoFile(Bitmap img, string fileName)
         {
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
+
             var fake = ColorSpace.FakeCIE1976L(img);
 
-            string Name = "FakeCIE1976L";
-
-            Helpers.WriteImageToFile(fake, fake, fake, Name);
+            fileName = fileName + "_FakeCIE1976L" + ImgExtension;
+            Helpers.WriteImageToFile(fake, fake, fake, fileName, "ColorSpace");
         }
     }
 

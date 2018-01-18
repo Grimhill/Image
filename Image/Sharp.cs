@@ -13,12 +13,14 @@ namespace Image
     public static class Sharp
     {
         //only for RGB images, b&w 24bbp.
-        public static void UnSharp(Bitmap img, UnSharpInColorSpace cSpace, FilterType filterType)
+        public static void UnSharp(Bitmap img, UnSharpInColorSpace cSpace, FilterType filterType, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
@@ -33,7 +35,7 @@ namespace Image
                     Result.Add(new ArraysListInt() { Color = UnSharpHelperInt(ColorList[1].Color, filterType.ToString()) }); //G
                     Result.Add(new ArraysListInt() { Color = UnSharpHelperInt(ColorList[2].Color, filterType.ToString()) }); //B             
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpRGB" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpRGB" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.HSVi:
@@ -42,9 +44,10 @@ namespace Image
                     var hsvi_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(hsvi[2].Color, 100)), filterType.ToString());
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(hsvi_temp), 100), 1));
+                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color,
+                        ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(hsvi_temp), 100), 1));
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpHSVi" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVi" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.HSVd:
@@ -53,9 +56,10 @@ namespace Image
                     var hsvd_temp = UnSharpHelperDouble(ArrOp.ArrayMultByConst(hsvd[2].Color, 100), filterType.ToString()); //can with out mult, coz using double
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(hsvd_temp, 100), 1)); //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color,
+                        ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(hsvd_temp, 100), 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpHSVd" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVd" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.Labi:
@@ -66,7 +70,7 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ArrayToDouble(labi_temp), labi[1].Color, labi[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpLabi" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabi" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.Labd:
@@ -77,7 +81,7 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(labd_temp, 255), labd[1].Color, labd[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpLabd" + filterType.ToString() + ".jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabd" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.fakeCIE1976L:
@@ -87,17 +91,20 @@ namespace Image
                     var fakeCIE1976L_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57)), filterType.ToString());
 
                     //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57),
+                        fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\unSharpfakeCIE1976L" + filterType.ToString() + ".jpg";
-
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpfakeCIE1976L" + filterType.ToString() + ImgExtension;
                     break;
             }
 
             image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
 
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         public static int[,] UnSharpHelperInt(int[,] cPlane, string fType)
@@ -107,11 +114,13 @@ namespace Image
             ArrayOperations ArrOp = new ArrayOperations();
             if (fType == "unsharp")
             {
-                Result = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(cPlane), Filter.Dx3FWindow(fType), PadType.replicate));
+                Result = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(cPlane),
+                    Filter.Dx3FWindow(fType), PadType.replicate));
             }
             else
             {
-                Result = ArrOp.Uint8Range(ArrOp.SubArrays(cPlane, Filter.Filter_int(cPlane, Filter.Ix3FWindow(fType), PadType.replicate)));
+                Result = ArrOp.Uint8Range(ArrOp.SubArrays(cPlane, Filter.Filter_int(cPlane,
+                    Filter.Ix3FWindow(fType), PadType.replicate)));
             }
 
             return Result;
@@ -128,7 +137,8 @@ namespace Image
             }
             else
             {
-                Result = ArrOp.SubArrays(cPlane, Filter.Filter_double(cPlane, Filter.Dx3FWindow(fType), PadType.replicate));
+                Result = ArrOp.SubArrays(cPlane, Filter.Filter_double(cPlane,
+                    Filter.Dx3FWindow(fType), PadType.replicate));
             }
 
             return Result;
@@ -138,12 +148,14 @@ namespace Image
     public static class Smoothing
     {
         //only for RGB images, b&w 24bbp.
-        public static void Smooth(Bitmap img, SmoothFilterWindow filWindow, SmoothInColorSpace cSpace)
+        public static void Smooth(Bitmap img, SmoothFilterWindow filWindow, SmoothInColorSpace cSpace, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
@@ -168,7 +180,7 @@ namespace Image
                     Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[1].Color), filter, PadType.replicate)) });
                     Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[2].Color), filter, PadType.replicate)) });
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothRGB.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothRGB" + ImgExtension;
                     break;
 
                 case SmoothInColorSpace.HSV:
@@ -179,7 +191,7 @@ namespace Image
                     //Filter by V - Value (Brightness/яркость)
                     Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(hsv_temp, 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothHSV.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothHSV" + ImgExtension;
                     break;
 
                 case SmoothInColorSpace.Lab:
@@ -190,7 +202,7 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(lab_temp, 255), lab[1].Color, lab[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothLab.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothLab" + ImgExtension;
                     break;
 
                 case SmoothInColorSpace.fakeCIE1976L:
@@ -202,15 +214,17 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(fakeCIE1976L_temp, 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\SmoothfakeCIE1976L.jpg";
-
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothfakeCIE1976L" + ImgExtension;
                     break;
             }
 
             image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
 
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
     }
 
@@ -219,12 +233,14 @@ namespace Image
     {
         //only for RGB images, b&w 24bbp.
         //Ahtung! for HSV & Lab lost in accuracy, coz convert double->int->double
-        public static void Hist(Bitmap img, HisteqColorSpace cSpace)
+        public static void Hist(Bitmap img, HisteqColorSpace cSpace, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
 
@@ -238,7 +254,7 @@ namespace Image
                     Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[1].Color) });
                     Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[2].Color) });
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqRGB.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqRGB" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.HSV:
@@ -249,7 +265,7 @@ namespace Image
                     //Filter by V - Value (Brightness/яркость)                 
                     Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ImageUint8ToDouble(hsv_temp), 1)); //artificially if V > 1, make him 1
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqHSV.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqHSV" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.Lab:
@@ -260,7 +276,7 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(ArrOp.ArrayToDouble(lab_temp), 255), lab[1].Color, lab[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqLab.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqLab" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.fakeCIE1976L:
@@ -272,15 +288,17 @@ namespace Image
                     //Filter by L - lightness
                     Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
-                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\HisteqfakeCIE1976L.jpg";
-
+                    outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqfakeCIE1976L" + ImgExtension;
                     break;
             }
 
             image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
 
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         public static int[,] HisteqHelper(int[,] cPlane)
@@ -465,7 +483,6 @@ namespace Image
 
             return lutResult;
         }
-
     }
 
     public enum UnSharpInColorSpace

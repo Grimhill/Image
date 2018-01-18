@@ -8,14 +8,17 @@ namespace Image
     public static class Contour
     {
         ////only for RGB images, b&w 24bbp. (what about8bpp? - colored variant dont work for them)
-        public static void GlobalContour(Bitmap img, CountourVariant Variant, string ImgExtension)
+        public static void GlobalContour(Bitmap img, CountourVariant Variant, string fileName)
         {
+            //declarations
             //create new class object for array operations
             ArrayOperations ArrOp = new ArrayOperations();
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contours");
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contour");
 
             //new bitmap    
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height);
+            Bitmap image = new Bitmap(img.Width, img.Height);
 
             //obtain color components
             var ColorList = Helpers.GetPixels(img);
@@ -47,14 +50,14 @@ namespace Image
                     //gradient for one color component B&W result
                     resultR = ArrOp.ImageArrayToUint8(Gradient.Grad(Rx, Ry, Gx, Gy, Bx, By));
                     resultG = resultR; resultB = resultR; //Black & White result
-                    outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV1" + ImgExtension;
+                    outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV1" + ImgExtension;
                 }
                 else if (Variant == CountourVariant.Variant2_BW)
                 {
                     //gradient for one color component B&W result
                     resultR = ArrOp.ImageArrayToUint8(ArrOp.SumArrays(Gradient.Grad(Rx, Ry, Gx, Gy, Bx, By), Gradient.Grad(Rx, Ry, Gx, Gy, Bx, By)));
                     resultG = resultR; resultB = resultR; //Black & White result
-                    outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV2" + ImgExtension;
+                    outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV2" + ImgExtension;
                 }
                 else
                 {
@@ -69,7 +72,7 @@ namespace Image
                     resultR = ArrOp.ArrayToUint8(RG);
                     resultG = ArrOp.ArrayToUint8(GG);
                     resultB = ArrOp.ArrayToUint8(BG);
-                    outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV5" + ImgExtension;
+                    outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV5" + ImgExtension;
                 }
             }
 
@@ -85,7 +88,7 @@ namespace Image
                     var Gy = Filter.Filter_double(ArrOp.ArrayToDouble(gray), Filter.Dx3FWindow("SobelT"), PadType.replicate);
 
                     GG = ArrOp.SqrtArrayElements(ArrOp.SumArrays(ArrOp.PowArrayElements(Gx, 2), ArrOp.PowArrayElements(Gy, 2)));
-                    outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV3" + ImgExtension;
+                    outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV3" + ImgExtension;
                 }
                 else
                 {
@@ -94,7 +97,7 @@ namespace Image
 
                     GG = ArrOp.SqrtArrayElements(ArrOp.SumArrays(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Gx), 2),
                         ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Gy), 2)));
-                    outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV4" + ImgExtension;
+                    outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV4" + ImgExtension;
                 }
 
                 resultR = ArrOp.ArrayToUint8(GG); resultG = resultR; resultB = resultR;
@@ -121,10 +124,12 @@ namespace Image
                 resultR = ArrOp.ArrayToUint8(RG);
                 resultG = ArrOp.ArrayToUint8(GG);
                 resultB = ArrOp.ArrayToUint8(BG);
-                outName = Directory.GetCurrentDirectory() + "\\Contour\\imgOutlineV6" + ImgExtension;
+                outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV6" + ImgExtension;
             }
 
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
+
+            outName = MoreHelpers.OutputFileNames(outName);
 
             //dont forget, that directory Contour must exist. Later add if not exist - creat
             //image.Save(outName);

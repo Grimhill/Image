@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //filter operation (convolution) and some filter windows
 namespace Image
@@ -112,13 +109,6 @@ namespace Image
             return result;
         }
 
-        //shotter double
-        public static double[,] Filter_double(int[,] arr, string filterType)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-            return Filter_double(ArrOp.ArrayToDouble(arr), Filter.Dx3FWindow(filterType), PadType.replicate);
-        }
-
         public static int[,] Filter_int(int[,] arr, int[,] filter, PadType padType)
         {
             //helpers definition
@@ -225,12 +215,35 @@ namespace Image
             return result;
         }
 
-        //shotter int
+
+        #region Shorters
+        //shorter double
+        public static double[,] Filter_double(int[,] arr, string filterType)
+        {
+            ArrayOperations ArrOp = new ArrayOperations();
+            return Filter_double(ArrOp.ArrayToDouble(arr), Filter.Dx3FWindow(filterType), PadType.replicate);
+        }
+
+        public static double[,] Filter_double(int[,] arr, double[,] filter, double fdiv)
+        {
+            ArrayOperations ArrOp = new ArrayOperations();
+            return Filter_double(ArrOp.ArrayToDouble(arr), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
+        }
+
+        public static double[,] Filter_double(int[,] arr, double[,] filter)
+        {
+            ArrayOperations ArrOp = new ArrayOperations();
+            return Filter_double(ArrOp.ArrayToDouble(arr), filter, PadType.replicate);
+        }
+
+        //shorter int
         public static int[,] Filter_int(int[,] arr, string filterType)
         {
             ArrayOperations ArrOp = new ArrayOperations();
             return Filter_int(arr, Filter.Ix3FWindow(filterType), PadType.replicate);
         }
+
+        #endregion Shorters
 
         //double 3x3 filters
         public static double[,] Dx3FWindow(string fWindowName)

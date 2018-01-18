@@ -50,10 +50,13 @@ namespace Image
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void RGBor24bpp2Gray8bpp(Bitmap img, string ImgExtension)
+        public static void RGB2Gray8bpp(Bitmap img, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
 
             int r, ic, oc, bmpStride, outputStride;
             ColorPalette palette;
@@ -96,16 +99,21 @@ namespace Image
             img.UnlockBits(bmpData);
             image.UnlockBits(outputData);
 
-            string outName = Directory.GetCurrentDirectory() + "\\Rand\\rgbToGray8bppIndexed" + ImgExtension;
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_rgbToGray8bppIndexed" + ImgExtension);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
             image.Save(outName);
+            //Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void ImageTo1Bpp(Bitmap img)
+        public static void ImageTo1Bpp(Bitmap img, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+
             int w = img.Width;
             int h = img.Height;
-            string outName = String.Empty;
             Bitmap bmp = new Bitmap(w, h, PixelFormat.Format1bppIndexed);
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
 
@@ -122,16 +130,21 @@ namespace Image
             }
             bmp.UnlockBits(data);
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\1BppImage.jpg";
-            bmp.Save(outName);
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_1BppImage" + ImgExtension);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(bmp, outName, ImgExtension);
         }
 
-        public static void ImageTo1Bpp(Bitmap img, double level)
+        public static void ImageTo1Bpp(Bitmap img, double level, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+
             int w = img.Width;
             int h = img.Height;
-            string outName = String.Empty;
             Bitmap bmp = new Bitmap(w, h, PixelFormat.Format1bppIndexed);
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
 
@@ -154,25 +167,27 @@ namespace Image
             }
             bmp.UnlockBits(data);
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\1BppImage.jpg";
-            bmp.Save(outName);
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_1BppImageLvl" + level.ToString() + ImgExtension);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(bmp, outName, ImgExtension);
         }
 
         //only for RGB images, b&w 24bbp and 24bpp negatives. (what about8bpp?)
-        public static void MakeNegativeAndBack(Bitmap img)
+        public static void MakeNegativeAndBack(Bitmap img, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            int width = img.Width;
-            int height = img.Height;
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            System.Drawing.Bitmap image = new System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
             var Rc = ColorList[0].Color;
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
-            string outName = String.Empty;
 
             var Rcn = ArrOp.ConstSubArrayElements(255, Rc);
             var Gcn = ArrOp.ConstSubArrayElements(255, Gc);
@@ -180,26 +195,27 @@ namespace Image
 
             image = Helpers.SetPixels(image, Rcn, Gcn, Bcn);
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\NegativeOrRestored.jpg";
-            //dont forget, that directory NegativeAndBack must exist. Later add if not exist - creat
-            image.Save(outName);
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_NegativeOrRestored" + ImgExtension);
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         //only for RGB images, b&w 24bbp. (what about8bpp?)
-        public static void GammaCorrectionFun(Bitmap img, double c, double gamma)
+        public static void GammaCorrectionFun(Bitmap img, double c, double gamma, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            int width = img.Width;
-            int height = img.Height;
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
             var Rc = ColorList[0].Color;
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
-            string outName = String.Empty;
 
             //higher c and gamma - lighter image after correction
             var Rcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Rc), gamma), c));
@@ -208,28 +224,29 @@ namespace Image
 
             image = Helpers.SetPixels(image, Rcg, Gcg, Bcg);
 
-            outName = Directory.GetCurrentDirectory() + "\\Rand\\GammaCorrection.jpg";
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_GammaCorrection" + ImgExtension);
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void Mirror(Bitmap img, Mir direction)
+        public static void Mirror(Bitmap img, Mir direction, string fileName)
         {
             ArrayOperations ArrOp = new ArrayOperations();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            int width = img.Width;
-            int height = img.Height;
 
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
             var Rc = ColorList[0].Color;
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
 
-            int[,] resultR = new int[height, width];
-            int[,] resultG = new int[height, width];
-            int[,] resultB = new int[height, width];
+            int[,] resultR = new int[img.Height, img.Width];
+            int[,] resultG = new int[img.Height, img.Width];
+            int[,] resultB = new int[img.Height, img.Width];
             string outName = String.Empty;
 
             PadMyArray<int> padArr;
@@ -237,43 +254,47 @@ namespace Image
 
             if (direction.ToString() == "left" || direction.ToString() == "right")
             {
-                resultR = padArr.PadArray(Rc, 0, width, PadType.symmetric, Direction.pre);
-                resultG = padArr.PadArray(Gc, 0, width, PadType.symmetric, Direction.pre);
-                resultB = padArr.PadArray(Bc, 0, width, PadType.symmetric, Direction.pre);
+                resultR = padArr.PadArray(Rc, 0, img.Width, PadType.symmetric, Direction.pre);
+                resultG = padArr.PadArray(Gc, 0, img.Width, PadType.symmetric, Direction.pre);
+                resultB = padArr.PadArray(Bc, 0, img.Width, PadType.symmetric, Direction.pre);
 
                 if (direction.ToString() == "left")
                 {
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\mirrorLeft.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_mirrorLeft" + ImgExtension;
                 }
                 else
                 {
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\mirrorRight.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_mirrorRight" + ImgExtension;
                 }
             }
             else
             {
-                resultR = padArr.PadArray(Rc, height, 0, PadType.symmetric, Direction.pre);
-                resultG = padArr.PadArray(Gc, height, 0, PadType.symmetric, Direction.pre);
-                resultB = padArr.PadArray(Bc, height, 0, PadType.symmetric, Direction.pre);
+                resultR = padArr.PadArray(Rc, img.Height, 0, PadType.symmetric, Direction.pre);
+                resultG = padArr.PadArray(Gc, img.Height, 0, PadType.symmetric, Direction.pre);
+                resultB = padArr.PadArray(Bc, img.Height, 0, PadType.symmetric, Direction.pre);
 
                 if (direction.ToString() == "top")
                 {
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\mirrorTop.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_mirrorTop" + ImgExtension;
                 }
                 else
                 {
-                    outName = Directory.GetCurrentDirectory() + "\\Rand\\mirrorBot.jpg";
+                    outName = Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_mirrorBot" + ImgExtension;
                 }
             }
 
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
-            image.Save(outName);
+            outName = MoreHelpers.OutputFileNames(outName);
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            //image.Save(outName);
+            Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void CropImage(Bitmap bitmap, string filename, int cutLeft, int cutRight, int cutTop, int cutBottom, string ImgExtension)
+        public static void CropImage(Bitmap bitmap, string filename, int cutLeft, int cutRight, int cutTop, int cutBottom, string fileName)
         {
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Cropped");
 
             //count new width and height
@@ -281,7 +302,7 @@ namespace Image
             int newHeight = bitmap.Height - cutTop - cutBottom;
 
             //new bitmam object for cropped image    
-            System.Drawing.Bitmap img = new System.Drawing.Bitmap(newWidth, newHeight, bitmap.PixelFormat);
+            Bitmap img = new Bitmap(newWidth, newHeight, bitmap.PixelFormat);
 
             if (newWidth <= 0 || newHeight <= 0)
             {
@@ -296,15 +317,17 @@ namespace Image
                 //clone selected area into new bitmap object
                 Bitmap cropped = bitmap.Clone(rect, bitmap.PixelFormat);
 
-                string outName = Directory.GetCurrentDirectory() + "\\Cropped\\" + filename + "_cropped" + ImgExtension;
+                string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Cropped\\" + fileName + "_cropped" + ImgExtension);
 
                 //img.Save(outName, ImageFormat.Jpeg);
                 Helpers.SaveOptions(img, outName, ImgExtension);
             }
         }
 
-        private static void ConvertTo24(Bitmap img, string ImgExtension)
+        public static void Bpp8ConvertTo24bpp(Bitmap img, string fileName)
         {
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
@@ -315,14 +338,22 @@ namespace Image
                 // Draw the image
                 g.DrawImageUnscaled(img, 0, 0);
             }
-            Helpers.SaveOptions(image, "8bppto24bpp" + ImgExtension, ImgExtension);
-            //image.Save("8bppto24bpp" + ImgExtension, ImageFormat.Bmp);
+
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_8bppto24bpp" + ImgExtension);
+            outName = MoreHelpers.OutputFileNames(outName);
+            //Helpers.SaveOptions(image, outName, ImgExtension);
+            image.Save(outName);
         }
 
-        public static void SaveImageInOtherFormat(Bitmap image, string name, SupportFormats newFormat)
+        public static void SaveImageInOtherFormat(Bitmap image, string fileName, SupportFormats newFormat)
         {
-            string outName = name + "." + newFormat.ToString();
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+
+            //string outName = fileName + "." + newFormat.ToString();
             //string outName = Directory.GetCurrentDirectory() + "\\Rand\\" + name + "." + newFormat.ToString();
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + newFormat.ToString());
             Helpers.SaveOptions(image, outName, newFormat.ToString().ToLower());
         }
     }
