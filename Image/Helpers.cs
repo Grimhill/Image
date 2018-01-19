@@ -143,8 +143,6 @@ namespace Image
         //Sharp image after some operations with default unsharp filter
         public static Bitmap FastSharpImage(Bitmap img)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
-
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             var ColorList = Helpers.GetPixels(img);
@@ -152,9 +150,9 @@ namespace Image
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
 
-            var resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), Filter.Dx3FWindow("unsharp"), PadType.replicate));
-            var resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), Filter.Dx3FWindow("unsharp"), PadType.replicate));
-            var resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), Filter.Dx3FWindow("unsharp"), PadType.replicate));
+            var resultR = (Filter.Filter_double(Rc, "unsharp")).ArrayToUint8();
+            var resultG = (Filter.Filter_double(Gc, "unsharp")).ArrayToUint8();
+            var resultB = (Filter.Filter_double(Bc, "unsharp")).ArrayToUint8();
 
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
@@ -166,7 +164,7 @@ namespace Image
         //Look SomeLittle -> ImageTo1Bpp to obtain binary image with write to file
         public static int[,] Image2Binary(Bitmap img, InEdgeImage inIm)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
+            //ArrayOperations ArrOp = new ArrayOperations();
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format1bppIndexed);
             int[,] result = new int[img.Height, img.Width];
 
@@ -216,7 +214,7 @@ namespace Image
 
         public static int[,] Image2Binary(Bitmap img, double level, InEdgeImage inIm)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
+            //ArrayOperations ArrOp = new ArrayOperations();
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format1bppIndexed);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
@@ -338,15 +336,15 @@ namespace Image
                 var cat = Colors[0].Color.Cast<double>().ToArray().Max();
                 if (cat < 1)
                 {
-                    colorPlaneOne = ArrOp.ImageArrayToUint8(Colors[0].Color);
-                    colorPlaneTwo = ArrOp.ImageArrayToUint8(Colors[1].Color);
-                    colorPlaneThree = ArrOp.ImageArrayToUint8(Colors[2].Color);
+                    colorPlaneOne   = (Colors[0].Color).ImageArrayToUint8();
+                    colorPlaneTwo   = (Colors[1].Color).ImageArrayToUint8();
+                    colorPlaneThree = (Colors[2].Color).ImageArrayToUint8();
                 }
                 else if (cat >= 0 & cat <= 255)
                 {
-                    colorPlaneOne = ArrOp.ArrayToUint8(Colors[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(Colors[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(Colors[2].Color);
+                    colorPlaneOne   = (Colors[0].Color).ArrayToUint8();
+                    colorPlaneTwo   = (Colors[1].Color).ArrayToUint8();
+                    colorPlaneThree = (Colors[2].Color).ArrayToUint8();
                 }
 
                 System.Drawing.Bitmap image = new System.Drawing.Bitmap(Colors[0].Color.GetLength(1), Colors[0].Color.GetLength(0), PixelFormat.Format24bppRgb);
@@ -434,28 +432,28 @@ namespace Image
             }
             else
             {
-                int[,] colorPlaneOne = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneTwo = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
+                int[,] colorPlaneOne   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
+                int[,] colorPlaneTwo   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
                 int[,] colorPlaneThree = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
 
                 var cat = planeOne.Cast<double>().ToArray().Max(); //risk, then only first plane Meets the condition. Make for all?
                 if (cat < 1)
                 {
-                    colorPlaneOne = ArrOp.ImageArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ImageArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ImageArrayToUint8(planeThree);
+                    colorPlaneOne   = planeOne.ImageArrayToUint8();
+                    colorPlaneTwo   = planeTwo.ImageArrayToUint8();  
+                    colorPlaneThree = planeThree.ImageArrayToUint8();
                 }
                 else if (cat >= 0 & cat <= 255)
                 {
-                    colorPlaneOne = ArrOp.ArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ArrayToUint8(planeThree);
+                    colorPlaneOne   = planeOne.ArrayToUint8();
+                    colorPlaneTwo   = planeTwo.ArrayToUint8();  
+                    colorPlaneThree = planeThree.ArrayToUint8();
                 }
                 else if (cat < 0 || cat > 255)
                 {
-                    colorPlaneOne = ArrOp.ArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ArrayToUint8(planeThree);
+                    colorPlaneOne   = planeOne.ArrayToUint8();
+                    colorPlaneTwo   = planeTwo.ArrayToUint8();  
+                    colorPlaneThree = planeThree.ArrayToUint8();
                 }
 
                 System.Drawing.Bitmap image = new System.Drawing.Bitmap(planeOne.GetLength(1), planeOne.GetLength(0), PixelFormat.Format24bppRgb);
@@ -481,28 +479,28 @@ namespace Image
             }
             else
             {
-                int[,] colorPlaneOne = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneTwo = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
+                int[,] colorPlaneOne   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
+                int[,] colorPlaneTwo   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
                 int[,] colorPlaneThree = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
 
                 var cat = planeOne.Cast<double>().ToArray().Max(); //risk, then only first plane Meets the condition. Make for all?
                 if (cat < 1)
-                {
-                    colorPlaneOne = ArrOp.ImageArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ImageArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ImageArrayToUint8(planeThree);
+                {                                                    
+                    colorPlaneOne   = planeOne.ImageArrayToUint8();  
+                    colorPlaneTwo   = planeTwo.ImageArrayToUint8();  
+                    colorPlaneThree = planeThree.ImageArrayToUint8();
                 }
                 else if (cat >= 0 & cat <= 255)
                 {
-                    colorPlaneOne = ArrOp.ArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ArrayToUint8(planeThree);
+                    colorPlaneOne   = planeOne.ArrayToUint8();   
+                    colorPlaneTwo   = planeTwo.ArrayToUint8();   
+                    colorPlaneThree = planeThree.ArrayToUint8(); 
                 }
                 else if (cat < 0 || cat > 255)
                 {
-                    colorPlaneOne = ArrOp.ArrayToUint8(planeOne);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(planeTwo);
-                    colorPlaneThree = ArrOp.ArrayToUint8(planeThree);
+                    colorPlaneOne = planeOne.ArrayToUint8();
+                    colorPlaneTwo = planeTwo.ArrayToUint8();
+                    colorPlaneThree = planeThree.ArrayToUint8();
                 }
 
                 System.Drawing.Bitmap image = new System.Drawing.Bitmap(planeOne.GetLength(1), planeOne.GetLength(0), PixelFormat.Format24bppRgb);

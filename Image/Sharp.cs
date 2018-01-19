@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
@@ -14,8 +12,7 @@ namespace Image
     {
         //only for RGB images, b&w 24bbp.
         public static void UnSharp(Bitmap img, UnSharpInColorSpace cSpace, FilterType filterType, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
@@ -25,6 +22,7 @@ namespace Image
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListInt> Result = new List<ArraysListInt>();
+            double[,] Resultemp;
 
             string outName = String.Empty;
 
@@ -40,35 +38,36 @@ namespace Image
 
                 case UnSharpInColorSpace.HSVi:
                     var hsvi = ColorSpace.RGB2HSV(img);
+                    
+                    var hsvi_temp = UnSharpHelperInt(((hsvi[2].Color).ArrayMultByConst(100).ArrayToUint8()), filterType.ToString());
 
-                    var hsvi_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(hsvi[2].Color, 100)), filterType.ToString());
-
-                    //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color,
-                        ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(hsvi_temp), 100), 1));
+                    //Filter by V - Value (Brightness/яркость)                    
+                    Resultemp = hsvi_temp.ArrayToDouble().ArrayDivByConst(100).ToBorderGreaterZero(1);
+                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color, Resultemp);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVi" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.HSVd:
                     var hsvd = ColorSpace.RGB2HSV(img);
-
-                    var hsvd_temp = UnSharpHelperDouble(ArrOp.ArrayMultByConst(hsvd[2].Color, 100), filterType.ToString()); //can with out mult, coz using double
+                    
+                    var hsvd_temp = UnSharpHelperDouble((hsvd[2].Color).ArrayMultByConst(100), filterType.ToString());
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color,
-                        ArrOp.ToBorderGreaterZero(ArrOp.ArrayDivByConst(hsvd_temp, 100), 1)); //artificially if V > 1, make him 1
+                    //artificially if V > 1, make him 1
+                    Resultemp = hsvd_temp.ArrayDivByConst(100).ToBorderGreaterZero(1);
+                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color, Resultemp);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVd" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.Labi:
                     var labi = ColorSpace.RGB2Lab(img);
+                    
+                    var labi_temp = UnSharpHelperInt((labi[0].Color).ArrayToUint8(), filterType.ToString());
 
-                    var labi_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(labi[0].Color), filterType.ToString());
-
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayToDouble(labi_temp), labi[1].Color, labi[2].Color);
+                    //Filter by L - lightness                                      
+                    Result = ColorSpace.Lab2RGB(labi_temp.ArrayToDouble(), labi[1].Color, labi[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabi" + filterType.ToString() + ImgExtension;
                     break;
@@ -78,8 +77,8 @@ namespace Image
 
                     var labd_temp = UnSharpHelperDouble(labd[0].Color, filterType.ToString());
 
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(labd_temp, 255), labd[1].Color, labd[2].Color);
+                    //Filter by L - lightness                    
+                    Result = ColorSpace.Lab2RGB(labd_temp.ToBorderGreaterZero(255), labd[1].Color, labd[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabd" + filterType.ToString() + ImgExtension;
                     break;
@@ -87,12 +86,11 @@ namespace Image
                 case UnSharpInColorSpace.fakeCIE1976L:
 
                     var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    
+                    var fakeCIE1976L_temp = UnSharpHelperInt((fakeCIE1976L[0].Color).ArrayMultByConst(2.57).ArrayToUint8(), filterType.ToString());
 
-                    var fakeCIE1976L_temp = UnSharpHelperInt(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57)), filterType.ToString());
-
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57),
-                        fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    //Filter by L - lightness                    
+                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpfakeCIE1976L" + filterType.ToString() + ImgExtension;
                     break;
@@ -110,17 +108,14 @@ namespace Image
         public static int[,] UnSharpHelperInt(int[,] cPlane, string fType)
         {
             int[,] Result;
-
-            ArrayOperations ArrOp = new ArrayOperations();
+            
             if (fType == "unsharp")
-            {
-                Result = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(cPlane),
-                    Filter.Dx3FWindow(fType), PadType.replicate));
+            {                
+                Result = (Filter.Filter_double(cPlane, Filter.Dx3FWindow(fType))).ArrayToUint8();
             }
             else
-            {
-                Result = ArrOp.Uint8Range(ArrOp.SubArrays(cPlane, Filter.Filter_int(cPlane,
-                    Filter.Ix3FWindow(fType), PadType.replicate)));
+            {                
+                Result = cPlane.SubArrays(Filter.Filter_int(cPlane, Filter.Ix3FWindow(fType), PadType.replicate)).Uint8Range();
             }
 
             return Result;
@@ -136,9 +131,8 @@ namespace Image
                 Result = Filter.Filter_double(cPlane, Filter.Dx3FWindow(fType), PadType.replicate);
             }
             else
-            {
-                Result = ArrOp.SubArrays(cPlane, Filter.Filter_double(cPlane,
-                    Filter.Dx3FWindow(fType), PadType.replicate));
+            {                
+                Result = cPlane.SubArrays(Filter.Filter_double(cPlane, Filter.Dx3FWindow(fType), PadType.replicate));
             }
 
             return Result;
@@ -149,8 +143,7 @@ namespace Image
     {
         //only for RGB images, b&w 24bbp.
         public static void Smooth(Bitmap img, SmoothFilterWindow filWindow, SmoothInColorSpace cSpace, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
@@ -176,9 +169,10 @@ namespace Image
             switch (cSpace)
             {
                 case SmoothInColorSpace.RGB:
-                    Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[0].Color), filter, PadType.replicate)) });
-                    Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[1].Color), filter, PadType.replicate)) });
-                    Result.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(ColorList[2].Color), filter, PadType.replicate)) });
+                    
+                    Result.Add(new ArraysListInt() { Color = Filter.Filter_double((ColorList[0].Color).ArrayToDouble(), filter, PadType.replicate).ArrayToUint8() });                    
+                    Result.Add(new ArraysListInt() { Color = Filter.Filter_double((ColorList[1].Color).ArrayToDouble(), filter, PadType.replicate).ArrayToUint8() });                    
+                    Result.Add(new ArraysListInt() { Color = Filter.Filter_double((ColorList[2].Color).ArrayToDouble(), filter, PadType.replicate).ArrayToUint8() });
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothRGB" + ImgExtension;
                     break;
@@ -189,7 +183,8 @@ namespace Image
                     var hsv_temp = Filter.Filter_double(hsv[2].Color, filter, PadType.replicate);
 
                     //Filter by V - Value (Brightness/яркость)
-                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(hsv_temp, 1)); //artificially if V > 1, make him 1
+                    //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ToBorderGreaterZero(1));
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothHSV" + ImgExtension;
                     break;
@@ -200,7 +195,7 @@ namespace Image
                     var lab_temp = Filter.Filter_double(lab[0].Color, filter, PadType.replicate);
 
                     //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(lab_temp, 255), lab[1].Color, lab[2].Color);
+                    Result = ColorSpace.Lab2RGB(lab_temp.ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothLab" + ImgExtension;
                     break;
@@ -208,11 +203,11 @@ namespace Image
                 case SmoothInColorSpace.fakeCIE1976L:
 
                     var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    
+                    var fakeCIE1976L_temp = Filter.Filter_double((fakeCIE1976L[0].Color).ArrayMultByConst(2.57), filter, PadType.replicate);
 
-                    var fakeCIE1976L_temp = Filter.Filter_double(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57), filter, PadType.replicate);
-
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(fakeCIE1976L_temp, 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    //Filter by L - lightness                    
+                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothfakeCIE1976L" + ImgExtension;
                     break;
@@ -234,8 +229,7 @@ namespace Image
         //only for RGB images, b&w 24bbp.
         //Ahtung! for HSV & Lab lost in accuracy, coz convert double->int->double
         public static void Hist(Bitmap img, HisteqColorSpace cSpace, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Sharp");
@@ -259,34 +253,34 @@ namespace Image
 
                 case HisteqColorSpace.HSV:
                     var hsv = ColorSpace.RGB2HSV(img);
-
-                    var hsv_temp = HisteqHelper(ArrOp.ImageArrayToUint8(hsv[2].Color));
+                    
+                    var hsv_temp = HisteqHelper((hsv[2].Color).ImageArrayToUint8());
 
                     //Filter by V - Value (Brightness/яркость)                 
-                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, ArrOp.ToBorderGreaterZero(ArrOp.ImageUint8ToDouble(hsv_temp), 1)); //artificially if V > 1, make him 1
+                    //artificially if V > 1, make him 1
+                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ImageUint8ToDouble().ToBorderGreaterZero(1));
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqHSV" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.Lab:
                     var lab = ColorSpace.RGB2Lab(img);
+                    
+                    var lab_temp = HisteqHelper((lab[0].Color).ArrayToUint8());
 
-                    var lab_temp = HisteqHelper(ArrOp.ArrayToUint8(lab[0].Color));
-
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ToBorderGreaterZero(ArrOp.ArrayToDouble(lab_temp), 255), lab[1].Color, lab[2].Color);
+                    //Filter by L - lightness                    
+                    Result = ColorSpace.Lab2RGB(lab_temp.ArrayToDouble().ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqLab" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.fakeCIE1976L:
-
                     var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    
+                    var fakeCIE1976L_temp = HisteqHelper((fakeCIE1976L[0].Color).ArrayMultByConst(2.57).ArrayToUint8());
 
-                    var fakeCIE1976L_temp = HisteqHelper(ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(fakeCIE1976L[0].Color, 2.57)));
-
-                    //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(ArrOp.ArrayDivByConst(ArrOp.ArrayToDouble(fakeCIE1976L_temp), 2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    //Filter by L - lightness                    
+                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqfakeCIE1976L" + ImgExtension;
                     break;
@@ -302,8 +296,7 @@ namespace Image
         }
 
         public static int[,] HisteqHelper(int[,] cPlane)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             //gen array of the same values
             ArrGen<double> d;
             d = new ArrGen<double>();
@@ -318,12 +311,11 @@ namespace Image
             //here count it based on input array
 
             //array on ones 1 x nDef mult by input array length dived by nDef
-            //obtain vector 1 x nDef size
-            var hgram = ArrOp.VectorMultByConst(d.ArrOfSingle(1, nDef, 1).Cast<double>().ToArray(),
-                (ArrOp.ArrayToDouble(cPlane).Cast<double>().ToArray().Length) / (double)nDef);
+            //obtain vector 1 x nDef size            
+            var hgram = (d.ArrOfSingle(1, nDef, 1).Cast<double>().ToArray()).VectorMultByConst((cPlane.ArrayToDouble().Cast<double>().ToArray().Length) / (double)nDef);
 
-            //Normalize hgram. hgram = hgram mult by input array dived by hgram elements sum
-            hgram = ArrOp.VectorMultByConst(hgram, (ArrOp.ArrayToDouble(cPlane).Cast<double>().ToArray().Length) / (hgram.Cast<double>().ToArray().Sum()));
+            //Normalize hgram. hgram = hgram mult by input array dived by hgram elements sum            
+            hgram = hgram.VectorMultByConst((cPlane.ArrayToDouble().Cast<double>().ToArray().Length) / (hgram.Cast<double>().ToArray().Sum()));
             var m = hgram.Length;
 
             //compute Cumulative and Histogram
@@ -343,8 +335,8 @@ namespace Image
             }
 
             //cumulative distribution function
-            //create Transformation To Intensity Image
-            var cumdInput = ArrOp.VectorMultByConst(hgram, (ArrOp.ArrayToDouble(cPlane).Cast<double>().ToArray().Length) / (hgram.Cast<double>().ToArray().Sum()));
+            //create Transformation To Intensity Image           
+            var cumdInput = hgram.VectorMultByConst((cPlane.ArrayToDouble().Cast<double>().ToArray().Length) / (hgram.Cast<double>().ToArray().Sum()));
 
             double[] cumd = new double[nDef];
             for (int i = 0; i < nDef; i++)
@@ -372,17 +364,20 @@ namespace Image
             var partTwo = imhist.ToList();
             partTwo[0] = 0;
             partTwo.ToArray().CopyTo(z, imhist.Length);
-
-            var tolPart = d.VecorToArrayRowByRow(1, nUint8, ArrOp.MinInColumns(d.VecorToArrayRowByRow(2, nUint8, z)));
-            var tol = ArrOp.MultArrays(d.ArrOfSingle(m, 1, 1), ArrOp.ArrayDivByConst(tolPart, 2));
+            
+            var tolPart = d.VecorToArrayRowByRow(1, nUint8, (d.VecorToArrayRowByRow(2, nUint8, z)).MinInColumns());
+            
+            var tol = (d.ArrOfSingle(m, 1, 1)).MultArrays(tolPart.ArrayDivByConst(2));
 
             //Error
             var cumdArr = d.TransposeArray(d.VecorToArrayRowByRow(1, nDef, cumd));
             var CumuSumArr = d.VecorToArrayRowByRow(1, nUint8, CumuSum);
-
-            var errPartOne = ArrOp.MultArrays(cumdArr, d.ArrOfSingle(1, nUint8, 1));
-            var errPartTwo = ArrOp.MultArrays(d.ArrOfSingle(m, 1, 1), CumuSumArr);
-            var err = ArrOp.SumArrays(ArrOp.SubArrays(errPartOne, errPartTwo), tol);
+            
+            var errPartOne = cumdArr.MultArrays(d.ArrOfSingle(1, nUint8, 1));
+            
+            var errPartTwo = (d.ArrOfSingle(m, 1, 1)).MultArrays(CumuSumArr);
+            
+            var err = errPartOne.SubArrays(errPartTwo).SumArrays(tol);
 
             //Find all places with error. Yep, wtf code continues!
             List<double> erroIndexes = new List<double>();
@@ -405,8 +400,8 @@ namespace Image
             double[,] rest = new double[err.GetLength(0), err.GetLength(1)];
             if (erroIndexes.Any())
             {
-                var newErrVector = errVector.ToList();
-                var newValue = ArrOp.VectorMultByConst(d.ArrOfSingle(erroIndexes.Count(), 1, 1).Cast<double>().ToArray(), cPlane.Length); //coz erroIndexes - vector
+                var newErrVector = errVector.ToList();                
+                var newValue = (d.ArrOfSingle(erroIndexes.Count(), 1, 1).Cast<double>().ToArray()).VectorMultByConst(cPlane.Length); //coz erroIndexes - vector
 
                 for (int i = 0; i < errVector.Length; i++)
                 {
@@ -417,8 +412,7 @@ namespace Image
                             newErrVector[i] = cPlane.Length; //newValue[j];
                         }
                     }
-                }
-                //rest = d.vecorToArrayColbyCol(rest.GetLength(0), rest.GetLength(1), newErrVector.ToArray());
+                }                
                 rest = d.VecorToArrayRowByRow(rest.GetLength(0), rest.GetLength(1), newErrVector.ToArray());
             }
             else
@@ -454,16 +448,15 @@ namespace Image
             {
                 lut[i] = lut[i] / (m - 1);
             }
-
-            Result = ArrOp.ArrayToUint8(InlutHisteq(cPlane, lut));
+            
+            Result = (InlutHisteq(cPlane, lut)).ArrayToUint8();
 
             return Result;
         }
 
         //recount array using look up table (lut)
         public static double[,] InlutHisteq(int[,] arr, double[] lut)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             double[,] lutResult = new double[arr.GetLength(0), arr.GetLength(1)];
 
             for (int i = 0; i < arr.GetLength(0); i++)

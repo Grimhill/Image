@@ -11,9 +11,8 @@ namespace Image
     {
         public static double[,] Filter_double(double[,] arr, double[,] filter, PadType padType)
         {
-            //helpers definition
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = arr.GetLength(1);
+            //helpers definition       
+            int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             //padarray or not, here we save  
@@ -51,8 +50,8 @@ namespace Image
                         }
 
                         //such size coz array mult by elements, and we take part same size as filter window
-                        double[,] convolution = new double[filter.GetLength(0), filter.GetLength(1)];
-                        convolution = ArrOp.ArrayMultElements(toConv, filter);
+                        double[,] convolution = new double[filter.GetLength(0), filter.GetLength(1)];                        
+                        convolution = toConv.ArrayMultElements(filter);
 
                         result[i - 1, j - 1] = convolution.Cast<double>().Sum(); //get elemt after filter
                     }
@@ -69,9 +68,8 @@ namespace Image
 
         public static double[,] Filter_double(double[,] arr, double[,] filter)
         {
-            //helpers definition
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = arr.GetLength(1);
+            //helpers definition            
+            int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             double[,] result = new double[height, width];
@@ -93,8 +91,8 @@ namespace Image
                         }
 
                         //such size coz array mult by elements, and we take part same size as filter window
-                        double[,] convolution = new double[filter.GetLength(0), filter.GetLength(1)];
-                        convolution = ArrOp.ArrayMultElements(toConv, filter);
+                        double[,] convolution = new double[filter.GetLength(0), filter.GetLength(1)];                       
+                        convolution = toConv.ArrayMultElements(filter);
 
                         result[i, j] = convolution.Cast<double>().Sum(); //get elemt after filter
                     }
@@ -111,9 +109,8 @@ namespace Image
 
         public static int[,] Filter_int(int[,] arr, int[,] filter, PadType padType)
         {
-            //helpers definition
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = arr.GetLength(1);
+            //helpers definition            
+            int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             //padarray or not, here we save         
@@ -151,8 +148,9 @@ namespace Image
                         }
 
                         //such size coz array mult by elements, and we take part same size as filter window
-                        int[,] convolution = new int[filter.GetLength(0), filter.GetLength(1)];
-                        convolution = ArrOp.ArrayMultElements(toConv, filter);
+                        int[,] convolution = new int[filter.GetLength(0), filter.GetLength(1)];                        
+                        convolution = toConv.ArrayMultElements(filter);
+
                         //get elemt after filter
                         if (convolution.Cast<int>().Sum() < 0) { result[i - 1, j - 1] = 0; }
                         else if (convolution.Cast<int>().Sum() > 255) { result[i - 1, j - 1] = 255; }
@@ -172,9 +170,8 @@ namespace Image
 
         public static int[,] Filter_int(int[,] arr, int[,] filter)
         {
-            //helpers definition
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = arr.GetLength(1);
+            //helpers definition            
+            int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             int[,] result = new int[height, width];
@@ -196,8 +193,9 @@ namespace Image
                         }
 
                         //such size coz array mult by elements, and we take part same size as filter window
-                        int[,] convolution = new int[filter.GetLength(0), filter.GetLength(1)];
-                        convolution = ArrOp.ArrayMultElements(toConv, filter);
+                        int[,] convolution = new int[filter.GetLength(0), filter.GetLength(1)];                        
+                        convolution = toConv.ArrayMultElements(filter);
+
                         //get elemt after filter
                         if (convolution.Cast<int>().Sum() < 0) { result[i - 1, j - 1] = 0; }
                         else if (convolution.Cast<int>().Sum() > 255) { result[i - 1, j - 1] = 255; }
@@ -219,27 +217,28 @@ namespace Image
         #region Shorters
         //shorter double
         public static double[,] Filter_double(int[,] arr, string filterType)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-            return Filter_double(ArrOp.ArrayToDouble(arr), Filter.Dx3FWindow(filterType), PadType.replicate);
+        {           
+            return Filter_double(arr.ArrayToDouble(), Filter.Dx3FWindow(filterType), PadType.replicate);
+        }
+
+        public static double[,] Filter_double(double[,] arr, string filterType)
+        {          
+            return Filter_double(arr, Filter.Dx3FWindow(filterType), PadType.replicate);
         }
 
         public static double[,] Filter_double(int[,] arr, double[,] filter, double fdiv)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-            return Filter_double(ArrOp.ArrayToDouble(arr), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
+        {          
+            return Filter_double(arr.ArrayToDouble(), filter.ArrayDivByConst(fdiv), PadType.replicate);
         }
 
         public static double[,] Filter_double(int[,] arr, double[,] filter)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-            return Filter_double(ArrOp.ArrayToDouble(arr), filter, PadType.replicate);
+        {            
+            return Filter_double(arr.ArrayToDouble(), filter, PadType.replicate);
         }
 
         //shorter int
         public static int[,] Filter_int(int[,] arr, string filterType)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             return Filter_int(arr, Filter.Ix3FWindow(filterType), PadType.replicate);
         }
 

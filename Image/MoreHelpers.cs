@@ -27,8 +27,6 @@ namespace Image
 
         public static string OutputFileNames(string fullFilePath)
         {
-            //string filepath = System.IO.Path.Combine(directory, Filename);
-
             if (System.IO.File.Exists(fullFilePath))
             {
                 string folder = Path.GetDirectoryName(fullFilePath);
@@ -164,18 +162,8 @@ namespace Image
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
 
-            int r, ic, oc, bmpStride, outputStride;
-            ColorPalette palette;
+            int r, ic, oc, bmpStride, outputStride;            
             BitmapData bmpData, outputData;
-
-            //Build a grayscale color Palette
-            palette = image.Palette;
-            //for (int i = 0; i < 256; i++)
-            //{
-            //    Color tmp = Color.FromArgb(255, 255, 0, 0);
-            //    palette.Entries[i] = Color.FromArgb(255, 255, 0, 0);
-            //}
-            //image.Palette = palette;
 
             //Lock the images
             bmpData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat);

@@ -176,8 +176,7 @@ namespace Image
 
         //only for RGB images, b&w 24bbp and 24bpp negatives. (what about8bpp?)
         public static void MakeNegativeAndBack(Bitmap img, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -189,9 +188,9 @@ namespace Image
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
 
-            var Rcn = ArrOp.ConstSubArrayElements(255, Rc);
-            var Gcn = ArrOp.ConstSubArrayElements(255, Gc);
-            var Bcn = ArrOp.ConstSubArrayElements(255, Bc);
+            var Rcn = Rc.ConstSubArrayElements(255); 
+            var Gcn = Gc.ConstSubArrayElements(255); 
+            var Bcn = Bc.ConstSubArrayElements(255); 
 
             image = Helpers.SetPixels(image, Rcn, Gcn, Bcn);
 
@@ -204,8 +203,7 @@ namespace Image
 
         //only for RGB images, b&w 24bbp. (what about8bpp?)
         public static void GammaCorrectionFun(Bitmap img, double c, double gamma, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -217,10 +215,10 @@ namespace Image
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
 
-            //higher c and gamma - lighter image after correction
-            var Rcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Rc), gamma), c));
-            var Gcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Gc), gamma), c));
-            var Bcg = ArrOp.ArrayToUint8(ArrOp.ArrayMultByConst(ArrOp.PowArrayElements(ArrOp.ArrayToDouble(Bc), gamma), c)); ;
+            //higher c and gamma - lighter image after correction            
+            var Rcg = Rc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();            
+            var Gcg = Gc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();            
+            var Bcg = Bc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();
 
             image = Helpers.SetPixels(image, Rcg, Gcg, Bcg);
 
@@ -231,8 +229,7 @@ namespace Image
         }
 
         public static void Mirror(Bitmap img, Mir direction, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {            
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");

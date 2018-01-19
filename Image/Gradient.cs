@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //Gradient count
 namespace Image
@@ -11,18 +8,20 @@ namespace Image
     {
         public static double[,] Grad(double[,] Rx, double[,] Ry, double[,] Gx, double[,] Gy, double[,] Bx, double[,] By)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
+            //ArrayOperations ArrOp = new ArrayOperations();
             //Compute per-plane gradients
-            // sqrt(Rx .^ 2 + Ry .^ 2)
-            var RG = ArrOp.SqrtArrayElements(ArrOp.SumArrays(ArrOp.PowArrayElements(Rx, 2), ArrOp.PowArrayElements(Ry, 2)));
-            //sqrt(Gx .^ 2 + Gy .^ 2
-            var GG = ArrOp.SqrtArrayElements(ArrOp.SumArrays(ArrOp.PowArrayElements(Gx, 2), ArrOp.PowArrayElements(Gy, 2)));
-            //sqrt(Bx .^ 2 + By .^ 2)
-            var BG = ArrOp.SqrtArrayElements(ArrOp.SumArrays(ArrOp.PowArrayElements(Bx, 2), ArrOp.PowArrayElements(By, 2)));
+            // sqrt(Rx .^ 2 + Ry .^ 2)            
+            var RG = Rx.PowArrayElements(2).SumArrays(Ry.PowArrayElements(2)).SqrtArrayElements();
+
+            //sqrt(Gx .^ 2 + Gy .^ 2            
+            var GG = Gx.PowArrayElements(2).SumArrays(Gy.PowArrayElements(2)).SqrtArrayElements();
+
+            //sqrt(Bx .^ 2 + By .^ 2)            
+            var BG = Bx.PowArrayElements(2).SumArrays(By.PowArrayElements(2)).SqrtArrayElements();
 
             //Composite gradient image scaled to [0, 1].
-            //for ImageOutlines function
-            var PPG = ArrOp.ArrayDivByConst(ArrOp.SumThreeArrays(RG, GG, BG), ArrOp.SumThreeArrays(RG, GG, BG).Cast<double>().Max()); //per-line gradient
+            //for ImageOutlines function           
+            var PPG = ArrayDoubleExtenshions.SumThreeArrays(RG, GG, BG).ArrayDivByConst(ArrayDoubleExtenshions.SumThreeArrays(RG, BG, GG).Cast<double>().Max());
 
             return PPG;
         }
@@ -34,35 +33,52 @@ namespace Image
             double[,] Temp = new double[Rx.GetLength(0), Rx.GetLength(1)];
             //Compute the parameters of the vector gradient
 
-            //gxx = Rx .^ 2 + Gx .^ 2 + Bx .^ 2           
-            var Gxx = ArrOp.SumThreeArrays(ArrOp.PowArrayElements(Rx, 2), ArrOp.PowArrayElements(Gx, 2), ArrOp.PowArrayElements(Bx, 2));
-            //gyy = Ry .^ 2 + Gy .^ 2 + By .^ 2
-            var Gyy = ArrOp.SumThreeArrays(ArrOp.PowArrayElements(Ry, 2), ArrOp.PowArrayElements(Gy, 2), ArrOp.PowArrayElements(By, 2));
-            //gxy = Rx .* Ry + Gx .* Gy + Bx .* By
-            var Gxy = ArrOp.SumThreeArrays(ArrOp.ArrayMultElements(Rx, Ry), ArrOp.ArrayMultElements(Gx, Gy), ArrOp.ArrayMultElements(Bx, By));
+            //gxx = Rx .^ 2 + Gx .^ 2 + Bx .^ 2 
+            var Gxx = ArrayDoubleExtenshions.SumThreeArrays(Rx.PowArrayElements(2), Gx.PowArrayElements(2), Bx.PowArrayElements(2));
 
-            //A = 0.5 * (atan((2*gxy) ./ (gxx - gyy + eps))) eps - Floating-point relative accuracy eps = 2.2204e-016
-            var Angle = ArrOp.ArrayMultByConst(ArrOp.AtanArrayElements(ArrOp.ArraydivElements(ArrOp.ArrayMultByConst(Gxy, 2), ArrOp.ArraySumWithConst(ArrOp.SubArrays(Gxx, Gyy), 2.2204 * Math.Pow(10, -16)))), 0.5);
+            //gyy = Ry .^ 2 + Gy .^ 2 + By .^ 2            
+            var Gyy = ArrayDoubleExtenshions.SumThreeArrays(Ry.PowArrayElements(2), Gy.PowArrayElements(2), By.PowArrayElements(2));
 
-            var p1 = ArrOp.SumArrays(Gxx, Gyy);
-            var p2 = ArrOp.ArrayMultElements(ArrOp.SubArrays(Gxx, Gyy), ArrOp.CosArrayElements(ArrOp.ArrayMultByConst(Angle, 2)));
-            var p3 = ArrOp.ArrayMultElements(ArrOp.ArrayMultByConst(Gxy, 2), ArrOp.SinArrayElements(ArrOp.ArrayMultByConst(Angle, 2)));
-            //0.5 * ((gxx + gyy) + (gxx - gyy) .* cos (2*A) + 2 * gxy .* sin (2*A))
-            var Grad = ArrOp.ArrayMultByConst(ArrOp.SumArrays(ArrOp.SumArrays(p1, p2), p3), 0.5);
+            //gxy = Rx .* Ry + Gx .* Gy + Bx .* By            
+            var Gxy = ArrayDoubleExtenshions.SumThreeArrays(Rx.ArrayMultElements(Ry), Gx.ArrayMultElements(Gy), Bx.ArrayMultElements(By));
 
-            //repeat for angle + pi / 2
-            Angle = ArrOp.ArraySumWithConst(Angle, 1.5708);
-            var p4 = ArrOp.SumArrays(Gxx, Gyy);
-            var p5 = ArrOp.ArrayMultElements(ArrOp.SubArrays(Gxx, Gyy), ArrOp.CosArrayElements(ArrOp.ArrayMultByConst(Angle, 2)));
-            var p6 = ArrOp.ArrayMultElements(ArrOp.ArrayMultByConst(Gxy, 2), ArrOp.SinArrayElements(ArrOp.ArrayMultByConst(Angle, 2)));
-            //0.5 * ((gxx + gyy) + (gxx - gyy) .* cos (2*A) + 2 * gxy .* sin (2*A))
-            var Gra = ArrOp.ArrayMultByConst(ArrOp.SumArrays(ArrOp.SumArrays(p4, p5), p6), 0.5);
+            //A = 0.5 * (atan((2*gxy) ./ (gxx - gyy + eps))) eps - Floating-point relative accuracy eps = 2.2204e-016            
 
-            Grad = ArrOp.SqrtArrayElements(Grad);
-            Gra = ArrOp.SqrtArrayElements(Gra);
+            var Angle = Gxx.SubArrays(Gyy).ArraySumWithConst((2.2204 * Math.Pow(10, -16)));
+            Angle = Gxy.ArrayMultByConst(2).ArraydivElements(Angle).AtanArrayElements().ArrayMultByConst(0.5);
+            
+            var p1 = Gxx.SumArrays(Gyy);
+            
+            var p2 = Angle.ArrayMultByConst(2).CosArrayElements();
+            p2 = Gxx.SubArrays(Gyy).ArrayMultElements(p2);
 
-            //Picking the maximum at each (x, y) and then scale to range [0, 1].
-            var VG = ArrOp.ArrayDivByConst(ArrOp.MaxTwoArrays(Grad, Gra), ArrOp.MaxTwoArrays(Grad, Gra).Cast<double>().Max());
+            var p3 = Angle.ArrayMultByConst(2).SinArrayElements();
+            p3 = Gxy.ArrayMultByConst(2).ArrayMultElements(p3);
+
+            //0.5 * ((gxx + gyy) + (gxx - gyy) .* cos (2*A) + 2 * gxy .* sin (2*A))            
+            var Grad = p1.SumArrays(p2).SumArrays(p3).ArrayMultByConst(0.5);
+
+            //repeat for angle + pi / 2            
+            Angle = Angle.ArraySumWithConst(1.5708);
+            
+            var p4 = Gxx.SumArrays(Gyy);
+            
+            var p5 = Angle.ArrayMultByConst(2).CosArrayElements();
+            p5 = Gxx.SubArrays(Gyy).ArrayMultElements(p5);
+            
+            var p6 = Angle.ArrayMultByConst(2).SinArrayElements();
+            p6 = Gxy.ArrayMultByConst(2).ArrayMultElements(p6);
+
+            //0.5 * ((gxx + gyy) + (gxx - gyy) .* cos (2*A) + 2 * gxy .* sin (2*A))            
+            var Gra = p4.SumArrays(p5).SumArrays(p6).ArrayMultByConst(0.5);
+          
+            Grad = Grad.SqrtArrayElements();
+            
+            Gra = Gra.SqrtArrayElements();
+
+            //Picking the maximum at each (x, y) and then scale to range [0, 1].            
+            var VGt = Grad.MaxTwoArrays(Gra).Cast<double>().Max();
+            var VG = Grad.MaxTwoArrays(Gra).ArrayDivByConst(VGt);
 
             return VG;
         }

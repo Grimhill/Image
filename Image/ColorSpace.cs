@@ -60,8 +60,7 @@ namespace Image
 
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListDouble> RGB2HSVCount(int[,] R, int[,] G, int[,] B)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {     
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -75,9 +74,9 @@ namespace Image
             double[,] Vd = new double[height, width];   //Value (Brightness/яркость)
 
             //he R,G,B values are divided by 255 to change the range from 0..255 to 0..1:
-            var Rcd = ArrOp.ImageUint8ToDouble(R);
-            var Gcd = ArrOp.ImageUint8ToDouble(G);
-            var Bcd = ArrOp.ImageUint8ToDouble(B);
+            var Rcd = R.ImageUint8ToDouble();
+            var Gcd = G.ImageUint8ToDouble();
+            var Bcd = B.ImageUint8ToDouble();
 
             //count Hue in degrees values
             for (int i = 0; i < height; i++)
@@ -163,13 +162,11 @@ namespace Image
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListInt> HSV2RGB(Bitmap img)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
-
             var ColorList = Helpers.GetPixels(img);
 
-            var H = ArrOp.ArrayMultByConst(ArrOp.ImageUint8ToDouble(ColorList[0].Color), 360);
-            var S = ArrOp.ImageUint8ToDouble(ColorList[1].Color);
-            var V = ArrOp.ImageUint8ToDouble(ColorList[2].Color);
+            var H = (ColorList[0].Color).ImageUint8ToDouble().ArrayMultByConst(360); 
+            var S = (ColorList[1].Color).ImageUint8ToDouble(); 
+            var V = (ColorList[2].Color).ImageUint8ToDouble(); 
 
             List<ArraysListInt> rgbList = new List<ArraysListInt>();
 
@@ -232,8 +229,7 @@ namespace Image
 
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListInt> HSV2RGBCount(double[,] H, double[,] S, double[,] V)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        { 
             int width = H.GetLength(1);
             int height = H.GetLength(0);
 
@@ -246,12 +242,12 @@ namespace Image
             int[,] G = new int[height, width];
             int[,] B = new int[height, width];
 
-            var C = ArrOp.ArrayMultElements(V, S);
+            var C = V.ArrayMultElements(S); 
+            
+            var X = H.ArrayDivByConst(HSVang).ModArrayElements(2).ArraySubWithConst(1).AbsArrayElements();          
+            X = X.ConstSubArrayElements(1).ArrayMultElements(C);
 
-            var X = ArrOp.AbsArrayElements(ArrOp.ArraySubWithConst(ArrOp.ModArrayElements(ArrOp.ArrayDivByConst(H, HSVang), 2), 1));
-            X = ArrOp.ArrayMultElements(C, ArrOp.ConstSubArrayElements(1, X));
-
-            var m = ArrOp.SubArrays(V, C);
+            var m = V.SubArrays(C);
 
             //R G B count
             for (int i = 0; i < height; i++)
@@ -357,8 +353,7 @@ namespace Image
 
         //Y I Q result - double values, not in range [0 1], include negative
         public static List<ArraysListDouble> RGB2NTSCCount(int[,] R, int[,] G, int[,] B)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {         
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -379,9 +374,9 @@ namespace Image
                 {
                     double[] temp = new double[3] { R[i, j], G[i, j], B[i, j] };
 
-                    Y[i, j] = ArrOp.MultVectors(Ycon, temp).Sum();
-                    I[i, j] = ArrOp.MultVectors(Icon, temp).Sum();
-                    Q[i, j] = ArrOp.MultVectors(Qcon, temp).Sum();
+                    Y[i, j] = Ycon.MultVectors(temp).Sum(); 
+                    I[i, j] = Icon.MultVectors(temp).Sum(); 
+                    Q[i, j] = Qcon.MultVectors(temp).Sum(); 
                 }
             }
 
@@ -398,13 +393,12 @@ namespace Image
 
         //bad when from file, coz lost negative values in I & Q when saving ntsc result in file
         public static List<ArraysListInt> NTSC2RGB(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {         
             var ColorList = Helpers.GetPixels(img);
 
-            double[,] Y = ArrOp.ArrayToDouble(ColorList[0].Color);
-            double[,] I = ArrOp.ArrayToDouble(ColorList[1].Color);
-            double[,] Q = ArrOp.ArrayToDouble(ColorList[2].Color);
+            double[,] Y = (ColorList[0].Color).ArrayToDouble(); 
+            double[,] I = (ColorList[1].Color).ArrayToDouble(); 
+            double[,] Q = (ColorList[2].Color).ArrayToDouble(); 
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -450,8 +444,7 @@ namespace Image
         }
 
         public static List<ArraysListInt> NTSC2RGBCount(double[,] Y, double[,] I, double[,] Q)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {      
             int width = Y.GetLength(1);
             int height = Y.GetLength(0);
 
@@ -472,15 +465,15 @@ namespace Image
                 {
                     double[] temp = new double[3] { Y[i, j], I[i, j], Q[i, j] };
 
-                    R[i, j] = ArrOp.MultVectors(Ycon, temp).Sum();
-                    G[i, j] = ArrOp.MultVectors(Icon, temp).Sum();
-                    B[i, j] = ArrOp.MultVectors(Qcon, temp).Sum();
+                    R[i, j] = Ycon.MultVectors(temp).Sum(); 
+                    G[i, j] = Icon.MultVectors(temp).Sum(); 
+                    B[i, j] = Qcon.MultVectors(temp).Sum(); 
                 }
             }
 
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(R) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(G) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(B) });
+            rgbResult.Add(new ArraysListInt() { Color = R.ArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = G.ArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = B.ArrayToUint8() });
 
             return rgbResult;
         }
@@ -535,8 +528,7 @@ namespace Image
 
         //C M Y values - double in range [0:1]
         public static List<ArraysListDouble> RGB2CMYCount(int[,] R, int[,] G, int[,] B)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {        
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -546,9 +538,9 @@ namespace Image
             double[,] M = new double[height, width];  //Magenta (пурпурный)
             double[,] Y = new double[height, width];  //Yellow
 
-            C = ArrOp.ConstSubArrayElements(1, ArrOp.ImageUint8ToDouble(R)); //Cyan (голубой)
-            M = ArrOp.ConstSubArrayElements(1, ArrOp.ImageUint8ToDouble(G)); //Magenta (пурпурный)
-            Y = ArrOp.ConstSubArrayElements(1, ArrOp.ImageUint8ToDouble(B)); //Yellow
+            C = R.ImageUint8ToDouble().ConstSubArrayElements(1);  //Cyan (голубой)
+            M = G.ImageUint8ToDouble().ConstSubArrayElements(1);  //Magenta (пурпурный)
+            Y = B.ImageUint8ToDouble().ConstSubArrayElements(1);  //Yellow
 
             cmyResult.Add(new ArraysListDouble() { Color = C });
             cmyResult.Add(new ArraysListDouble() { Color = M });
@@ -560,19 +552,16 @@ namespace Image
         #endregion rgb2cmy
 
         #region cmy2rgb
-
         //
         public static List<ArraysListInt> CMY2RGB(Bitmap img)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
-
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            double[,] C = ArrOp.ImageUint8ToDouble(ColorList[0].Color);
-            double[,] M = ArrOp.ImageUint8ToDouble(ColorList[1].Color);
-            double[,] Y = ArrOp.ImageUint8ToDouble(ColorList[2].Color);
+            double[,] C = (ColorList[0].Color).ImageUint8ToDouble(); 
+            double[,] M = (ColorList[1].Color).ImageUint8ToDouble(); 
+            double[,] Y = (ColorList[2].Color).ImageUint8ToDouble(); 
 
             rgbResult = CMY2RGBCount(C, M, Y);
 
@@ -583,7 +572,6 @@ namespace Image
         //list C M Y arrays in In the following order C-M-Y
         public static List<ArraysListInt> CMY2RGB(List<ArraysListDouble> cmyList)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             if (cmyList[0].Color.Length != cmyList[1].Color.Length || cmyList[0].Color.Length != cmyList[2].Color.Length)
@@ -608,8 +596,7 @@ namespace Image
         //C M Y in double values (as after convert rgb2cmy, in range [0 1])
         //C M Y arrays in In the following order C-M-Y
         public static List<ArraysListInt> CMY2RGB(double[,] C, double[,] M, double[,] Y)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {        
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             if (C.Length != M.Length || C.Length != Y.Length)
@@ -633,7 +620,6 @@ namespace Image
 
         public static List<ArraysListInt> CMY2RGBCount(double[,] C, double[,] M, double[,] Y)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
             int width = C.GetLength(1);
             int height = C.GetLength(0);
 
@@ -643,9 +629,9 @@ namespace Image
             int[,] G = new int[height, width];
             int[,] B = new int[height, width];
 
-            R = ArrOp.ImageArrayToUint8(ArrOp.ConstSubArrayElements(1, C));
-            G = ArrOp.ImageArrayToUint8(ArrOp.ConstSubArrayElements(1, M));
-            B = ArrOp.ImageArrayToUint8(ArrOp.ConstSubArrayElements(1, Y));
+            R = C.ConstSubArrayElements(1).ImageArrayToUint8(); 
+            G = M.ConstSubArrayElements(1).ImageArrayToUint8(); 
+            B = Y.ConstSubArrayElements(1).ImageArrayToUint8();
 
             rgbResult.Add(new ArraysListInt() { Color = R });
             rgbResult.Add(new ArraysListInt() { Color = G });
@@ -705,16 +691,15 @@ namespace Image
 
         //Y Cb Cr values - double, not in range [0 1]
         public static List<ArraysListDouble> RGB2YCbCrCount(int[,] R, int[,] G, int[,] B)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        { 
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
             List<ArraysListDouble> YCbCrResult = new List<ArraysListDouble>();
-
-            var Rcd = ArrOp.ImageUint8ToDouble(R);
-            var Gcd = ArrOp.ImageUint8ToDouble(G);
-            var Bcd = ArrOp.ImageUint8ToDouble(B);
+                                              
+            var Rcd = R.ImageUint8ToDouble(); 
+            var Gcd = G.ImageUint8ToDouble(); 
+            var Bcd = B.ImageUint8ToDouble(); 
 
             double[,] Y = new double[height, width]; //luma (яркостная составляющая)
             double[,] Cb = new double[height, width]; //difference between B and Y ?
@@ -731,9 +716,9 @@ namespace Image
                 {
                     double[] temp = new double[3] { Rcd[i, j], Gcd[i, j], Bcd[i, j] };
 
-                    Y[i, j] = Coef[0] + ArrOp.MultVectors(Ycon, temp).Sum();
-                    Cb[i, j] = Coef[1] + ArrOp.MultVectors(Cbcon, temp).Sum();
-                    Cr[i, j] = Coef[2] + ArrOp.MultVectors(Crcon, temp).Sum();
+                    Y[i, j]  = Coef[0] + Ycon.MultVectors(temp).Sum(); 
+                    Cb[i, j] = Coef[1] + Cbcon.MultVectors(temp).Sum(); 
+                    Cr[i, j] = Coef[2] + Crcon.MultVectors(temp).Sum(); 
                 }
             }
 
@@ -749,15 +734,13 @@ namespace Image
         #region YCbCr2rgb
 
         public static List<ArraysListInt> YCbCr2RGB(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-
+        {          
             var ColorList = Helpers.GetPixels(img);
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            var Y = ArrOp.ArrayToDouble(ColorList[0].Color);
-            var Cb = ArrOp.ArrayToDouble(ColorList[1].Color);
-            var Cr = ArrOp.ArrayToDouble(ColorList[2].Color);
+            var Y = (ColorList[0].Color).ArrayToDouble(); 
+            var Cb = (ColorList[1].Color).ArrayToDouble();
+            var Cr = (ColorList[2].Color).ArrayToDouble();
 
             rgbResult = YCbCr2RGBCount(Y, Cb, Cr);
 
@@ -767,8 +750,7 @@ namespace Image
         //Y Cb Cr in double values (as after convert rgb2YCbCr, not in range [-1 1])
         //list Y Cb Cr arrays in In the following order Y-Cb-Cr
         public static List<ArraysListInt> YCbCr2RGB(List<ArraysListDouble> YCbCrList)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             if (YCbCrList[0].Color.Length != YCbCrList[1].Color.Length || YCbCrList[0].Color.Length != YCbCrList[2].Color.Length)
@@ -793,8 +775,7 @@ namespace Image
         //Y Cb Cr in double values (as after convert rgb2YCbCr, not in range [-1 1])
         //Y Cb Cr arrays in In the following order Y-Cb-Cr
         public static List<ArraysListInt> YCbCr2RGB(double[,] Y, double[,] Cb, double[,] Cr)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             if (Y.Length != Cb.Length || Y.Length != Cr.Length)
@@ -817,25 +798,24 @@ namespace Image
         }
 
         public static List<ArraysListInt> YCbCr2RGBCount(double[,] Y, double[,] Cb, double[,] Cr)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             int width = Y.GetLength(1);
             int height = Y.GetLength(0);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            Y = ArrOp.ArrayDivByConst(Y, 255);
-            Cb = ArrOp.ArrayDivByConst(Cb, 255);
-            Cr = ArrOp.ArrayDivByConst(Cr, 255);
+            Y = Y.ArrayDivByConst(255); 
+            Cb = Cb.ArrayDivByConst(255);
+            Cr = Cr.ArrayDivByConst(255);
 
             double[,] R = new double[height, width];
             double[,] G = new double[height, width];
             double[,] B = new double[height, width];
 
-            double[] Ycon = new double[3] { 298.082, 0, 408.583 };
+            double[] Ycon  = new double[3] { 298.082, 0, 408.583 };
             double[] Cbcon = new double[3] { 298.082, -100.291, -208.12 };
             double[] Crcon = new double[3] { 298.082, 516.412, 0 };
-            double[] Coef = new double[3] { -222.921, 135.576, -276.836 };
+            double[] Coef  = new double[3] { -222.921, 135.576, -276.836 };
 
             for (int i = 0; i < height; i++)
             {
@@ -843,15 +823,15 @@ namespace Image
                 {
                     double[] temp = new double[3] { Y[i, j], Cb[i, j], Cr[i, j] };
 
-                    R[i, j] = Coef[0] + ArrOp.MultVectors(Ycon, temp).Sum();
-                    G[i, j] = Coef[1] + ArrOp.MultVectors(Cbcon, temp).Sum();
-                    B[i, j] = Coef[2] + ArrOp.MultVectors(Crcon, temp).Sum();
+                    R[i, j] = Coef[0] + Ycon.MultVectors(temp).Sum(); 
+                    G[i, j] = Coef[1] + Cbcon.MultVectors(temp).Sum(); 
+                    B[i, j] = Coef[2] + Crcon.MultVectors(temp).Sum(); 
                 }
             }
 
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(R) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(G) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ArrayToUint8(B) });
+            rgbResult.Add(new ArraysListInt() { Color = R.ArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = G.ArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = B.ArrayToUint8() });
 
             return rgbResult;
         }
@@ -909,15 +889,14 @@ namespace Image
         //X Y Z values - double > 1, can be <1 if represent small R G B values
         public static List<ArraysListDouble> RGB2XYZCount(int[,] R, int[,] G, int[,] B)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            var Rcd = ArrOp.ImageUint8ToDouble(R);
-            var Gcd = ArrOp.ImageUint8ToDouble(G);
-            var Bcd = ArrOp.ImageUint8ToDouble(B);
+            var Rcd = R.ImageUint8ToDouble();
+            var Gcd = G.ImageUint8ToDouble();
+            var Bcd = B.ImageUint8ToDouble();
 
             double[,] R_temp = new double[height, width];
             double[,] G_temp = new double[height, width];
@@ -983,14 +962,13 @@ namespace Image
         //XYZ D65/2 to sRGB
         public static List<ArraysListInt> XYZ2RGB(Bitmap img)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            var X = ArrOp.ArrayToDouble(ColorList[0].Color);
-            var Y = ArrOp.ArrayToDouble(ColorList[1].Color);
-            var Z = ArrOp.ArrayToDouble(ColorList[2].Color);
+            var X = (ColorList[0].Color).ArrayToDouble();
+            var Y = (ColorList[1].Color).ArrayToDouble();
+            var Z = (ColorList[2].Color).ArrayToDouble();
 
             rgbResult = XYZ2RGBbCount(X, Y, Z);
 
@@ -1035,7 +1013,6 @@ namespace Image
 
         public static List<ArraysListInt> XYZ2RGBbCount(double[,] X, double[,] Y, double[,] Z)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
             int width = X.GetLength(1);
             int height = X.GetLength(0);
 
@@ -1090,9 +1067,9 @@ namespace Image
                 }
             }
 
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ImageArrayToUint8(R) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ImageArrayToUint8(G) });
-            rgbResult.Add(new ArraysListInt() { Color = ArrOp.ImageArrayToUint8(B) });
+            rgbResult.Add(new ArraysListInt() { Color = R.ImageArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = G.ImageArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = B.ImageArrayToUint8() });
 
             return rgbResult;
         }
@@ -1103,15 +1080,14 @@ namespace Image
 
         //bad when from file, coz lost a lot after round values in all planes, when saved xyz result to file
         public static List<ArraysListDouble> XYZ2Lab(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
-
-            var X = ArrOp.ArrayToDouble(ColorList[0].Color);
-            var Y = ArrOp.ArrayToDouble(ColorList[1].Color);
-            var Z = ArrOp.ArrayToDouble(ColorList[2].Color);
+                                                          
+            var X = (ColorList[0].Color).ArrayToDouble(); 
+            var Y = (ColorList[1].Color).ArrayToDouble(); 
+            var Z = (ColorList[2].Color).ArrayToDouble(); 
 
             labResult = XYZ2LabCount(X, Y, Z);
 
@@ -1154,8 +1130,7 @@ namespace Image
 
         //L values - double, not in [0 1] range, a & b - same, but have negative values
         public static List<ArraysListDouble> XYZ2LabCount(double[,] X, double[,] Y, double[,] Z)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {            
             int width = X.GetLength(1);
             int height = X.GetLength(0);
 
@@ -1165,9 +1140,9 @@ namespace Image
             const double Y_D65 = 100;
             const double Z_D65 = 108.883;
 
-            X = ArrOp.ArrayDivByConst(X, X_D65);
-            Y = ArrOp.ArrayDivByConst(Y, Y_D65);
-            Z = ArrOp.ArrayDivByConst(Z, Z_D65);
+            X = X.ArrayDivByConst(X_D65); 
+            Y = Y.ArrayDivByConst(Y_D65); 
+            Z = Z.ArrayDivByConst(Z_D65); 
 
             double[,] X_temp = new double[height, width];
             double[,] Y_temp = new double[height, width];
@@ -1227,15 +1202,14 @@ namespace Image
 
         //bad when from file, coz lost a and b negative value when save to file
         public static List<ArraysListDouble> Lab2XYZ(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {           
             var ColorList = Helpers.GetPixels(img);
 
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            double[,] L = ArrOp.ArrayToDouble(ColorList[0].Color);
-            double[,] a = ArrOp.ArrayToDouble(ColorList[1].Color);
-            double[,] b = ArrOp.ArrayToDouble(ColorList[2].Color);
+            double[,] L = (ColorList[0].Color).ArrayToDouble(); 
+            double[,] a = (ColorList[1].Color).ArrayToDouble(); 
+            double[,] b = (ColorList[2].Color).ArrayToDouble(); 
 
             xyzResult = Lab2XYZCount(L, a, b);
 
@@ -1280,8 +1254,7 @@ namespace Image
 
         //X Y Z values - double > 1, can be <1 if represent small R G B values
         public static List<ArraysListDouble> Lab2XYZCount(double[,] L, double[,] a, double[,] b)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {         
             int width = L.GetLength(1);
             int height = L.GetLength(0);
 
@@ -1350,10 +1323,8 @@ namespace Image
         #endregion lab2xyz
 
         #region rgb2lab
-
         public static List<ArraysListDouble> RGB2Lab(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        { 
             int width = img.Width;
             int height = img.Height;
 
@@ -1369,8 +1340,7 @@ namespace Image
 
         //List with R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(List<ArraysListInt> rgbList)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {            
             int width = rgbList[0].Color.GetLength(1);
             int height = rgbList[0].Color.GetLength(0);
 
@@ -1391,8 +1361,7 @@ namespace Image
 
         //R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(int[,] R, int[,] G, int[,] B)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {    
             int width = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -1421,11 +1390,9 @@ namespace Image
         #endregion rgb2lab
 
         #region lab2rgb
-
         //bad, when from file. Lost a lot from converting and round
         public static List<ArraysListInt> Lab2RGB(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             int width = img.Width;
             int height = img.Height;
 
@@ -1433,9 +1400,9 @@ namespace Image
 
             List<ArraysListDouble> lablist = new List<ArraysListDouble>
             {
-                new ArraysListDouble() { Color = ArrOp.ArrayToDouble(ColorList[0].Color) },
-                new ArraysListDouble() { Color = ArrOp.ArrayToDouble(ColorList[1].Color) },
-                new ArraysListDouble() { Color = ArrOp.ArrayToDouble(ColorList[2].Color) }
+                new ArraysListDouble() { Color = (ColorList[0].Color).ArrayToDouble() },
+                new ArraysListDouble() { Color = (ColorList[1].Color).ArrayToDouble() },
+                new ArraysListDouble() { Color = (ColorList[2].Color).ArrayToDouble() }
             };
 
             var labxyz = ColorSpace.Lab2XYZ(lablist);
@@ -1496,13 +1463,11 @@ namespace Image
         #endregion lab2rgb
 
         public static double[,] FakeCIE1976L(Bitmap img)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-
+        {  
             var lab = ColorSpace.RGB2Lab(img);
 
             double[,] L = lab[0].Color;
-            L = ArrOp.ArrayMultByConst(L, 2.57);
+            L = L.ArrayMultByConst(2.57);
 
             return L;
         }
@@ -1522,17 +1487,16 @@ namespace Image
 
         //all 2rgb looks good, if obtained not from file, but from rgb and made some filtering or another process, and saved as rgb back
         public static void AnothercolorSpacetoRGBXYZLabtoFile(List<ArraysListDouble> colorPlane, AnotherColorSpacetoRGBaXYZLab colorSpace) //how generic arraysListT here?
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = colorPlane[0].Color.GetLength(1);
+        {         
+            int width  = colorPlane[0].Color.GetLength(1);
             int height = colorPlane[0].Color.GetLength(0);
             Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
 
             //back result [0 .. 255]
-            int[,] colorPlaneOne = new int[height, width];
-            int[,] colorPlaneTwo = new int[height, width];
+            int[,] colorPlaneOne   = new int[height, width];
+            int[,] colorPlaneTwo   = new int[height, width];
             int[,] colorPlaneThree = new int[height, width];
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
@@ -1550,8 +1514,8 @@ namespace Image
                     case "hsv2rgb":
                         rgbResult = ColorSpace.HSV2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\hsv2rgb.jpeg";
@@ -1560,8 +1524,8 @@ namespace Image
                     case "ntsc2rgb":
                         rgbResult = ColorSpace.NTSC2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         //when ntsc2rgb from file
@@ -1572,8 +1536,8 @@ namespace Image
                     case "cmy2rgb":
                         rgbResult = ColorSpace.CMY2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\cmy2rgb.jpeg";
@@ -1582,8 +1546,8 @@ namespace Image
                     case "YCbCr2rgb":
                         rgbResult = ColorSpace.YCbCr2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\YCbCr2rgb.jpeg";
@@ -1592,8 +1556,8 @@ namespace Image
                     case "xyz2rgb":
                         rgbResult = ColorSpace.XYZ2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         //bad when from file, coz using heavy rounded X Y Z values, when writing them to file
@@ -1603,9 +1567,9 @@ namespace Image
                     case "xyz2lab":
                         var xyzlabResult = ColorSpace.XYZ2Lab(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(xyzlabResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(xyzlabResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(xyzlabResult[2].Color);
+                        colorPlaneOne   = (xyzlabResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (xyzlabResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (xyzlabResult[2].Color).ArrayToUint8(); 
 
                         //bad when from file, coz xyz values rounded, and lost negative value in a & b when saving in [0..255] range into file
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\xyz2lab.jpeg";
@@ -1614,9 +1578,9 @@ namespace Image
                     case "lab2xyz":
                         var labxyzResult = ColorSpace.Lab2XYZ(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(labxyzResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(labxyzResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(labxyzResult[2].Color);
+                        colorPlaneOne   = (labxyzResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (labxyzResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (labxyzResult[2].Color).ArrayToUint8(); 
 
                         //bad when from file, coz lost a and b negative value when save to file. And lost X Y Z values when round before save in [0..255] range into file
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\lab2xyz.jpeg";
@@ -1625,8 +1589,8 @@ namespace Image
                     case "lab2rgb":
                         rgbResult = ColorSpace.Lab2RGB(colorPlane);
 
-                        colorPlaneOne = rgbResult[0].Color;
-                        colorPlaneTwo = rgbResult[1].Color;
+                        colorPlaneOne   = rgbResult[0].Color;
+                        colorPlaneTwo   = rgbResult[1].Color;
                         colorPlaneThree = rgbResult[2].Color;
 
                         //if from file
@@ -1636,8 +1600,8 @@ namespace Image
 
                     default:
 
-                        colorPlaneOne = Helpers.RandArray(height, width, 0, 255);
-                        colorPlaneTwo = Helpers.RandArray(height, width, 0, 255);
+                        colorPlaneOne   = Helpers.RandArray(height, width, 0, 255);
+                        colorPlaneTwo   = Helpers.RandArray(height, width, 0, 255);
                         colorPlaneThree = Helpers.RandArray(height, width, 0, 255);
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpeg";
@@ -1654,19 +1618,21 @@ namespace Image
             Helpers.SaveOptions(image, outName, ".jpeg");
         }
 
+        public static void AnothercolorSpacetoRGBXYZLabtoFile(Bitmap image, AnotherColorSpacetoRGBaXYZLab colorSpace)
+        { }
+
         //some rgb2 looks good, some lost negative values, when ranged to [0..255] for saving
         public static void RGBtoAnothercolorSpacetoFile(List<ArraysListInt> colorPlane, RGBtoAnotherColorSpace colorSpace) //how generic arraysListT here?
         {
-            ArrayOperations ArrOp = new ArrayOperations();
-            int width = colorPlane[0].Color.GetLength(1);
+            int width  = colorPlane[0].Color.GetLength(1);
             int height = colorPlane[0].Color.GetLength(0);
             Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
 
             //back result [0 .. 255]
-            int[,] colorPlaneOne = new int[height, width];
-            int[,] colorPlaneTwo = new int[height, width];
+            int[,] colorPlaneOne   = new int[height, width];
+            int[,] colorPlaneTwo   = new int[height, width];
             int[,] colorPlaneThree = new int[height, width];
 
             string outName = String.Empty;
@@ -1682,9 +1648,9 @@ namespace Image
                     case "rgb2hsv":
                         var hsvResult = ColorSpace.RGB2HSV(colorPlane);
 
-                        colorPlaneOne = ArrOp.ImageArrayToUint8(ArrOp.ArrayDivByConst(hsvResult[0].Color, 360));
-                        colorPlaneTwo = ArrOp.ImageArrayToUint8(hsvResult[1].Color);
-                        colorPlaneThree = ArrOp.ImageArrayToUint8(hsvResult[2].Color);
+                        colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageArrayToUint8(); 
+                        colorPlaneTwo   = (hsvResult[1].Color).ImageArrayToUint8(); 
+                        colorPlaneThree = (hsvResult[2].Color).ImageArrayToUint8();
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2hsv.jpeg";
                         break;
@@ -1692,9 +1658,9 @@ namespace Image
                     case "rgb2ntsc":
                         var ntscResult = ColorSpace.RGB2NTSC(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(ntscResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(ntscResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(ntscResult[2].Color);
+                        colorPlaneOne   = (ntscResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (ntscResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (ntscResult[2].Color).ArrayToUint8(); 
 
                         //if we want to save rgb2ntsc result in file
                         //approximate result in file, coz we lost negative values in I and Q
@@ -1704,9 +1670,9 @@ namespace Image
                     case "rgb2cmy":
                         var cmyResult = ColorSpace.RGB2CMY(colorPlane);
 
-                        colorPlaneOne = ArrOp.ImageArrayToUint8(cmyResult[0].Color);
-                        colorPlaneTwo = ArrOp.ImageArrayToUint8(cmyResult[1].Color);
-                        colorPlaneThree = ArrOp.ImageArrayToUint8(cmyResult[2].Color);
+                        colorPlaneOne   = (cmyResult[0].Color).ImageArrayToUint8(); 
+                        colorPlaneTwo   = (cmyResult[1].Color).ImageArrayToUint8(); 
+                        colorPlaneThree = (cmyResult[2].Color).ImageArrayToUint8(); 
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2cmy.jpeg";
                         break;
@@ -1714,9 +1680,9 @@ namespace Image
                     case "rgb2YCbCr":
                         var YCbCrResult = ColorSpace.RGB2YCbCr(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(YCbCrResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(YCbCrResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(YCbCrResult[2].Color);
+                        colorPlaneOne   = (YCbCrResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (YCbCrResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (YCbCrResult[2].Color).ArrayToUint8(); 
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2YCbCr.jpeg";
                         break;
@@ -1724,9 +1690,9 @@ namespace Image
                     case "rgb2xyz":
                         var xyzrgbResult = ColorSpace.RGB2XYZ(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(xyzrgbResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(xyzrgbResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(xyzrgbResult[2].Color);
+                        colorPlaneOne   = (xyzrgbResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (xyzrgbResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (xyzrgbResult[2].Color).ArrayToUint8(); 
 
                         //approximate result in file, coz we lost values after comma in saving ntsc result in file [0..255] and heavy round them
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2xyz.jpeg";
@@ -1735,17 +1701,17 @@ namespace Image
                     case "rgb2lab":
                         var rgblabResult = ColorSpace.RGB2Lab(colorPlane);
 
-                        colorPlaneOne = ArrOp.ArrayToUint8(rgblabResult[0].Color);
-                        colorPlaneTwo = ArrOp.ArrayToUint8(rgblabResult[1].Color);
-                        colorPlaneThree = ArrOp.ArrayToUint8(rgblabResult[2].Color);
+                        colorPlaneOne   = (rgblabResult[0].Color).ArrayToUint8(); 
+                        colorPlaneTwo   = (rgblabResult[1].Color).ArrayToUint8(); 
+                        colorPlaneThree = (rgblabResult[2].Color).ArrayToUint8(); 
 
                         //bad, coz lost negative value in a & b when saving in [0..255] range into file
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\rgb2lab.jpeg";
                         break;
 
                     default:
-                        colorPlaneOne = colorPlane[0].Color;
-                        colorPlaneTwo = colorPlane[1].Color;
+                        colorPlaneOne   = colorPlane[0].Color;
+                        colorPlaneTwo   = colorPlane[1].Color;
                         colorPlaneThree = colorPlane[2].Color;
 
                         outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\defaultNonColorSpace.jpeg";
@@ -1762,10 +1728,12 @@ namespace Image
             Helpers.SaveOptions(image, outName, ".jpeg");
         }
 
+        public static void RGBtoAnothercolorSpacetoFile(Bitmap image, RGBtoAnotherColorSpace colorSpace)
+        { }
+
         //if direct from file
         public static void ColorSpaceToFileDirectFromImage(Bitmap img, ColorSpaceType colorSpace, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\ColorSpace");
@@ -1773,8 +1741,8 @@ namespace Image
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             //back result [0 .. 255]
-            int[,] colorPlaneOne = new int[img.Height, img.Width];
-            int[,] colorPlaneTwo = new int[img.Height, img.Width];
+            int[,] colorPlaneOne   = new int[img.Height, img.Width];
+            int[,] colorPlaneTwo   = new int[img.Height, img.Width];
             int[,] colorPlaneThree = new int[img.Height, img.Width];
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
@@ -1786,9 +1754,9 @@ namespace Image
                 case "rgb2hsv":
                     var hsvResult = ColorSpace.RGB2HSV(img);
 
-                    colorPlaneOne = ArrOp.ImageArrayToUint8(ArrOp.ArrayDivByConst(hsvResult[0].Color, 360));
-                    colorPlaneTwo = ArrOp.ImageArrayToUint8(hsvResult[1].Color);
-                    colorPlaneThree = ArrOp.ImageArrayToUint8(hsvResult[2].Color);
+                    colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageArrayToUint8();
+                    colorPlaneTwo   = (hsvResult[1].Color).ImageArrayToUint8(); 
+                    colorPlaneThree = (hsvResult[2].Color).ImageArrayToUint8(); 
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2hsv" + ImgExtension;
                     break;
@@ -1796,8 +1764,8 @@ namespace Image
                 case "hsv2rgb":
                     rgbResult = ColorSpace.HSV2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_hsv2rgb" + ImgExtension;
@@ -1805,10 +1773,10 @@ namespace Image
 
                 case "rgb2ntsc":
                     var ntscResult = ColorSpace.RGB2NTSC(img);
-
-                    colorPlaneOne = ArrOp.ArrayToUint8(ntscResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(ntscResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(ntscResult[2].Color);
+                                                                            
+                    colorPlaneOne   = (ntscResult[0].Color).ArrayToUint8(); 
+                    colorPlaneTwo   = (ntscResult[1].Color).ArrayToUint8(); 
+                    colorPlaneThree = (ntscResult[2].Color).ArrayToUint8(); 
 
                     //if we want to save rgb2ntsc result in file
                     //approximate result in file, coz we lost negative values in I and Q
@@ -1818,8 +1786,8 @@ namespace Image
                 case "ntsc2rgb":
                     rgbResult = ColorSpace.NTSC2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     //when ntsc2rgb from file
@@ -1830,9 +1798,9 @@ namespace Image
                 case "rgb2cmy":
                     var cmyResult = ColorSpace.RGB2CMY(img);
 
-                    colorPlaneOne = ArrOp.ImageArrayToUint8(cmyResult[0].Color);
-                    colorPlaneTwo = ArrOp.ImageArrayToUint8(cmyResult[1].Color);
-                    colorPlaneThree = ArrOp.ImageArrayToUint8(cmyResult[2].Color);
+                    colorPlaneOne   = (cmyResult[0].Color).ImageArrayToUint8(); 
+                    colorPlaneTwo   = (cmyResult[1].Color).ImageArrayToUint8(); 
+                    colorPlaneThree = (cmyResult[2].Color).ImageArrayToUint8(); 
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2cmy" + ImgExtension;
                     break;
@@ -1840,8 +1808,8 @@ namespace Image
                 case "cmy2rgb":
                     rgbResult = ColorSpace.CMY2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_cmy2rgb" + ImgExtension;
@@ -1850,9 +1818,9 @@ namespace Image
                 case "rgb2YCbCr":
                     var YCbCrResult = ColorSpace.RGB2YCbCr(img);
 
-                    colorPlaneOne = ArrOp.ArrayToUint8(YCbCrResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(YCbCrResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(YCbCrResult[2].Color);
+                    colorPlaneOne   = (YCbCrResult[0].Color).ArrayToUint8(); 
+                    colorPlaneTwo   = (YCbCrResult[1].Color).ArrayToUint8(); 
+                    colorPlaneThree = (YCbCrResult[2].Color).ArrayToUint8(); 
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2YCbCr" + ImgExtension;
                     break;
@@ -1860,8 +1828,8 @@ namespace Image
                 case "YCbCr2rgb":
                     rgbResult = ColorSpace.YCbCr2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_YCbCr2rgb" + ImgExtension;
@@ -1870,9 +1838,9 @@ namespace Image
                 case "rgb2xyz":
                     var xyzrgbResult = ColorSpace.RGB2XYZ(img);
 
-                    colorPlaneOne = ArrOp.ArrayToUint8(xyzrgbResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(xyzrgbResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(xyzrgbResult[2].Color);
+                    colorPlaneOne   = (xyzrgbResult[0].Color).ArrayToUint8();
+                    colorPlaneTwo   = (xyzrgbResult[1].Color).ArrayToUint8();
+                    colorPlaneThree = (xyzrgbResult[2].Color).ArrayToUint8();
 
                     //approximate result in file, coz we lost values after comma in saving ntsc result in file [0..255] and heavy round them                    
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2xyz" + ImgExtension;
@@ -1881,8 +1849,8 @@ namespace Image
                 case "xyz2rgb":
                     rgbResult = ColorSpace.XYZ2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     //bad when from file, coz using heavy rounded X Y Z values, when writing them to file                  
@@ -1892,9 +1860,9 @@ namespace Image
                 case "xyz2lab":
                     var xyzlabResult = ColorSpace.XYZ2Lab(img);
 
-                    colorPlaneOne = ArrOp.ArrayToUint8(xyzlabResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(xyzlabResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(xyzlabResult[2].Color);
+                    colorPlaneOne   = (xyzlabResult[0].Color).ArrayToUint8(); 
+                    colorPlaneTwo   = (xyzlabResult[1].Color).ArrayToUint8(); 
+                    colorPlaneThree = (xyzlabResult[2].Color).ArrayToUint8(); 
 
                     //bad when from file, coz xyz values rounded, and lost negative value in a & b when saving in [0..255] range into file                    
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_xyz2lab" + ImgExtension;
@@ -1903,9 +1871,9 @@ namespace Image
                 case "lab2xyz":
                     var labxyzResult = ColorSpace.Lab2XYZ(img);
 
-                    colorPlaneOne = ArrOp.ArrayToUint8(labxyzResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(labxyzResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(labxyzResult[2].Color);
+                    colorPlaneOne   = (labxyzResult[0].Color).ArrayToUint8(); 
+                    colorPlaneTwo   = (labxyzResult[1].Color).ArrayToUint8(); 
+                    colorPlaneThree = (labxyzResult[2].Color).ArrayToUint8(); 
 
                     //bad when from file, coz lost a and b negative value when save to file. And lost X Y Z values when round before save in [0..255] range into file                    
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_lab2xyz" + ImgExtension;
@@ -1914,9 +1882,9 @@ namespace Image
                 case "rgb2lab":
                     var rgblabResult = ColorSpace.RGB2Lab(img);
 
-                    colorPlaneOne = ArrOp.ArrayToUint8(rgblabResult[0].Color);
-                    colorPlaneTwo = ArrOp.ArrayToUint8(rgblabResult[1].Color);
-                    colorPlaneThree = ArrOp.ArrayToUint8(rgblabResult[2].Color);
+                    colorPlaneOne   = (rgblabResult[0].Color).ArrayToUint8();
+                    colorPlaneTwo   = (rgblabResult[1].Color).ArrayToUint8();
+                    colorPlaneThree = (rgblabResult[2].Color).ArrayToUint8();
 
                     //bad, coz lost negative value in a & b when saving in [0..255] range into file                    
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_rgb2lab" + ImgExtension;
@@ -1925,8 +1893,8 @@ namespace Image
                 case "lab2rgb":
                     rgbResult = ColorSpace.Lab2RGB(img);
 
-                    colorPlaneOne = rgbResult[0].Color;
-                    colorPlaneTwo = rgbResult[1].Color;
+                    colorPlaneOne   = rgbResult[0].Color;
+                    colorPlaneTwo   = rgbResult[1].Color;
                     colorPlaneThree = rgbResult[2].Color;
 
                     //very bad, coz lost a lot in converting and round everywhere...                    
@@ -1934,8 +1902,8 @@ namespace Image
                     break;
 
                 default:
-                    colorPlaneOne = Helpers.GetPixels(img)[0].Color;
-                    colorPlaneTwo = Helpers.GetPixels(img)[1].Color;
+                    colorPlaneOne   = Helpers.GetPixels(img)[0].Color;
+                    colorPlaneTwo   = Helpers.GetPixels(img)[1].Color;
                     colorPlaneThree = Helpers.GetPixels(img)[2].Color;
 
                     outName = Directory.GetCurrentDirectory() + "\\ColorSpace\\" + fileName + "_defaultNonColorSpace" + ImgExtension;

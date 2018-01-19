@@ -16,8 +16,7 @@ namespace Image
         public static void SaltPepperfilter(Bitmap img, int m, int n, double Q, SaltPepperfilterType spfiltType, bool unsharp, string fileName)
         {
             //m & n - filter window dimentions (m - row, n - col)
-            //Q - filter order Q for Contraharmonic mean
-            ArrayOperations ArrOp = new ArrayOperations();
+            //Q - filter order Q for Contraharmonic mean            
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\SaltPepper");
@@ -45,13 +44,10 @@ namespace Image
                     //Arithmetic mean filtering.
                     //help with salt noize
                     case SaltPepperfilterType.amean:
-                        filter = Filter.Fspecial(m, n, "average");
-                        //resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
-                        resultR = ArrOp.ArrayToUint8(Filter.Filter_double(Rc, filter));
-                        //resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
-                        resultG = ArrOp.ArrayToUint8(Filter.Filter_double(Gc, filter));
-                        //resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
-                        resultB = ArrOp.ArrayToUint8(Filter.Filter_double(Bc, filter));
+                        filter = Filter.Fspecial(m, n, "average");                        
+                        resultR = (Filter.Filter_double(Rc, filter)).ArrayToUint8();                        
+                        resultG = (Filter.Filter_double(Gc, filter)).ArrayToUint8();                        
+                        resultB = (Filter.Filter_double(Bc, filter)).ArrayToUint8();
 
                         outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_ameanspFilt" + ImgExtension;
                         break;
@@ -60,14 +56,14 @@ namespace Image
                     //help with salt noize
                     case SaltPepperfilterType.gmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
-
-                        var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
-                        var g_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
-                        var b_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
-
-                        resultR = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
-                        resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
-                        resultB = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
+                        
+                        var r_gmean = (Filter.Filter_double((Rc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();                        
+                        var g_gmean = (Filter.Filter_double((Gc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();                        
+                        var b_gmean = (Filter.Filter_double((Bc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();
+                        
+                        resultR = r_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();                        
+                        resultG = g_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();                        
+                        resultB = b_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
 
                         outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_gmeanspFilt" + ImgExtension;
                         break;
@@ -76,15 +72,14 @@ namespace Image
                     //help with salt noize
                     case SaltPepperfilterType.hmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
-
-                        var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1,
-                            ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                        var g_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                        var b_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-
-                        resultR = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, r_harmean));
-                        resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
-                        resultB = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, b_harmean));
+                        
+                        var r_harmean = Filter.Filter_double(Rc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);                        
+                        var g_harmean = Filter.Filter_double(Gc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);                        
+                        var b_harmean = Filter.Filter_double(Bc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);
+                        
+                        resultR = r_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();                       
+                        resultG = g_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();                        
+                        resultB = b_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
 
                         outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_hmeanspFilt" + ImgExtension;
                         break;
@@ -92,18 +87,18 @@ namespace Image
                     //contraharmonic mean filter Q>0 for pepper & <0 for salt
                     case SaltPepperfilterType.chmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
+                        
+                        var r_charmean = Filter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);                        
+                        var g_charmean = Filter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);                        
+                        var b_charmean = Filter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);
+                        
+                        r_charmean = (Filter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(r_charmean);                       
+                        g_charmean = (Filter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(g_charmean);                        
+                        b_charmean = (Filter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(b_charmean);
 
-                        var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
-                        var g_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
-                        var b_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
-
-                        r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
-                        g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
-                        b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
-
-                        resultR = ArrOp.ImageArrayToUint8(r_charmean);
-                        resultG = ArrOp.ImageArrayToUint8(g_charmean);
-                        resultB = ArrOp.ImageArrayToUint8(b_charmean);
+                        resultR = r_charmean.ImageArrayToUint8();
+                        resultG = g_charmean.ImageArrayToUint8();
+                        resultB = b_charmean.ImageArrayToUint8();
 
                         outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_chmeanspFilt" + ImgExtension;
                         break;
@@ -143,8 +138,7 @@ namespace Image
             //m & n - filter window dimentions (m - row, n - col)
             //Q - filter order Q for Contraharmonic mean
             var Q = 1.5; //default
-
-            ArrayOperations ArrOp = new ArrayOperations();
+            
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\SaltPepper");
@@ -170,10 +164,10 @@ namespace Image
                 //Arithmetic mean filtering.
                 //help with salt noize
                 case SaltPepperfilterType.amean:
-                    filter = Filter.Fspecial(m, n, "average");
-                    resultR = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Rc), filter, PadType.replicate));
-                    resultG = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Gc), filter, PadType.replicate));
-                    resultB = ArrOp.ArrayToUint8(Filter.Filter_double(ArrOp.ArrayToDouble(Bc), filter, PadType.replicate));
+                    filter = Filter.Fspecial(m, n, "average");                    
+                    resultR = (Filter.Filter_double(Rc, filter)).ArrayToUint8();                    
+                    resultG = (Filter.Filter_double(Gc, filter)).ArrayToUint8();                    
+                    resultB = (Filter.Filter_double(Bc, filter)).ArrayToUint8();
 
                     outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_ameanspFilt" + ImgExtension;
                     break;
@@ -182,14 +176,14 @@ namespace Image
                 //help with salt noize
                 case SaltPepperfilterType.gmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
-
-                    var r_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Rc)), filter, PadType.replicate));
-                    var g_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Gc)), filter, PadType.replicate));
-                    var b_gmean = ArrOp.ExpArrayElements(Filter.Filter_double(ArrOp.LogArrayElements(ArrOp.ImageUint8ToDouble(Bc)), filter, PadType.replicate));
-
-                    resultR = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
-                    resultG = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(b_gmean, ((double)1 / (double)m / (double)n)));
-                    resultB = ArrOp.ImageArrayToUint8(ArrOp.PowArrayElements(r_gmean, ((double)1 / (double)m / (double)n)));
+                   
+                    var r_gmean = (Filter.Filter_double((Rc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();                    
+                    var g_gmean = (Filter.Filter_double((Gc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();                    
+                    var b_gmean = (Filter.Filter_double((Bc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();
+                    
+                    resultR = r_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();                    
+                    resultG = g_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();                    
+                    resultB = b_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
 
                     outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_gmeanspFilt" + ImgExtension;
                     break;
@@ -198,14 +192,14 @@ namespace Image
                 //help with salt noize
                 case SaltPepperfilterType.hmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
-
-                    var r_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Rc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                    var g_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Gc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-                    var b_harmean = Filter.Filter_double(ArrOp.ConstDivByArrayElements(1, ArrOp.ArraySumWithConst(ArrOp.ImageUint8ToDouble(Bc), 2.2204 * Math.Pow(10, -16))), filter, PadType.replicate);
-
-                    resultR = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, r_harmean));
-                    resultG = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, g_harmean));
-                    resultB = ArrOp.ImageArrayToUint8(ArrOp.ConstDivByArrayElements((double)m * (double)n, b_harmean));
+                    
+                    var r_harmean = Filter.Filter_double(Rc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);                    
+                    var g_harmean = Filter.Filter_double(Gc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);                    
+                    var b_harmean = Filter.Filter_double(Bc.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);
+                  
+                    resultR = r_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();                    
+                    resultG = g_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();                   
+                    resultB = b_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
 
                     outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_hmeanspFilt" + ImgExtension;
                     break;
@@ -213,18 +207,18 @@ namespace Image
                 //contraharmonic mean filter Q>0 for pepper & <0 for salt
                 case SaltPepperfilterType.chmean:
                     filter = arrGen.ArrOfSingle(m, n, 1);
+                   
+                    var r_charmean = Filter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);                    
+                    var g_charmean = Filter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);                    
+                    var b_charmean = Filter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements((Q + 1)), filter, PadType.replicate);
+                    
+                    r_charmean = (Filter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(r_charmean);                   
+                    g_charmean = (Filter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(r_charmean);                   
+                    b_charmean = (Filter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements(Q), filter, PadType.replicate)).ArraydivElements(r_charmean);
 
-                    var r_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), (Q + 1)), filter, PadType.replicate);
-                    var g_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), (Q + 1)), filter, PadType.replicate);
-                    var b_charmean = Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), (Q + 1)), filter, PadType.replicate);
-
-                    r_charmean = ArrOp.ArraydivElements(r_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Rc), Q), filter, PadType.replicate)));
-                    g_charmean = ArrOp.ArraydivElements(g_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Gc), Q), filter, PadType.replicate)));
-                    b_charmean = ArrOp.ArraydivElements(b_charmean, (Filter.Filter_double(ArrOp.PowArrayElements(ArrOp.ImageUint8ToDouble(Bc), Q), filter, PadType.replicate)));
-
-                    resultR = ArrOp.ImageArrayToUint8(r_charmean);
-                    resultG = ArrOp.ImageArrayToUint8(g_charmean);
-                    resultB = ArrOp.ImageArrayToUint8(b_charmean);
+                    resultR = r_charmean.ImageArrayToUint8();
+                    resultG = g_charmean.ImageArrayToUint8();
+                    resultB = b_charmean.ImageArrayToUint8();
 
                     outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_charmeanspFilt" + ImgExtension;
                     break;
