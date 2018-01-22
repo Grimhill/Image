@@ -45,13 +45,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayOperations.cs" />
-    <Compile Include="ColorSpace.cs" />
+    <Compile Include="ColorSpacetoFile.cs" />
+    <Compile Include="ColorSpaces\RGBandCMY.cs" />
+    <Compile Include="ColorSpaces\RGBandHSV.cs" />
+    <Compile Include="ColorSpaces\RGBandLab.cs" />
+    <Compile Include="ColorSpaces\RGBandNTSC.cs" />
+    <Compile Include="ColorSpaces\RGBandXYZ.cs" />
+    <Compile Include="ColorSpaces\RGBandYCbCr.cs" />
+    <Compile Include="ColorSpaces\XYZandLab.cs" />
     <Compile Include="Contour.cs" />
     <Compile Include="Contrast.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="Gradient.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="MoreHelpers.cs" />
+    <Compile Include="MoreSomeLittle.cs" />
     <Compile Include="padMyArray.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

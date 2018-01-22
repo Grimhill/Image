@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 //Helper operations
 namespace Image
@@ -138,6 +135,33 @@ namespace Image
                 }
             }
             return image;
+        }
+
+        public static void SetPixelsAlpha(Bitmap image, double alpha)
+        {
+            Bitmap img = new Bitmap(image.Width, image.Height);
+            int Alpha = (int)(alpha * 255);
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    Color pixelColor = image.GetPixel(x, y);
+                    try
+                    {
+                        img.SetPixel(x, y, Color.FromArgb(Alpha, pixelColor.R, pixelColor.G, pixelColor.B));
+                        Color pixel = img.GetPixel(x, y);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> setPixelsAlpha <-");
+                    }
+                }
+            }
+
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + "_imageAlpha" + alpha.ToString() + ".jpg");
+
+            //dont forget, that directory Contour must exist. Later add if not exist - creat
+            img.Save(outName);
         }
 
         //Sharp image after some operations with default unsharp filter

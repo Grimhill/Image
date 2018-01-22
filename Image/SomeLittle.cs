@@ -14,7 +14,7 @@ namespace Image
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
             //write image back from rgb array into file            
             int height = Rc.GetLength(0);
-            int width = Rc.GetLength(1);
+            int width  = Rc.GetLength(1);
 
             var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 

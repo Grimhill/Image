@@ -4,6 +4,7 @@ using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
+using Image.ColorSpaces;
 
 //unSharp, Smooth and histeq operations
 namespace Image
@@ -37,60 +38,60 @@ namespace Image
                     break;
 
                 case UnSharpInColorSpace.HSVi:
-                    var hsvi = ColorSpace.RGB2HSV(img);
+                    var hsvi = RGBandHSV.RGB2HSV(img);
                     
                     var hsvi_temp = UnSharpHelperInt(((hsvi[2].Color).ArrayMultByConst(100).ArrayToUint8()), filterType.ToString());
 
                     //Filter by V - Value (Brightness/яркость)                    
                     Resultemp = hsvi_temp.ArrayToDouble().ArrayDivByConst(100).ToBorderGreaterZero(1);
-                    Result = ColorSpace.HSV2RGB(hsvi[0].Color, hsvi[1].Color, Resultemp);
+                    Result = RGBandHSV.HSV2RGB(hsvi[0].Color, hsvi[1].Color, Resultemp);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVi" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.HSVd:
-                    var hsvd = ColorSpace.RGB2HSV(img);
+                    var hsvd = RGBandHSV.RGB2HSV(img);
                     
                     var hsvd_temp = UnSharpHelperDouble((hsvd[2].Color).ArrayMultByConst(100), filterType.ToString());
 
                     //Filter by V - Value (Brightness/яркость)
                     //artificially if V > 1, make him 1
                     Resultemp = hsvd_temp.ArrayDivByConst(100).ToBorderGreaterZero(1);
-                    Result = ColorSpace.HSV2RGB(hsvd[0].Color, hsvd[1].Color, Resultemp);
+                    Result = RGBandHSV.HSV2RGB(hsvd[0].Color, hsvd[1].Color, Resultemp);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpHSVd" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.Labi:
-                    var labi = ColorSpace.RGB2Lab(img);
+                    var labi = RGBandLab.RGB2Lab(img);
                     
                     var labi_temp = UnSharpHelperInt((labi[0].Color).ArrayToUint8(), filterType.ToString());
 
                     //Filter by L - lightness                                      
-                    Result = ColorSpace.Lab2RGB(labi_temp.ArrayToDouble(), labi[1].Color, labi[2].Color);
+                    Result = RGBandLab.Lab2RGB(labi_temp.ArrayToDouble(), labi[1].Color, labi[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabi" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.Labd:
-                    var labd = ColorSpace.RGB2Lab(img);
+                    var labd = RGBandLab.RGB2Lab(img);
 
                     var labd_temp = UnSharpHelperDouble(labd[0].Color, filterType.ToString());
 
                     //Filter by L - lightness                    
-                    Result = ColorSpace.Lab2RGB(labd_temp.ToBorderGreaterZero(255), labd[1].Color, labd[2].Color);
+                    Result = RGBandLab.Lab2RGB(labd_temp.ToBorderGreaterZero(255), labd[1].Color, labd[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpLabd" + filterType.ToString() + ImgExtension;
                     break;
 
                 case UnSharpInColorSpace.fakeCIE1976L:
 
-                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    var fakeCIE1976L = RGBandLab.RGB2Lab(img);
                     
                     var fakeCIE1976L_temp = UnSharpHelperInt((fakeCIE1976L[0].Color).ArrayMultByConst(2.57).ArrayToUint8(), filterType.ToString());
 
                     //Filter by L - lightness                    
-                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = RGBandLab.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_unSharpfakeCIE1976L" + filterType.ToString() + ImgExtension;
                     break;
@@ -178,36 +179,36 @@ namespace Image
                     break;
 
                 case SmoothInColorSpace.HSV:
-                    var hsv = ColorSpace.RGB2HSV(img);
+                    var hsv = RGBandHSV.RGB2HSV(img);
 
                     var hsv_temp = Filter.Filter_double(hsv[2].Color, filter, PadType.replicate);
 
                     //Filter by V - Value (Brightness/яркость)
                     //artificially if V > 1, make him 1
-                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ToBorderGreaterZero(1));
+                    Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ToBorderGreaterZero(1));
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothHSV" + ImgExtension;
                     break;
 
                 case SmoothInColorSpace.Lab:
-                    var lab = ColorSpace.RGB2Lab(img);
+                    var lab = RGBandLab.RGB2Lab(img);
 
                     var lab_temp = Filter.Filter_double(lab[0].Color, filter, PadType.replicate);
 
                     //Filter by L - lightness
-                    Result = ColorSpace.Lab2RGB(lab_temp.ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
+                    Result = RGBandLab.Lab2RGB(lab_temp.ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothLab" + ImgExtension;
                     break;
 
                 case SmoothInColorSpace.fakeCIE1976L:
 
-                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    var fakeCIE1976L = RGBandLab.RGB2Lab(img);
                     
                     var fakeCIE1976L_temp = Filter.Filter_double((fakeCIE1976L[0].Color).ArrayMultByConst(2.57), filter, PadType.replicate);
 
                     //Filter by L - lightness                    
-                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = RGBandLab.Lab2RGB(fakeCIE1976L_temp.ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_SmoothfakeCIE1976L" + ImgExtension;
                     break;
@@ -252,35 +253,35 @@ namespace Image
                     break;
 
                 case HisteqColorSpace.HSV:
-                    var hsv = ColorSpace.RGB2HSV(img);
+                    var hsv = RGBandHSV.RGB2HSV(img);
                     
                     var hsv_temp = HisteqHelper((hsv[2].Color).ImageArrayToUint8());
 
                     //Filter by V - Value (Brightness/яркость)                 
                     //artificially if V > 1, make him 1
-                    Result = ColorSpace.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ImageUint8ToDouble().ToBorderGreaterZero(1));
+                    Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ImageUint8ToDouble().ToBorderGreaterZero(1));
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqHSV" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.Lab:
-                    var lab = ColorSpace.RGB2Lab(img);
+                    var lab = RGBandLab.RGB2Lab(img);
                     
                     var lab_temp = HisteqHelper((lab[0].Color).ArrayToUint8());
 
                     //Filter by L - lightness                    
-                    Result = ColorSpace.Lab2RGB(lab_temp.ArrayToDouble().ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
+                    Result = RGBandLab.Lab2RGB(lab_temp.ArrayToDouble().ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqLab" + ImgExtension;
                     break;
 
                 case HisteqColorSpace.fakeCIE1976L:
-                    var fakeCIE1976L = ColorSpace.RGB2Lab(img);
+                    var fakeCIE1976L = RGBandLab.RGB2Lab(img);
                     
                     var fakeCIE1976L_temp = HisteqHelper((fakeCIE1976L[0].Color).ArrayMultByConst(2.57).ArrayToUint8());
 
                     //Filter by L - lightness                    
-                    Result = ColorSpace.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                    Result = RGBandLab.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
 
                     outName = Directory.GetCurrentDirectory() + "\\Sharp\\" + fileName + "_HisteqfakeCIE1976L" + ImgExtension;
                     break;

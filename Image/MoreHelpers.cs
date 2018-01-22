@@ -70,11 +70,11 @@ namespace Image
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
 
             int r, ic, oc, bmpStride, outputStride;
-            ColorPalette palette;
+            //ColorPalette palette;
             BitmapData bmpData, outputData;
 
             //Build a grayscale color Palette
-            palette = image.Palette;
+            ColorPalette palette = image.Palette;
             for (int i = 0; i < 256; i++)
             {
                 Color tmp = Color.FromArgb(255, i, i, i);
@@ -98,9 +98,7 @@ namespace Image
                 for (r = 0; r < img.Height; r++)
                     for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
                         outputPtr[r * outputStride + oc] = (byte)(int)
-                        (bmpPtr[r * bmpStride + ic] +
-                        bmpPtr[r * bmpStride + ic + 1] +
-                        bmpPtr[r * bmpStride + ic + 2]);
+                        (bmpPtr[r * bmpStride + ic]);
 
             }
 
@@ -108,7 +106,7 @@ namespace Image
             img.UnlockBits(bmpData);
             image.UnlockBits(outputData);
 
-            string outName = Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_24bppGray28bppIndexed" + ImgExtension;
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_24bppGray28bppIndexed" + ImgExtension);
             image.Save(outName);
         }
 
@@ -145,9 +143,7 @@ namespace Image
                 for (r = 0; r < img.Height; r++)
                     for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
                         outputPtr[r * outputStride + oc] = (byte)(int)
-                        (bmpPtr[r * bmpStride + ic] +
-                        bmpPtr[r * bmpStride + ic + 1] +
-                        bmpPtr[r * bmpStride + ic + 2]);
+                        (bmpPtr[r * bmpStride + ic]);
 
             }
 
