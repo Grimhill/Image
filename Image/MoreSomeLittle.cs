@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using Image.ArrayOperations;
 
 namespace Image
 {
@@ -59,8 +60,7 @@ namespace Image
                 else
                 {
                     string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + "_difference.jpg");
-
-                    //dont forget, that directory Contour must exist. Later add if not exist - creat
+                   
                     difference.Save(outName);
                     //Helpers.SaveOptions(image, outName, ImgExtension);
                 }
@@ -185,10 +185,131 @@ namespace Image
                 //lay difference on alpha image
 
                 image = Helpers.SetPixels(image, R, G, B);
-                outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.jpg");
-                //dont forget, that directory Rand must exist. Later add if not exist - creat
+                outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.jpg");               
                 image.Save(outName);
             }
+        }
+
+        public static void CheckerBoard(int n, OutType type) //n - pixels per cell
+        {
+            int[] wCell = new int[n];
+            int[] bCell = new int[n];
+            int[,] result = new int[n * 8, n * 8]; //8 -default cells
+
+            for (int i = 0; i < n; i++)
+                wCell[i] = 255;
+
+            ArrGen<int> d;
+            d = new ArrGen<int>();
+
+            int[] temp1 = new int[n * n * 8];
+            int[] temp2 = new int[n * n * 8];
+            var resVect = result.Cast<int>().ToArray();
+
+            for (int i = 0; i < temp1.Length / n; i++)
+                if (i % 2 == 0)
+                    bCell.CopyTo(temp1, bCell.Length * i);
+                else wCell.CopyTo(temp1, wCell.Length * i);
+
+            for (int i = 0; i < temp2.Length / n; i++)
+                if (i % 2 == 0)
+                    wCell.CopyTo(temp2, wCell.Length * i);
+                else bCell.CopyTo(temp2, bCell.Length * i);
+
+            int count = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                temp1.CopyTo(resVect, temp1.Length * (i + count));
+                count++;
+                temp2.CopyTo(resVect, temp2.Length * (i + count));
+            }
+
+            var t = d.VecorToArrayRowByRow(n * 8, n * 8, resVect); //r,c, vector
+
+            Helpers.WriteImageToFile(t, t, t, "checkerboard.jpg", type);
+        }
+
+        //r & c must be greater than 1
+        public static void CheckerBoard(int n, int r, int c, OutType type)//r - rows, c - cols, n - pixels per cell
+        {
+            int[] wCell = new int[n];
+            int[] bCell = new int[n];
+            int[,] result = new int[n * r, n * c];
+
+            for (int i = 0; i < n; i++)
+                wCell[i] = 255;
+
+            ArrGen<int> d = new ArrGen<int>();
+
+            int[] temp1 = new int[n * c];
+            int[] temp2 = new int[n * c];
+            var resVect = result.Cast<int>().ToArray();
+
+            for (int i = 0; i < temp1.Length / n; i++)
+                if (i % 2 == 0)
+                    bCell.CopyTo(temp1, bCell.Length * i);
+                else wCell.CopyTo(temp1, wCell.Length * i);
+
+            for (int i = 0; i < temp2.Length / n; i++)
+                if (i % 2 == 0)
+                    wCell.CopyTo(temp2, wCell.Length * i);
+                else bCell.CopyTo(temp2, bCell.Length * i);
+
+            int count = 0;
+            int countn = 0;
+            if (r % 2 == 0)
+            {
+                for (int i = 0; i < r / 2; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp1.CopyTo(resVect, temp1.Length * (i + countn));
+                        countn++;
+                    }
+
+                    //count++;                 
+
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp2.CopyTo(resVect, temp2.Length * (i + countn));
+                        countn++;
+                    }
+
+                    countn--;
+                }
+            }
+
+            else
+            {
+                for (int i = 0; i < (r - 1) / 2; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp1.CopyTo(resVect, temp1.Length * (i + count));
+                        count++;
+                    }
+
+                    //count++;                 
+
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp2.CopyTo(resVect, temp2.Length * (i + count));
+                        count++;
+                    }
+
+                    count--;
+                }
+                int baka = n;
+                for (int j = 0; j < n; j++)
+                {
+                    temp1.CopyTo(resVect, resVect.Length - (temp2.Length * baka));
+                    baka--;
+                }
+            }
+
+            var t = d.VecorToArrayRowByRow(n * r, n * c, resVect); //r,c, vector
+
+            Helpers.WriteImageToFile(t, t, t, "checkerboard_.jpg", type);
         }
     }
 }

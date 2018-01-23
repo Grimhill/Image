@@ -21,9 +21,7 @@ namespace Image
 
             if (MoreHelpers.CheckForInputFormat(ImgExtension))
             {
-                ArrayOperations ArrOp = new ArrayOperations();
-
-                System.Drawing.Bitmap image = new System.Drawing.Bitmap(ImageFilePath);
+                Bitmap image = new Bitmap(ImageFilePath);
 
                 int[,] Rc = new int[image.Height, image.Width];
                 int[,] Gc = new int[image.Height, image.Width];
@@ -75,5 +73,12 @@ namespace Image
         bmp,
         tiff,
         gif
+    }
+
+    public enum OutType
+    {
+        OneBpp,
+        EightBpp,
+        TwentyFourBpp
     }
 }

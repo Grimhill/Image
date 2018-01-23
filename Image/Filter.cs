@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Image.ArrayOperations;
 
 //filter operation (convolution) and some filter windows
 namespace Image

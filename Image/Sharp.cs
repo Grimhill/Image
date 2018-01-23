@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
 using Image.ColorSpaces;
+using Image.ArrayOperations;
 
 //unSharp, Smooth and histeq operations
 namespace Image
@@ -125,8 +126,7 @@ namespace Image
         public static double[,] UnSharpHelperDouble(double[,] cPlane, string fType)
         {
             double[,] Result;
-
-            ArrayOperations ArrOp = new ArrayOperations();
+           
             if (fType == "unsharp")
             {
                 Result = Filter.Filter_double(cPlane, Filter.Dx3FWindow(fType), PadType.replicate);

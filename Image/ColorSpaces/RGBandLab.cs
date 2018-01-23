@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
 {
@@ -8,9 +9,8 @@ namespace Image.ColorSpaces
     {
         #region rgb2lab
         public static List<ArraysListDouble> RGB2Lab(Bitmap img)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
-            int width = img.Width;
+        {          
+            int width  = img.Width;
             int height = img.Height;
 
             var ColorList = Helpers.GetPixels(img);
@@ -25,9 +25,8 @@ namespace Image.ColorSpaces
 
         //List with R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(List<ArraysListInt> rgbList)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
-            int width = rgbList[0].Color.GetLength(1);
+        {      
+            int width  = rgbList[0].Color.GetLength(1);
             int height = rgbList[0].Color.GetLength(0);
 
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
@@ -47,8 +46,7 @@ namespace Image.ColorSpaces
 
         //R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(int[,] R, int[,] G, int[,] B)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {         
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -79,8 +77,7 @@ namespace Image.ColorSpaces
         #region lab2rgb
         //bad, when from file. Lost a lot from converting and round
         public static List<ArraysListInt> Lab2RGB(Bitmap img)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {        
             int width  = img.Width;
             int height = img.Height;
 

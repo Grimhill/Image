@@ -3,6 +3,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using Image.ArrayOperations;
 
 //Some little operations
 namespace Image

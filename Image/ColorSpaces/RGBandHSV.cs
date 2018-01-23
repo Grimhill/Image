@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
 {
@@ -57,8 +58,7 @@ namespace Image.ColorSpaces
 
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListDouble> RGB2HSVCount(int[,] R, int[,] G, int[,] B)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {          
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -72,9 +72,9 @@ namespace Image.ColorSpaces
             double[,] Vd = new double[height, width];   //Value (Brightness/яркость)
 
             //he R,G,B values are divided by 255 to change the range from 0..255 to 0..1:
-            var Rcd = R.ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(R);
-            var Gcd = G.ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(G);
-            var Bcd = B.ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(B);
+            var Rcd = R.ImageUint8ToDouble(); 
+            var Gcd = G.ImageUint8ToDouble(); 
+            var Bcd = B.ImageUint8ToDouble(); 
 
             //count Hue in degrees values
             for (int i = 0; i < height; i++)
@@ -160,13 +160,11 @@ namespace Image.ColorSpaces
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListInt> HSV2RGB(Bitmap img)
         {
-            //ArrayOperations ArrOp = new ArrayOperations();
-
             var ColorList = Helpers.GetPixels(img);
 
-            var H = (ColorList[0].Color).ImageUint8ToDouble().ArrayMultByConst(360); //ArrOp.ArrayMultByConst(ArrOp.ImageUint8ToDouble(ColorList[0].Color), 360);
-            var S = (ColorList[1].Color).ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(ColorList[1].Color);
-            var V = (ColorList[2].Color).ImageUint8ToDouble();  //ArrOp.ImageUint8ToDouble(ColorList[2].Color);
+            var H = (ColorList[0].Color).ImageUint8ToDouble().ArrayMultByConst(360); 
+            var S = (ColorList[1].Color).ImageUint8ToDouble(); 
+            var V = (ColorList[2].Color).ImageUint8ToDouble(); 
 
             List<ArraysListInt> rgbList = new List<ArraysListInt>();
 
@@ -230,7 +228,6 @@ namespace Image.ColorSpaces
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListInt> HSV2RGBCount(double[,] H, double[,] S, double[,] V)
         {
-            //ArrayOperations ArrOp = new ArrayOperations();
             int width  = H.GetLength(1);
             int height = H.GetLength(0);
 
@@ -243,14 +240,12 @@ namespace Image.ColorSpaces
             int[,] G = new int[height, width];
             int[,] B = new int[height, width];
 
-            var C = V.ArrayMultElements(S); //ArrOp.ArrayMultElements(V, S);
-
-            //var X = ArrOp.AbsArrayElements(ArrOp.ArraySubWithConst(ArrOp.ModArrayElements(ArrOp.ArrayDivByConst(H, HSVang), 2), 1));
-            var X = H.ArrayDivByConst(HSVang).ModArrayElements(2).ArraySubWithConst(1).AbsArrayElements();
-            //X = ArrOp.ArrayMultElements(C, ArrOp.ConstSubArrayElements(1, X));
+            var C = V.ArrayMultElements(S); 
+          
+            var X = H.ArrayDivByConst(HSVang).ModArrayElements(2).ArraySubWithConst(1).AbsArrayElements();            
             X = X.ConstSubArrayElements(1).ArrayMultElements(C);
 
-            var m = V.SubArrays(C); //ArrOp.SubArrays(V, C);
+            var m = V.SubArrays(C); 
 
             //R G B count
             for (int i = 0; i < height; i++)

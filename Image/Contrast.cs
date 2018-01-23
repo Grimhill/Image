@@ -3,6 +3,7 @@ using System.Linq;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Image.ArrayOperations;
 
 //BW and RGB contrast operation
 namespace Image

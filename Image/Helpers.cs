@@ -4,6 +4,7 @@ using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
+using Image.ArrayOperations;
 
 //Helper operations
 namespace Image
@@ -344,9 +345,7 @@ namespace Image
         }
 
         public static void WriteImageToFile(List<ArraysListDouble> Colors, string fileName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-
+        {          
             if (Colors[0].Color.Length != Colors[1].Color.Length || Colors[0].Color.Length != Colors[2].Color.Length)
             {
                 Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(List<arraysListDouble> Colors, string fileName) <-");
@@ -403,6 +402,37 @@ namespace Image
                 Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
+        public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName, OutType type)
+        {
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            //fileName = Path.GetFileNameWithoutExtension(fileName);
+
+            if (R.Length != G.Length || R.Length != B.Length)
+            {
+                Console.WriteLine("Image plane arrays size dismatch in hsv2rgb operation -> WriteImageToFile(int[,] R, int[,] G, int[,] B) <-");
+            }
+            else
+            {
+                Bitmap image = new Bitmap(R.GetLength(1), G.GetLength(0), PixelFormat.Format24bppRgb);
+
+                image = SetPixels(image, R, G, B);
+
+                if (type == OutType.OneBpp)
+                {
+                    SomeLittle.ImageTo1Bpp(image, fileName);
+                }
+                else if (type == OutType.EightBpp)
+                {
+                    MoreHelpers.Bbp24Gray2Gray8bpp(image, fileName);
+                }
+                else
+                {
+                    string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName);
+                    //image.Save(outName);
+                    Helpers.SaveOptions(image, outName, ImgExtension);
+                }
+            }
+        }
 
         //
         public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName, string directoryName)
@@ -448,8 +478,6 @@ namespace Image
 
         public static void WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName)
         {
-            ArrayOperations ArrOp = new ArrayOperations();
-
             if (planeOne.Length != planeTwo.Length || planeTwo.Length != planeThree.Length)
             {
                 Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName) <-");
@@ -492,8 +520,7 @@ namespace Image
 
         //
         public static void WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName, string directoryName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {          
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
 

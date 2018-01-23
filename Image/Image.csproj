@@ -45,6 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayOperations.cs" />
+    <Compile Include="ArrayOperations\ArrayDoubleExtensions.cs" />
+    <Compile Include="ArrayOperations\ArrayIntExtensions.cs" />
+    <Compile Include="ArrayOperations\VectorExtensions.cs" />
     <Compile Include="ColorSpacetoFile.cs" />
     <Compile Include="ColorSpaces\RGBandCMY.cs" />
     <Compile Include="ColorSpaces\RGBandHSV.cs" />

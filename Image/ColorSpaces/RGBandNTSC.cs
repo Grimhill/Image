@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
 {
@@ -57,8 +58,7 @@ namespace Image.ColorSpaces
 
         //Y I Q result - double values, not in range [0 1], include negative
         public static List<ArraysListDouble> RGB2NTSCCount(int[,] R, int[,] G, int[,] B)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {   
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -79,9 +79,9 @@ namespace Image.ColorSpaces
                 {
                     double[] temp = new double[3] { R[i, j], G[i, j], B[i, j] };
 
-                    Y[i, j] = Ycon.MultVectors(temp).Sum();  //ArrOp.MultVectors(Ycon, temp).Sum();
-                    I[i, j] = Icon.MultVectors(temp).Sum();  //ArrOp.MultVectors(Icon, temp).Sum();
-                    Q[i, j] = Qcon.MultVectors(temp).Sum();  //ArrOp.MultVectors(Qcon, temp).Sum();
+                    Y[i, j] = Ycon.MultVectors(temp).Sum();
+                    I[i, j] = Icon.MultVectors(temp).Sum();
+                    Q[i, j] = Qcon.MultVectors(temp).Sum();
                 }
             }
 
@@ -98,13 +98,12 @@ namespace Image.ColorSpaces
 
         //bad when from file, coz lost negative values in I & Q when saving ntsc result in file
         public static List<ArraysListInt> NTSC2RGB(Bitmap img)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {        
             var ColorList = Helpers.GetPixels(img);
 
-            double[,] Y = (ColorList[0].Color).ArrayToDouble(); //ArrOp.ArrayToDouble(ColorList[0].Color);
-            double[,] I = (ColorList[1].Color).ArrayToDouble(); //ArrOp.ArrayToDouble(ColorList[1].Color);
-            double[,] Q = (ColorList[2].Color).ArrayToDouble(); //ArrOp.ArrayToDouble(ColorList[2].Color);
+            double[,] Y = (ColorList[0].Color).ArrayToDouble(); 
+            double[,] I = (ColorList[1].Color).ArrayToDouble(); 
+            double[,] Q = (ColorList[2].Color).ArrayToDouble(); 
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -150,8 +149,7 @@ namespace Image.ColorSpaces
         }
 
         public static List<ArraysListInt> NTSC2RGBCount(double[,] Y, double[,] I, double[,] Q)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {       
             int width  = Y.GetLength(1);
             int height = Y.GetLength(0);
 
@@ -172,9 +170,9 @@ namespace Image.ColorSpaces
                 {
                     double[] temp = new double[3] { Y[i, j], I[i, j], Q[i, j] };
 
-                    R[i, j] = Ycon.MultVectors(temp).Sum(); //ArrOp.MultVectors(Ycon, temp).Sum();
-                    G[i, j] = Icon.MultVectors(temp).Sum(); //ArrOp.MultVectors(Icon, temp).Sum();
-                    B[i, j] = Qcon.MultVectors(temp).Sum(); //ArrOp.MultVectors(Qcon, temp).Sum();
+                    R[i, j] = Ycon.MultVectors(temp).Sum(); 
+                    G[i, j] = Icon.MultVectors(temp).Sum(); 
+                    B[i, j] = Qcon.MultVectors(temp).Sum(); 
                 }
             }
 

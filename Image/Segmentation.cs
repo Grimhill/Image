@@ -4,6 +4,7 @@ using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
+using Image.ArrayOperations;
 
 namespace Image
 {
@@ -330,9 +331,7 @@ namespace Image
 
         public static int[,] EdgeHelperv1(double scale, int[,] im, double threshold, double[,] filter,
             double[,] filterT, double fdiv, EdgeDirection direction, string fName, string extension, EdgeTempName tempName)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
-
+        {           
             int[,] result = new int[im.GetLength(0), im.GetLength(1)];
             int[,] b = new int[im.GetLength(0), im.GetLength(1)];
 

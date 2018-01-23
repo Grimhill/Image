@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
 using Image.ColorSpaces;
+using Image.ArrayOperations;
 
 //Obtain presented color space, and write them to file
 namespace Image

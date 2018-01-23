@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Image.ArrayOperations;
 
 //Gradient count
 namespace Image
@@ -21,26 +22,25 @@ namespace Image
 
             //Composite gradient image scaled to [0, 1].
             //for ImageOutlines function           
-            var PPG = ArrayDoubleExtenshions.SumThreeArrays(RG, GG, BG).ArrayDivByConst(ArrayDoubleExtenshions.SumThreeArrays(RG, BG, GG).Cast<double>().Max());
+            var PPG = ArrayDoubleExtensions.SumThreeArrays(RG, GG, BG).ArrayDivByConst(ArrayDoubleExtensions.SumThreeArrays(RG, BG, GG).Cast<double>().Max());
 
             return PPG;
         }
 
         //Some problems, receive NaN
         public static double[,] GradientExtended(double[,] Rx, double[,] Ry, double[,] Gx, double[,] Gy, double[,] Bx, double[,] By)
-        {
-            ArrayOperations ArrOp = new ArrayOperations();
+        {            
             double[,] Temp = new double[Rx.GetLength(0), Rx.GetLength(1)];
             //Compute the parameters of the vector gradient
 
             //gxx = Rx .^ 2 + Gx .^ 2 + Bx .^ 2 
-            var Gxx = ArrayDoubleExtenshions.SumThreeArrays(Rx.PowArrayElements(2), Gx.PowArrayElements(2), Bx.PowArrayElements(2));
+            var Gxx = ArrayDoubleExtensions.SumThreeArrays(Rx.PowArrayElements(2), Gx.PowArrayElements(2), Bx.PowArrayElements(2));
 
             //gyy = Ry .^ 2 + Gy .^ 2 + By .^ 2            
-            var Gyy = ArrayDoubleExtenshions.SumThreeArrays(Ry.PowArrayElements(2), Gy.PowArrayElements(2), By.PowArrayElements(2));
+            var Gyy = ArrayDoubleExtensions.SumThreeArrays(Ry.PowArrayElements(2), Gy.PowArrayElements(2), By.PowArrayElements(2));
 
             //gxy = Rx .* Ry + Gx .* Gy + Bx .* By            
-            var Gxy = ArrayDoubleExtenshions.SumThreeArrays(Rx.ArrayMultElements(Ry), Gx.ArrayMultElements(Gy), Bx.ArrayMultElements(By));
+            var Gxy = ArrayDoubleExtensions.SumThreeArrays(Rx.ArrayMultElements(Ry), Gx.ArrayMultElements(Gy), Bx.ArrayMultElements(By));
 
             //A = 0.5 * (atan((2*gxy) ./ (gxx - gyy + eps))) eps - Floating-point relative accuracy eps = 2.2204e-016            
 

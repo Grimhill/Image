@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
 {
@@ -56,16 +57,15 @@ namespace Image.ColorSpaces
 
         //X Y Z values - double > 1, can be <1 if represent small R G B values
         public static List<ArraysListDouble> RGB2XYZCount(int[,] R, int[,] G, int[,] B)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {    
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            var Rcd = R.ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(R);
-            var Gcd = G.ImageUint8ToDouble();//ArrOp.ImageUint8ToDouble(G);
-            var Bcd = B.ImageUint8ToDouble(); //ArrOp.ImageUint8ToDouble(B);
+            var Rcd = R.ImageUint8ToDouble();
+            var Gcd = G.ImageUint8ToDouble();
+            var Bcd = B.ImageUint8ToDouble();
 
             double[,] R_temp = new double[height, width];
             double[,] G_temp = new double[height, width];
@@ -130,15 +130,13 @@ namespace Image.ColorSpaces
 
         //XYZ D65/2 to sRGB
         public static List<ArraysListInt> XYZ2RGB(Bitmap img)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations(); 
+        { 
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            var X = (ColorList[0].Color).ArrayToDouble(); //ArrOp.ArrayToDouble(ColorList[0].Color);
-            var Y = (ColorList[1].Color).ArrayToDouble();  //ArrOp.ArrayToDouble(ColorList[1].Color);
-            var Z = (ColorList[2].Color).ArrayToDouble();  //ArrOp.ArrayToDouble(ColorList[2].Color);
+            var X = (ColorList[0].Color).ArrayToDouble(); 
+            var Y = (ColorList[1].Color).ArrayToDouble(); 
+            var Z = (ColorList[2].Color).ArrayToDouble(); 
 
             rgbResult = XYZ2RGBbCount(X, Y, Z);
 
@@ -182,8 +180,7 @@ namespace Image.ColorSpaces
         }
 
         public static List<ArraysListInt> XYZ2RGBbCount(double[,] X, double[,] Y, double[,] Z)
-        {
-            //ArrayOperations ArrOp = new ArrayOperations();
+        {      
             int width  = X.GetLength(1);
             int height = X.GetLength(0);
 
