@@ -61,6 +61,27 @@ namespace Image
                 Directory.CreateDirectory(path);
         }
 
+        public static int[,] Obtain8bppdata(Bitmap img)
+        {
+            int[,] pixelData = new int[img.Height, img.Width];
+
+            var data = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat);
+
+            unsafe
+            {
+                byte* bmpPtr = (byte*)data.Scan0;
+                for (int y = 0; y < img.Height; y++)
+                {
+                    for (int x = 0; x < img.Width; x++)
+                    {
+                        pixelData[y, x] = (bmpPtr[x + y * data.Stride]);
+                    }
+                }
+                img.UnlockBits(data);
+            }
+            return pixelData;
+        }
+
         public static void Bbp24Gray2Gray8bpp(Bitmap img, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");

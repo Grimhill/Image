@@ -311,5 +311,153 @@ namespace Image
 
             Helpers.WriteImageToFile(t, t, t, "checkerboard_.jpg", type);
         }
+
+        public static int[,] CheckerBoard(int n, int r, int c)//r - rows, c - cols, n - pixels per cell
+        {
+            int[] wCell = new int[n];
+            int[] bCell = new int[n];
+            int[,] result = new int[n * r, n * c];
+
+            for (int i = 0; i < n; i++)
+                wCell[i] = 255;
+
+            ArrGen<int> d = new ArrGen<int>();
+
+            int[] temp1 = new int[n * c];
+            int[] temp2 = new int[n * c];
+            var resVect = result.Cast<int>().ToArray();
+
+            for (int i = 0; i < temp1.Length / n; i++)
+                if (i % 2 == 0)
+                    bCell.CopyTo(temp1, bCell.Length * i);
+                else wCell.CopyTo(temp1, wCell.Length * i);
+
+            for (int i = 0; i < temp2.Length / n; i++)
+                if (i % 2 == 0)
+                    wCell.CopyTo(temp2, wCell.Length * i);
+                else bCell.CopyTo(temp2, bCell.Length * i);
+
+            int count = 0;
+            int countn = 0;
+            if (r % 2 == 0)
+            {
+                for (int i = 0; i < r / 2; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp1.CopyTo(resVect, temp1.Length * (i + countn));
+                        countn++;
+                    }
+
+                    //count++;                 
+
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp2.CopyTo(resVect, temp2.Length * (i + countn));
+                        countn++;
+                    }
+
+                    countn--;
+                }
+            }
+
+            else
+            {
+                for (int i = 0; i < (r - 1) / 2; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp1.CopyTo(resVect, temp1.Length * (i + count));
+                        count++;
+                    }
+
+                    //count++;                 
+
+                    for (int j = 0; j < n; j++)
+                    {
+                        temp2.CopyTo(resVect, temp2.Length * (i + count));
+                        count++;
+                    }
+
+                    count--;
+                }
+                int baka = n;
+                for (int j = 0; j < n; j++)
+                {
+                    temp1.CopyTo(resVect, resVect.Length - (temp2.Length * baka));
+                    baka--;
+                }
+            }
+
+            return d.VecorToArrayRowByRow(n * r, n * c, resVect); //r,c, vector            
+        }
+
+        public static void WildBoard(Bitmap img, int n, WildBoardVariant var, string fileName)
+        {
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+
+            var ColorList = Helpers.GetPixels(img);
+            int[,] resultR = new int[img.Height, img.Width];
+            int[,] resultG = new int[img.Height, img.Width];
+            int[,] resultB = new int[img.Height, img.Width];
+            string outName = String.Empty;
+
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+
+            int Boardrows = (int)Math.Ceiling((double)img.Height / n);
+            int Boardcols = (int)Math.Ceiling((double)img.Width / n);
+
+            var board = CheckerBoard(n, Boardrows, Boardcols);
+            var gray = Helpers.RGBToGrayArray(img);
+
+            for (int i = 0; i < img.Height; i++)
+            {
+                for (int j = 0; j < img.Width; j++)
+                {
+                    if (var == WildBoardVariant.Variant1)
+                    {
+                        if (board[i, j] == 0)
+                        {
+                            resultR[i, j] = ColorList[0].Color[i, j];
+                            resultG[i, j] = ColorList[1].Color[i, j];
+                            resultB[i, j] = ColorList[2].Color[i, j];
+                        }
+                        else
+                        {
+                            resultR[i, j] = gray[i, j];
+                            resultG[i, j] = gray[i, j];
+                            resultB[i, j] = gray[i, j];
+                        }
+                    }
+                    else
+                    {
+                        if (board[i, j] == 255)
+                        {
+                            resultR[i, j] = ColorList[0].Color[i, j];
+                            resultG[i, j] = ColorList[1].Color[i, j];
+                            resultB[i, j] = ColorList[2].Color[i, j];
+                        }
+                        else
+                        {
+                            resultR[i, j] = gray[i, j];
+                            resultG[i, j] = gray[i, j];
+                            resultB[i, j] = gray[i, j];
+                        }
+                    }
+                }
+            }
+
+            image = Helpers.SetPixels(image, resultR, resultG, resultB);
+            outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_CheckerBoard" + ImgExtension);
+            image.Save(outName);
+        }
+    }
+
+    public enum WildBoardVariant
+    {
+        Variant1,
+        Variant2
     }
 }

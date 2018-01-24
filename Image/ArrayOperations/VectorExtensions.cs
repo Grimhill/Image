@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Image.ArrayOperations
 {
@@ -7,116 +8,68 @@ namespace Image.ArrayOperations
         //Mult vector elements by const
         public static double[] VectorMultByConst(this double[] x, double consts)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k] * consts;
-            }
-            return z;
+            return x.Select(r => r * consts).ToArray();
         }
 
         //Div vector elements by const
         public static double[] VectorDivByConst(this double[] x, double consts)
         {
             double[] z = new double[x.Length];
+            if (consts == 0)
+                throw new System.DivideByZeroException("Constant can`t be zero");
+            //Console.WriteLine("Cant div by 0");            
+            else
+                z = x.Select(r => r / consts).ToArray();
 
-            for (int k = 0; k < x.Length; k++)
-            {
-                if (consts == 0)
-                {
-                    Console.WriteLine("Cant div by 0");
-                }
-                else
-                {
-                    z[k] = x[k] / consts;
-                }
-            }
             return z;
         }
 
         //Sum vector elements with const
         public static double[] VectorSumConst(this double[] x, double consts)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k] + consts;
-            }
-            return z;
+            return x.Select(r => r + consts).ToArray();
         }
 
         //Sub vector elements with const
         public static double[] VectorSubConst(this double[] x, double consts)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k] - consts;
-            }
-            return z;
+            return x.Select(r => r - consts).ToArray();
         }
 
         //Const Sub vector elements
         public static double[] ConstSubVectorElements(this double[] x, double consts)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = consts - x[k];
-            }
-            return z;
+            return x.Select(r => consts - r).ToArray();
         }
 
         //Pow Vector elements
         public static double[] PowVectorElements(this double[] x, double pow)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = Math.Pow(x[k], pow);
-            }
-            return z;
+            return x.Select(r => Math.Pow(r, pow)).ToArray();
         }
 
         //Mult 2 vectors [i] elements
         public static double[] MultVectors(this double[] x, double[] y)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k] * y[k];
-            }
-            return z;
+            return x.Zip(y, (a, b) => a * b).ToArray();
         }
 
         //Sum 2 vectors [i] elements
         public static double[] SumVectors(this double[] x, double[] y)
         {
-            double[] z = new double[x.Length];
+            return x.Zip(y, (a, b) => a + b).ToArray();
+        }
 
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k] + y[k];
-            }
-            return z;
+        //Sub 2 vectors [i] elements
+        public static double[] SubVectors(this double[] x, double[] y)
+        {
+            return x.Zip(y, (a, b) => a - b).ToArray();
         }
 
         //Area
         public static double[] VectorToDouble(this int[] x)
         {
-            double[] z = new double[x.Length];
-
-            for (int k = 0; k < x.Length; k++)
-            {
-                z[k] = x[k];
-            }
-            return z;
+            return x.Select(r => (double)r).ToArray();
         }
 
         public static int[] ImageVectorToUint8(this double[] x)
@@ -125,7 +78,9 @@ namespace Image.ArrayOperations
 
             for (int k = 0; k < x.Length; k++)
             {
-                if ((int)(x[k] * 255) > 255) { z[k] = 255; } else { z[k] = (int)(x[k] * 255); }
+                if ((int)(x[k] * 255) > 255) { z[k] = 255; }
+                else if (x[k] < 0) { z[k] = 0; }
+                else { z[k] = (int)(x[k] * 255); }
             }
             return z;
         }
