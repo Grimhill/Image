@@ -15,19 +15,28 @@ namespace Image
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
             //write image back from rgb array into file            
             int height = Rc.GetLength(0);
-            int width  = Rc.GetLength(1);
+            int width = Rc.GetLength(1);
 
             var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            bitmap = Helpers.SetPixels(bitmap, Rc, Gc, Bc);
-
-            bitmap.Save(Directory.GetCurrentDirectory() + "\\Rand\\rgbArrayToImage.jpg");
+            if (Rc.GetLength(0) != Gc.GetLength(0) || Rc.GetLength(0) != Bc.GetLength(0)
+                || Rc.GetLength(1) != Gc.GetLength(1) || Rc.GetLength(1) != Bc.GetLength(1))
+            {
+                Console.WriteLine("Array dimentions dismatch in operation -> RGBArrayToImage");
+            }
+            else
+            {
+                bitmap = Helpers.SetPixels(bitmap, Rc, Gc, Bc);
+                bitmap.Save(Directory.GetCurrentDirectory() + "\\Rand\\rgbArrayToImage.jpg");
+            }
         }
 
         //only for 24bpp input
-        public static void RGBToGray24bpp(Bitmap image, string ImgExtension)
+        public static void RGBToGray24bpp(Bitmap image, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            string ImgExtension = Path.GetExtension(fileName).ToLower();
+            fileName = Path.GetFileNameWithoutExtension(fileName);
 
             // Loop through the images pixels to reset color.
             for (int x = 0; x < image.Height; x++)
@@ -47,10 +56,11 @@ namespace Image
                 }
             }
             //image.Save("rgbToGray24bpp.jpg");
-            string outName = Directory.GetCurrentDirectory() + "\\Rand\\rgbToGray24bpp" + ImgExtension;
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\rgbToGray24bpp" + ImgExtension);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
+        //check if input format is already 8bpp
         public static void RGB2Gray8bpp(Bitmap img, string fileName)
         {
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -93,7 +103,6 @@ namespace Image
                         (0.299f * bmpPtr[r * bmpStride + ic] +
                         0.587f * bmpPtr[r * bmpStride + ic + 1] +
                         0.114f * bmpPtr[r * bmpStride + ic + 2]);
-
             }
 
             //Unlock the images
@@ -102,40 +111,8 @@ namespace Image
 
             string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_rgbToGray8bppIndexed" + ImgExtension);
 
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
             image.Save(outName);
             //Helpers.SaveOptions(image, outName, ImgExtension);
-        }
-
-        public static void ImageTo1Bpp(Bitmap img, string fileName)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-
-            int w = img.Width;
-            int h = img.Height;
-            Bitmap bmp = new Bitmap(w, h, PixelFormat.Format1bppIndexed);
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
-
-            byte[] scan = new byte[(w + 7) / 8];
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    if (x % 8 == 0) scan[x / 8] = 0;
-                    Color c = img.GetPixel(x, y);
-                    if (c.GetBrightness() >= 0.5) scan[x / 8] |= (byte)(0x80 >> (x % 8));
-                }
-                Marshal.Copy(scan, 0, (IntPtr)((long)data.Scan0 + data.Stride * y), scan.Length);
-            }
-            bmp.UnlockBits(data);
-
-            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_1BppImage" + ImgExtension);
-
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
-            //image.Save(outName);
-            Helpers.SaveOptions(bmp, outName, ImgExtension);
         }
 
         public static void ImageTo1Bpp(Bitmap img, double level, string fileName)
@@ -169,15 +146,13 @@ namespace Image
             bmp.UnlockBits(data);
 
             string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_1BppImageLvl" + level.ToString() + ImgExtension);
-
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
-            //image.Save(outName);
-            Helpers.SaveOptions(bmp, outName, ImgExtension);
+            bmp.Save(outName);
+            //Helpers.SaveOptions(bmp, outName, ImgExtension);
         }
 
         //only for RGB images, b&w 24bbp and 24bpp negatives. (what about8bpp?)
         public static void MakeNegativeAndBack(Bitmap img, string fileName)
-        {           
+        {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -189,22 +164,20 @@ namespace Image
             var Gc = ColorList[1].Color;
             var Bc = ColorList[2].Color;
 
-            var Rcn = Rc.ConstSubArrayElements(255); 
-            var Gcn = Gc.ConstSubArrayElements(255); 
-            var Bcn = Bc.ConstSubArrayElements(255); 
+            var Rcn = Rc.ConstSubArrayElements(255);
+            var Gcn = Gc.ConstSubArrayElements(255);
+            var Bcn = Bc.ConstSubArrayElements(255);
 
             image = Helpers.SetPixels(image, Rcn, Gcn, Bcn);
-
             string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_NegativeOrRestored" + ImgExtension);
 
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
             //image.Save(outName);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         //only for RGB images, b&w 24bbp. (what about8bpp?)
         public static void GammaCorrectionFun(Bitmap img, double c, double gamma, string fileName)
-        {          
+        {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -217,20 +190,19 @@ namespace Image
             var Bc = ColorList[2].Color;
 
             //higher c and gamma - lighter image after correction            
-            var Rcg = Rc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();            
-            var Gcg = Gc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();            
+            var Rcg = Rc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();
+            var Gcg = Gc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();
             var Bcg = Bc.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();
 
             image = Helpers.SetPixels(image, Rcg, Gcg, Bcg);
-
             string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_GammaCorrection" + ImgExtension);
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
+
             //image.Save(outName);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void Mirror(Bitmap img, Mir direction, string fileName)
-        {            
+        public static void Mirror(Bitmap img, Mirror direction, string fileName)
+        {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
@@ -282,14 +254,13 @@ namespace Image
             }
 
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
-
             outName = MoreHelpers.OutputFileNames(outName);
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
+
             //image.Save(outName);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
-        public static void CropImage(Bitmap bitmap, string filename, int cutLeft, int cutRight, int cutTop, int cutBottom, string fileName)
+        public static void CropImage(Bitmap bitmap, int cutLeft, int cutRight, int cutTop, int cutBottom, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
@@ -343,7 +314,35 @@ namespace Image
             image.Save(outName);
         }
 
-        public static void SaveImageInOtherFormat(Bitmap image, string fileName, SupportFormats newFormat)
+        public static void SetPixelsAlpha(Bitmap image, double alpha)
+        {
+            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Bitmap img = new Bitmap(image.Width, image.Height);
+            int Alpha = (int)(alpha * 255);
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    Color pixelColor = image.GetPixel(x, y);
+                    try
+                    {
+                        img.SetPixel(x, y, Color.FromArgb(Alpha, pixelColor.R, pixelColor.G, pixelColor.B));
+                        Color pixel = img.GetPixel(x, y);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> setPixelsAlpha <-");
+                    }
+                }
+            }
+
+            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + "_imageAlpha" + alpha.ToString() + ".jpg");
+
+            img.Save(outName);
+        }
+
+        public static void SaveImageInOtherFormat(Bitmap image, SupportFormats newFormat, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
@@ -356,7 +355,7 @@ namespace Image
         }
     }
 
-    public enum Mir
+    public enum Mirror
     {
         top,
         right,

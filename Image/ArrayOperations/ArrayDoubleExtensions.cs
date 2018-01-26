@@ -294,7 +294,7 @@ namespace Image.ArrayOperations
             return y;
         }
 
-        //obtain module of dive array elements by const
+        //obtain module of div array elements by const
         public static double[,] ModArrayElements(this double[,] x, double module)
         {
             int rows = x.GetLength(0);

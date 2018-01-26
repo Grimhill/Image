@@ -1,0 +1,247 @@
+﻿     Not recommended to use 8-bit .jpeg\tif\jpg images
+     there some problems on .NET to process with them
+     You can convert them into 8-bit .png by using non-windows stanadrt program
+     such as Matlab or ACDSee
+     
+	 Global Parameters: image - input bitmap, FileName - input image filename with extension
+
+     Contour.cs
+
+     serach contours on image. 
+     image for test - imgfortest\dragon.jpg 
+	 Parameters: variants: 1-6   
+1)   Contour.GlobalContour(image, CountourVariant.Variant6_RGB, FileName);
+
+     
+     Contrast.cs
+
+     contrast for black & white image
+     image for test - imgfortest\contrast\Contrast_24.jpg or Contrast_8.png
+     Parameters: all default
+2)   Contrast.ContrastBW(image, FileName);    
+
+     Parameters: low_in & high_in contrast limits [0..1]
+2.1) Contrast.ContrastBlackWhite(image, 0.3, 0.7, FileName);
+
+     Parameters: low_in & high_in contrast limits [0..1], gamma coefficient
+2.2) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 2, FileName);
+
+	 Parameters: low_in & high_in and low_out & high_out contrast limits [0..1]
+2.3) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8, FileName);  
+
+     Parameters: low_in & high_in and low_out & high_out contrast limits [0..1], gamma coefficient
+2.4) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8, 2, FileName);     
+     
+     contrast for RGB image
+	 image for test - imgfortest\contrast\contrastRGB.png
+     Parameters: low_in & high_in contrast limits [0..1] for RGB components     
+2.5) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, FileName);
+
+	 Parameters: low_in & high_in contrast limits [0..1] for RGB components, gamma coefficient     
+2.6) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 2, FileName);
+
+	 Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components    
+2.7) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8, FileName);
+
+	 Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components, gamma coefficient     
+2.8) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8, 2, FileName);
+     
+
+	 Segmentation.cs	 
+
+	 Find lines on image (recomended simple b&w images)
+	 image for test - imgfortest\segmentation\lines.png
+3.1) Segmentation.FindLines(image, LineDirection.horizontal, FileName);
+
+	 Image segmentation
+	 image for test - imgfortest\segmentation\segmentation.png
+     Parameters: InEdgeImage - 8/24bit image, edge variant    
+3.2) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var1, FileName);
+
+	 Parameters: InEdgeImage - 8/24bit image, edge variant, threshhold [0..1]    
+3.3) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var1, 0.3, FileName);
+
+	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method
+3.4) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, FileName);
+
+	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, threshhold [0..1] 
+3.5) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, 0.2, FileName); 
+
+	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, direction
+3.6) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.horizontal, FileName); 
+
+	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, direction, threshhold [0..1] 
+3.7) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.vertical, 0.2, FileName);
+
+	 Image graythresh. Recomended 8/24bit b&w image
+     image for test - imgfortest\segmentation\Graythresh.png
+	 Parameters: InEdgeImage - 8/24bit image
+3.8) Segmentation.Graythresh(image, InEdgeImage.BW8b, FileName);
+     
+
+	 Sharp.cs
+	 Sharp image
+
+	 image for test - imgfortest\Sharp\Sharpen_8.png || pic_toSharp.png
+	 Parameters: UnSharpInColorSpace - sharp image in selected color space, FilterType - select filter type for sharp
+4.1) Sharp.UnSharp(image, UnSharpInColorSpace.fakeCIE1976L, FilterType.Laplassian2, FileName);
+
+	 Smooth image
+	 image for test - imgfortest\Sharp\pic_toSharp.png
+	 Parameters: SmoothFilterWindow - select filter window, SmoothInColorSpace - smooth image in selected color space
+4.2) Smoothing.Smooth(image, SmoothFilterWindow.window3x3, SmoothInColorSpace.fakeCIE1976L , FileName);
+
+	 Image histogram equalization
+     image for test - imgfortest\Sharp\pic_toSharp.png
+	 Parameters: HisteqColorSpace - make histeq image in selected color space 
+4.3) Histeq.Hist(image, HisteqColorSpace.fakeCIE1976L, FileName);
+	 
+
+	 spFilt.cs
+	 Filter salt and papper noise on image
+	 amean, gmean, hmean for salt noize
+     chmean filter Q>0 for pepper & <0 for salt
+     recommend apply filter several times
+
+     image for test - imgfortest\salt pepper\Salt_8.png or Salt_24.jpg || Pepper_8.png or Pepper_24.jpg    
+	 Parameters: m & n - filter dimentions, not more 3x3,SaltPepperfilterType - select filter type
+5.1) SaltPepperFilter.SaltPepperfilter(image, 2, 2, SaltPepperfilterType.hmean, FileName); 
+
+	 Parameters: m & n - filter dimentions, not more 3x3, Q - filter order, SaltPepperfilterType - select filter type, unsharp - make or not sharp after filter
+5.2) SaltPepperFilter.SaltPepperfilter(image, 2, 2, 1.5, SaltPepperfilterType.hmean, false, FileName); 
+
+
+	 ColorSpaces directory
+	 RGBandCMY   - methods to convert RGB to SMY   and back
+	 RGBandHSV   - methods to convert RGB to HSV   and back
+	 RGBandLab   - methods to convert RGB to Lab   and back
+	 RGBandNTSC  - methods to convert RGB to NTSC  and back
+	 RGBandXYZ   - methods to convert RGB to XYZ   and back
+	 RGBandYCbCr - methods to convert RGB to YCbCr and back
+	 XYZandLab   - methods to convert XYZ to Lab   and back
+
+
+	 ArrayOperations Directory
+	 Contain variable operations with arrays and vectors
+
+
+	 Helpers.cs & MoreHelpers.cs
+	 Contain some utility functions for image process
+
+
+	 padMyArray.cs
+	 Contain functions for array padding
+
+
+	 ColorSpacePlane.cs
+
+	 Obtain R\G\B image`s color plane
+	 image for test - some RGB image  
+	 Parameters: ColorPlaneRGB - select which plane save
+6)	 ColorSpacePlane.RGBcomponents(image, ColorPlaneRGB.Rnarkoman, FileName);
+
+
+	 ColorSpacetoFile.cs
+
+	 Save image, converted to anither color space
+	 Beware, some color planes have negative values, and before saving converted to byte [0..255]
+
+	 image for test - some RGB image  or imgfortest\pic.1.png
+	 RGB to another color space, if you have list with RGB components
+	 Parameters: colorPlanes - list of R\G\B planes array in int format. RGBtoAnotherColorSpace - select to which space convert
+7.1) ColorSpaceToFile.RGBtoAnothercolorSpacetoFile(colorPlanes, RGBtoAnotherColorSpace.rgb2hsv)
+
+     Another color space to rgb, if you have list with plane components
+	 Parameters: colorPlanes - list of planes array in double format. AnotherColorSpacetoRGBaXYZLab - select from which space convert
+7.2) ColorSpaceToFile.AnothercolorSpacetoRGBXYZLabtoFile(colorPlanes, AnotherColorSpacetoRGBaXYZLab.lab2rgb)
+
+	 RGB to another color space, directly from file or Another color space to rgb
+	 Parameters: ColorSpaceType - select from which space convert
+7.3) ColorSpaceToFile.ColorSpaceToFileDirectFromImage(image, ColorSpaceType.rgb2lab1976, FileName);
+
+	 Save FakeCIE1976Lab to file, image from directory
+	 Parameters: 
+7.4) ColorSpaceToFile.FakeCIE1976LtoFile(image, fileName);
+
+
+	 SomeLittle.cs
+	 Some little functions with images
+
+	 Save image to file if have R, G, B arrays
+	 Parameters: R, G, B int[,] arrays
+8)	 SomeLittle.RGBArrayToImage(Rc, Gc, Bc);
+
+	 Transform RGB image to gray scale and save as 24b
+	 image for test - some RGB image
+9)	 SomeLittle.RGBToGray24bpp(image, FileName);
+     
+     Transform RGB image to gray scale and save as 8b
+	 image for test - some RGB image
+10)  SomeLittle.RGB2Gray8bpp(image, FileName);
+     
+	 Transform RGB image to binary and save
+	 image for test - some image
+	 Parameters: level - level to devide 0 or 1 pixels by formula: pixelValue/255 <> level
+11)  SomeLittle.ImageTo1Bpp(image, 0.5, FileName);
+     
+	 Make negative from image or back image from negative
+	 image for test - some image
+12)  SomeLittle.MakeNegativeAndBack(image, FileName);     
+   
+	 image for test - imgfortest\GammaCorrection_8.png
+	 Parameters: formula S = c*r^gamma. r - image array
+13)  SomeLittle.GammaCorrectionFun(image, 40, 0.3, FileName);
+     
+	 Mirror image from side
+	 image for test - some image
+14)  SomeLittle.Mirror(image, Mirror.right, FileName);
+
+	 Crop image in pixels from side 
+	 image for test - some image
+	 Parameters: left, right, top, bottom - how many pixels to cut
+15)	 SomeLittle.CropImage(image, 0, 10, 20, 0, FileName);
+
+	 Convert 8b gray image to 24b gray
+	 image for test - some 8b image
+	 Recommendation: dont use .jpg, .jpeg and .tif 8b images
+16)	 SomeLittle.Bpp8ConvertTo24bpp(image, FileName);    
+     
+	 Save image with alpha channel
+	 image for test - some 8b image
+	 Parameters: alpha [0..1]
+17)	 SomeLittle.SetPixelsAlpha(image, 0.5);
+
+     Save image in another supported format
+	 image for test - some image
+18)  SomeLittle.SaveImageInOtherFormat(image, FileName);
+
+
+	 MoreSomeLittle.cs
+	 Some little functions with images
+
+	 Save different pixels of image and changed image to view
+	 image for test - some image and changed image
+19)	 MoreSomeLittle.DifferenceLight(image, img);
+
+	 Save result, where emphasized difference between source image and it`s changed one
+	 image for test - some image and changed image
+	 Parameters: count coefficients coefOne, coefTwo to highlight changed pixels. 
+	 alpha [0..1] - black out the original to show the difference on its as background
+	 recomended: coefOne = 40, coefTwo = 20
+20)  MoreSomeLittle.Difference(image, img, 40, 20, 0.7);  
+     
+     Make default 8x8 CheckerBoard and save to file 
+	 Parameters: n - size in pixels for board cell, OutType - save as 1\8\24b
+21)	 MoreSomeLittle.CheckerBoard(50, OutType.OneBpp);
+
+	 Make CheckerBoard with entered rows and cols and save to file 
+	 Parameters: n - size in pixels for board cell, r & c - number of row and cols, OutType - save as 1\8\24b
+22)  MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
+     
+	 Make CheckerBoard on image alternating the ones grayscale and RGB
+     image for test - imgfortest\papper.jpg or another RGB image
+	 Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
+23)  MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2, FileName);    
+
+     
+     

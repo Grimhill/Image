@@ -9,8 +9,7 @@ namespace Image
     {
         //padR and padC both cant be 0 in one time, coz there is no sence 
         //call
-        //padMyArray<double> padArr;
-        //padArr = new padMyArray<double>();
+        //padMyArray<double> padArr = new padMyArray<double>();
 
         public T[,] PadArrayByNum(T[,] arr, int padR, int padC, int num, Direction direction)
         {
@@ -339,13 +338,7 @@ namespace Image
             }
 
             return result;
-        }
-
-        //
-        /*public T[,] padArray(T[,] arr, int padR, int padC, string type)
-        {
-            //default direction - both            
-        }*/
+        }        
 
         public T[,] PadArray(T[,] arr, int padR, int padC, PadType padType, Direction direct) //BDSM array function
         {

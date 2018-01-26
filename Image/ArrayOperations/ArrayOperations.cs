@@ -1,13 +1,10 @@
-﻿using System;
-
-//Some array helping array operations
+﻿//Some array helping array operations
 namespace Image
 {
     public class ArrGen<T>
     {
-        //arrGen<int> d = new arrGen<int>();
-        //var p = d.arrOfSingle(4, 5, 1);
-
+        //ArrGen<int> d = new ArrGen<int>();        
+        //var p = d.ArrOfSingle(4, 5, 1);
         public T[,] ArrOfSingle(int r, int c, T value)
         {
             T[,] arr = new T[r, c];

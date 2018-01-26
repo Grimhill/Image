@@ -9,28 +9,23 @@ namespace Image
 {
     public static class MoreHelpers
     {
-        public static List<string> AvailableFormats = new List<string>() { ".jpg", ".jpeg", ".bmp", ".png", ".tif", ".gif" };
+        public static List<string> AvailableFormats = new List<string>() { ".jpg", ".jpeg", ".bmp", ".png", ".tif" };
         public static bool CheckForInputFormat(string ImgExtension)
         {
             if (!AvailableFormats.Contains(ImgExtension))
             {
-                Console.WriteLine("Unsupport image format (extension. Support: jpg, jpeg, bmp, png, tif, gif (only first picture for animation)");
+                Console.WriteLine("Unsupport image format (extension. Support: jpg, jpeg, bmp, png, tif");
                 return false;
-            }
-            else if (ImgExtension == ".gif")
-            {
-                Console.WriteLine("Worning! For gif animation take only first picture");
-                return true;
             }
             return true;
         }
 
         public static string OutputFileNames(string fullFilePath)
         {
-            if (System.IO.File.Exists(fullFilePath))
+            if (File.Exists(fullFilePath))
             {
-                string folder = Path.GetDirectoryName(fullFilePath);
-                string filename = Path.GetFileNameWithoutExtension(fullFilePath);
+                string folder    = Path.GetDirectoryName(fullFilePath);
+                string filename  = Path.GetFileNameWithoutExtension(fullFilePath);
                 string extension = Path.GetExtension(fullFilePath);
                 int number = 0;
 
@@ -67,18 +62,26 @@ namespace Image
 
             var data = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat);
 
-            unsafe
+            try
             {
-                byte* bmpPtr = (byte*)data.Scan0;
-                for (int y = 0; y < img.Height; y++)
+                unsafe
                 {
-                    for (int x = 0; x < img.Width; x++)
+                    byte* bmpPtr = (byte*)data.Scan0;
+                    for (int y = 0; y < img.Height; y++)
                     {
-                        pixelData[y, x] = (bmpPtr[x + y * data.Stride]);
+                        for (int x = 0; x < img.Width; x++)
+                        {
+                            pixelData[y, x] = (bmpPtr[x + y * data.Stride]);
+                        }
                     }
+                    img.UnlockBits(data);
                 }
-                img.UnlockBits(data);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Problem at method - Obtain8bppdata: " + e.Message);
+            }
+
             return pixelData;
         }
 
@@ -89,49 +92,14 @@ namespace Image
             fileName = Path.GetFileNameWithoutExtension(fileName);
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
-
-            int r, ic, oc, bmpStride, outputStride;
-            //ColorPalette palette;
-            BitmapData bmpData, outputData;
-
-            //Build a grayscale color Palette
-            ColorPalette palette = image.Palette;
-            for (int i = 0; i < 256; i++)
-            {
-                Color tmp = Color.FromArgb(255, i, i, i);
-                palette.Entries[i] = Color.FromArgb(255, i, i, i);
-            }
-            image.Palette = palette;
-
-            //Lock the images
-            bmpData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat);
-            outputData = image.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
-            bmpStride = bmpData.Stride;
-            outputStride = outputData.Stride;
-
-            //Traverse each pixel of the image
-            unsafe
-            {
-                byte* bmpPtr = (byte*)bmpData.Scan0.ToPointer(),
-                outputPtr = (byte*)outputData.Scan0.ToPointer();
-
-                //Note that ic is the input column and oc is the output column
-                for (r = 0; r < img.Height; r++)
-                    for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
-                        outputPtr[r * outputStride + oc] = (byte)(int)
-                        (bmpPtr[r * bmpStride + ic]);
-
-            }
-
-            //Unlock the images
-            img.UnlockBits(bmpData);
-            image.UnlockBits(outputData);
+            image = Bbp24Gray2Gray8bppHelper(img);           
 
             string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_24bppGray28bppIndexed" + ImgExtension);
             image.Save(outName);
         }
 
-        public static Bitmap Bbp24Gray2Gray8bpp(Bitmap img)
+        //can use independently
+        public static Bitmap Bbp24Gray2Gray8bppHelper(Bitmap img)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
 
@@ -154,32 +122,40 @@ namespace Image
             bmpStride = bmpData.Stride;
             outputStride = outputData.Stride;
 
-            //Traverse each pixel of the image
-            unsafe
+            try
             {
-                byte* bmpPtr = (byte*)bmpData.Scan0.ToPointer(),
-                outputPtr = (byte*)outputData.Scan0.ToPointer();
+                //Traverse each pixel of the image
+                unsafe
+                {
+                    byte* bmpPtr = (byte*)bmpData.Scan0.ToPointer(),
+                    outputPtr = (byte*)outputData.Scan0.ToPointer();
 
-                //Note that ic is the input column and oc is the output column
-                for (r = 0; r < img.Height; r++)
-                    for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
-                        outputPtr[r * outputStride + oc] = (byte)(int)
-                        (bmpPtr[r * bmpStride + ic]);
-
+                    //Note that ic is the input column and oc is the output column
+                    for (r = 0; r < img.Height; r++)
+                        for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
+                            outputPtr[r * outputStride + oc] = (byte)(int)
+                            (bmpPtr[r * bmpStride + ic]);
+                }
             }
-
-            //Unlock the images
-            img.UnlockBits(bmpData);
-            image.UnlockBits(outputData);
+            catch (Exception e)
+            {
+                Console.WriteLine("Problem at method - Bbp24Gray2Gray8bpp: " + e.Message);
+            }
+            finally
+            {
+                //Unlock the imagess
+                img.UnlockBits(bmpData);
+                image.UnlockBits(outputData);
+            }
 
             return image;
         }
 
-        public static Bitmap Bbp24Gray2Gray8bppPalette(Bitmap img)
+        public static Bitmap Narko8bppPalette(Bitmap img)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
 
-            int r, ic, oc, bmpStride, outputStride;            
+            int r, ic, oc, bmpStride, outputStride;
             BitmapData bmpData, outputData;
 
             //Lock the images
@@ -188,30 +164,38 @@ namespace Image
             bmpStride = bmpData.Stride;
             outputStride = outputData.Stride;
 
-            //Traverse each pixel of the image
-            unsafe
+            try
             {
-                byte* bmpPtr = (byte*)bmpData.Scan0.ToPointer(),
-                outputPtr = (byte*)outputData.Scan0.ToPointer();
+                //Traverse each pixel of the image
+                unsafe
+                {
+                    byte* bmpPtr = (byte*)bmpData.Scan0.ToPointer(),
+                    outputPtr = (byte*)outputData.Scan0.ToPointer();
 
-                //Note that ic is the input column and oc is the output column
-                for (r = 0; r < img.Height; r++)
-                    for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
-                        outputPtr[r * outputStride + oc] = (byte)(int)
-                        (bmpPtr[r * bmpStride + ic] +
-                        bmpPtr[r * bmpStride + ic + 1] +
-                        bmpPtr[r * bmpStride + ic + 2]);
-
+                    //Note that ic is the input column and oc is the output column
+                    for (r = 0; r < img.Height; r++)
+                        for (ic = oc = 0; oc < img.Width; ic += 3, ++oc)
+                            outputPtr[r * outputStride + oc] = (byte)(int)
+                            (bmpPtr[r * bmpStride + ic] +
+                            bmpPtr[r * bmpStride + ic + 1] +
+                            bmpPtr[r * bmpStride + ic + 2]);
+                }
             }
-
-            //Unlock the images
-            img.UnlockBits(bmpData);
-            image.UnlockBits(outputData);
+            catch (Exception e)
+            {
+                Console.WriteLine("Problem at method - Bbp24Gray2Gray8bppPalette: " + e.Message);
+            }
+            finally
+            {
+                //Unlock the imagess
+                img.UnlockBits(bmpData);
+                image.UnlockBits(outputData);
+            }
 
             return image;
         }
 
-        public static Bitmap SetRGBPixels(Bitmap image, int[,] colorPlane, ColorPlaneRGB plane)
+        public static Bitmap SetColorPlanePixels(Bitmap image, int[,] colorPlane, ColorPlaneRGB plane)
         {
             try
             {
@@ -238,20 +222,9 @@ namespace Image
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> SetRGBPixels <-");
+                Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> SetColorPlanePixels <-");
             }
             return image;
         }
-    }
-
-    public enum ColorPlaneRGB
-    {
-        R,
-        G,
-        B,
-        RGB,
-        Rnarkoman,
-        Gnarkoman,
-        Bnarkoman
     }
 }

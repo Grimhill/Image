@@ -27,7 +27,7 @@ namespace Image
                 var cListOrigin = Helpers.GetPixels(imgOrig);
                 var cListMod = Helpers.GetPixels(imgMod);
 
-                width = imgOrig.Width;
+                width  = imgOrig.Width;
                 height = imgOrig.Height;
                 difference = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
@@ -69,9 +69,9 @@ namespace Image
 
         public static void Difference(Bitmap imgOrig, Bitmap imgMod, double coefOne, double coefTwo, double alpha) //, double alpha
         {
-            int width = imgOrig.Width;
+            int width  = imgOrig.Width;
             int height = imgOrig.Height;
-            System.Drawing.Bitmap image = new System.Drawing.Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
             string outName = String.Empty;
 
             if (imgOrig.Width != imgMod.Width || imgOrig.Height != imgMod.Height)
@@ -87,9 +87,7 @@ namespace Image
                 var cListOrigin = Helpers.GetPixels(imgOrig);
                 var cListMod = Helpers.GetPixels(imgMod);
 
-                //get difference
-
-                //suppose work with uint8
+                //get difference               
                 var Rdif = (cListOrigin[0].Color).SubArrays(cListMod[0].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
                 var Gdif = (cListOrigin[1].Color).SubArrays(cListMod[1].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
                 var Bdif = (cListOrigin[2].Color).SubArrays(cListMod[2].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
@@ -185,134 +183,30 @@ namespace Image
                 //lay difference on alpha image
 
                 image = Helpers.SetPixels(image, R, G, B);
-                outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.jpg");               
+                outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.jpg");                
                 image.Save(outName);
             }
         }
 
-        public static void CheckerBoard(int n, OutType type) //n - pixels per cell
+        //n - pixels per cell
+        public static void CheckerBoard(int n, OutType type)
         {
-            int[] wCell = new int[n];
-            int[] bCell = new int[n];
             int[,] result = new int[n * 8, n * 8]; //8 -default cells
+            result = CheckerBoardHelper(n, 8, 8);
 
-            for (int i = 0; i < n; i++)
-                wCell[i] = 255;
-
-            ArrGen<int> d;
-            d = new ArrGen<int>();
-
-            int[] temp1 = new int[n * n * 8];
-            int[] temp2 = new int[n * n * 8];
-            var resVect = result.Cast<int>().ToArray();
-
-            for (int i = 0; i < temp1.Length / n; i++)
-                if (i % 2 == 0)
-                    bCell.CopyTo(temp1, bCell.Length * i);
-                else wCell.CopyTo(temp1, wCell.Length * i);
-
-            for (int i = 0; i < temp2.Length / n; i++)
-                if (i % 2 == 0)
-                    wCell.CopyTo(temp2, wCell.Length * i);
-                else bCell.CopyTo(temp2, bCell.Length * i);
-
-            int count = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                temp1.CopyTo(resVect, temp1.Length * (i + count));
-                count++;
-                temp2.CopyTo(resVect, temp2.Length * (i + count));
-            }
-
-            var t = d.VecorToArrayRowByRow(n * 8, n * 8, resVect); //r,c, vector
-
-            Helpers.WriteImageToFile(t, t, t, "checkerboard.jpg", type);
+            Helpers.WriteImageToFile(result, result, result, "checkerboard.jpg", type);
         }
 
         //r & c must be greater than 1
         public static void CheckerBoard(int n, int r, int c, OutType type)//r - rows, c - cols, n - pixels per cell
         {
-            int[] wCell = new int[n];
-            int[] bCell = new int[n];
             int[,] result = new int[n * r, n * c];
+            result = CheckerBoardHelper(n, r, c);
 
-            for (int i = 0; i < n; i++)
-                wCell[i] = 255;
-
-            ArrGen<int> d = new ArrGen<int>();
-
-            int[] temp1 = new int[n * c];
-            int[] temp2 = new int[n * c];
-            var resVect = result.Cast<int>().ToArray();
-
-            for (int i = 0; i < temp1.Length / n; i++)
-                if (i % 2 == 0)
-                    bCell.CopyTo(temp1, bCell.Length * i);
-                else wCell.CopyTo(temp1, wCell.Length * i);
-
-            for (int i = 0; i < temp2.Length / n; i++)
-                if (i % 2 == 0)
-                    wCell.CopyTo(temp2, wCell.Length * i);
-                else bCell.CopyTo(temp2, bCell.Length * i);
-
-            int count = 0;
-            int countn = 0;
-            if (r % 2 == 0)
-            {
-                for (int i = 0; i < r / 2; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        temp1.CopyTo(resVect, temp1.Length * (i + countn));
-                        countn++;
-                    }
-
-                    //count++;                 
-
-                    for (int j = 0; j < n; j++)
-                    {
-                        temp2.CopyTo(resVect, temp2.Length * (i + countn));
-                        countn++;
-                    }
-
-                    countn--;
-                }
-            }
-
-            else
-            {
-                for (int i = 0; i < (r - 1) / 2; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        temp1.CopyTo(resVect, temp1.Length * (i + count));
-                        count++;
-                    }
-
-                    //count++;                 
-
-                    for (int j = 0; j < n; j++)
-                    {
-                        temp2.CopyTo(resVect, temp2.Length * (i + count));
-                        count++;
-                    }
-
-                    count--;
-                }
-                int baka = n;
-                for (int j = 0; j < n; j++)
-                {
-                    temp1.CopyTo(resVect, resVect.Length - (temp2.Length * baka));
-                    baka--;
-                }
-            }
-
-            var t = d.VecorToArrayRowByRow(n * r, n * c, resVect); //r,c, vector
-
-            Helpers.WriteImageToFile(t, t, t, "checkerboard_.jpg", type);
+            Helpers.WriteImageToFile(result, result, result, "checkerboard_.jpg", type);
         }
 
-        public static int[,] CheckerBoard(int n, int r, int c)//r - rows, c - cols, n - pixels per cell
+        public static int[,] CheckerBoardHelper(int n, int r, int c)//r - rows, c - cols, n - pixels per cell
         {
             int[] wCell = new int[n];
             int[] bCell = new int[n];
@@ -392,6 +286,7 @@ namespace Image
             return d.VecorToArrayRowByRow(n * r, n * c, resVect); //r,c, vector            
         }
 
+
         public static void WildBoard(Bitmap img, int n, WildBoardVariant var, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
@@ -409,7 +304,7 @@ namespace Image
             int Boardrows = (int)Math.Ceiling((double)img.Height / n);
             int Boardcols = (int)Math.Ceiling((double)img.Width / n);
 
-            var board = CheckerBoard(n, Boardrows, Boardcols);
+            var board = CheckerBoardHelper(n, Boardrows, Boardcols);
             var gray = Helpers.RGBToGrayArray(img);
 
             for (int i = 0; i < img.Height; i++)

@@ -9,12 +9,8 @@ namespace Image.ColorSpaces
     {
         #region rgb2lab
         public static List<ArraysListDouble> RGB2Lab(Bitmap img)
-        {          
-            int width  = img.Width;
-            int height = img.Height;
-
+        {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
             var xyz = RGBandXYZ.RGB2XYZ(ColorList);
@@ -25,10 +21,7 @@ namespace Image.ColorSpaces
 
         //List with R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(List<ArraysListInt> rgbList)
-        {      
-            int width  = rgbList[0].Color.GetLength(1);
-            int height = rgbList[0].Color.GetLength(0);
-
+        {
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
             if (rgbList[0].Color.Length != rgbList[1].Color.Length || rgbList[0].Color.Length != rgbList[2].Color.Length)
@@ -46,10 +39,7 @@ namespace Image.ColorSpaces
 
         //R G B arrays in In the following order R G B
         public static List<ArraysListDouble> RGB2Lab(int[,] R, int[,] G, int[,] B)
-        {         
-            int width  = R.GetLength(1);
-            int height = R.GetLength(0);
-
+        {
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
             List<ArraysListInt> rgbList = new List<ArraysListInt>
@@ -77,12 +67,8 @@ namespace Image.ColorSpaces
         #region lab2rgb
         //bad, when from file. Lost a lot from converting and round
         public static List<ArraysListInt> Lab2RGB(Bitmap img)
-        {        
-            int width  = img.Width;
-            int height = img.Height;
-
+        {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> lablist = new List<ArraysListDouble>
             {
                 new ArraysListDouble() { Color = (ColorList[0].Color).ArrayToDouble() },
@@ -146,5 +132,66 @@ namespace Image.ColorSpaces
         }
 
         #endregion lab2rgb
+
+        #region rgb2lab1976
+
+        public static List<ArraysListDouble> RGB2Lab1976(Bitmap img)
+        {
+            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListDouble> labResult = new List<ArraysListDouble>();
+
+            var xyz = RGBandXYZ.RGB2XYZ(ColorList);
+            labResult = XYZandLab.XYZ2Lab(xyz);
+            labResult[0].Color = (labResult[0].Color).ArrayMultByConst(2.57);
+
+            return labResult;
+        }
+
+        //List with R G B arrays in In the following order R G B
+        public static List<ArraysListDouble> RGB2Lab1976(List<ArraysListInt> rgbList)
+        {
+            List<ArraysListDouble> labResult = new List<ArraysListDouble>();
+
+            if (rgbList[0].Color.Length != rgbList[1].Color.Length || rgbList[0].Color.Length != rgbList[2].Color.Length)
+            {
+                Console.WriteLine("list R G B arrays size dismatch in RGB2Lab1976 operation -> RGB2Lab1976(List<arraysListInt> rgbList) <-");
+            }
+            else
+            {
+                var xyz = RGBandXYZ.RGB2XYZ(rgbList);
+                labResult = XYZandLab.XYZ2Lab(xyz);
+                labResult[0].Color = (labResult[0].Color).ArrayMultByConst(2.57);
+            }
+
+            return labResult;
+        }
+
+        //R G B arrays in In the following order R G B
+        public static List<ArraysListDouble> RGB2Lab1976(int[,] R, int[,] G, int[,] B)
+        {
+            List<ArraysListDouble> labResult = new List<ArraysListDouble>();
+
+            List<ArraysListInt> rgbList = new List<ArraysListInt>
+            {
+                new ArraysListInt() { Color = R },
+                new ArraysListInt() { Color = G },
+                new ArraysListInt() { Color = B }
+            };
+
+            if (R.Length != G.Length || R.Length != B.Length)
+            {
+                Console.WriteLine("R G B arrays size dismatch in RGB2Lab1976 operation -> RGB2Lab1976(int[,] R, int[,] G, int[,] B) <-");
+            }
+            else
+            {
+                var xyz = RGBandXYZ.RGB2XYZ(rgbList);
+                labResult = XYZandLab.XYZ2Lab(xyz);
+                labResult[0].Color = (labResult[0].Color).ArrayMultByConst(2.57);
+            }
+
+            return labResult;
+        }
+
+        #endregion rgb2lab1976
     }
 }

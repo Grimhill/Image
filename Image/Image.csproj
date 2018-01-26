@@ -44,10 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArrayOperations.cs" />
+    <Compile Include="ArrayOperations\ArrayOperations.cs" />
     <Compile Include="ArrayOperations\ArrayDoubleExtensions.cs" />
     <Compile Include="ArrayOperations\ArrayIntExtensions.cs" />
     <Compile Include="ArrayOperations\VectorExtensions.cs" />
+    <Compile Include="ColorSpacePlane.cs" />
     <Compile Include="ColorSpacetoFile.cs" />
     <Compile Include="ColorSpaces\RGBandCMY.cs" />
     <Compile Include="ColorSpaces\RGBandHSV.cs" />
@@ -73,6 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Functions.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

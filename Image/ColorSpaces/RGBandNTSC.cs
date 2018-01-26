@@ -14,7 +14,6 @@ namespace Image.ColorSpaces
         public static List<ArraysListDouble> RGB2NTSC(Bitmap img)
         {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> ntscResult = new List<ArraysListDouble>();
 
             ntscResult = RGB2NTSCCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -58,7 +57,7 @@ namespace Image.ColorSpaces
 
         //Y I Q result - double values, not in range [0 1], include negative
         public static List<ArraysListDouble> RGB2NTSCCount(int[,] R, int[,] G, int[,] B)
-        {   
+        {
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -98,12 +97,12 @@ namespace Image.ColorSpaces
 
         //bad when from file, coz lost negative values in I & Q when saving ntsc result in file
         public static List<ArraysListInt> NTSC2RGB(Bitmap img)
-        {        
+        {
             var ColorList = Helpers.GetPixels(img);
 
-            double[,] Y = (ColorList[0].Color).ArrayToDouble(); 
-            double[,] I = (ColorList[1].Color).ArrayToDouble(); 
-            double[,] Q = (ColorList[2].Color).ArrayToDouble(); 
+            double[,] Y = (ColorList[0].Color).ArrayToDouble();
+            double[,] I = (ColorList[1].Color).ArrayToDouble();
+            double[,] Q = (ColorList[2].Color).ArrayToDouble();
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -149,7 +148,7 @@ namespace Image.ColorSpaces
         }
 
         public static List<ArraysListInt> NTSC2RGBCount(double[,] Y, double[,] I, double[,] Q)
-        {       
+        {
             int width  = Y.GetLength(1);
             int height = Y.GetLength(0);
 
@@ -170,9 +169,9 @@ namespace Image.ColorSpaces
                 {
                     double[] temp = new double[3] { Y[i, j], I[i, j], Q[i, j] };
 
-                    R[i, j] = Ycon.MultVectors(temp).Sum(); 
-                    G[i, j] = Icon.MultVectors(temp).Sum(); 
-                    B[i, j] = Qcon.MultVectors(temp).Sum(); 
+                    R[i, j] = Ycon.MultVectors(temp).Sum();
+                    G[i, j] = Icon.MultVectors(temp).Sum();
+                    B[i, j] = Qcon.MultVectors(temp).Sum();
                 }
             }
 

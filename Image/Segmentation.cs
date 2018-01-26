@@ -56,14 +56,13 @@ namespace Image
 
             image = Helpers.SetPixels(image, lineRes, lineRes, lineRes);
 
-            outName = MoreHelpers.OutputFileNames(outName);
-            //dont forget, that directory Rand must exist. Later add if not exist - creat
+            outName = MoreHelpers.OutputFileNames(outName);            
             //image.Save(outName);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
 
         public static int[,] FindLineHelper(int[,] arr, double[,] filter)
-        {           
+        {
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
 
             var temp = (Filter.Filter_double(arr.ImageUint8ToDouble(), filter, PadType.replicate)).AbsArrayElements();
@@ -87,6 +86,7 @@ namespace Image
 
             return result;
         }
+
 
         //bad, very bad. worth
         //segment little default
@@ -127,25 +127,19 @@ namespace Image
                     result = EdgeHelperv1(scale, im, threshold, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8,
                         EdgeDirection.both, fileName, ImgExtension, EdgeTempName._EdgeDefaultVar1_temp);
                     if (threshold == 0)
-                    {
                         outName = Directory.GetCurrentDirectory() + "\\Segmentation\\" + fileName + "_EdgeDefV1" + ImgExtension;
-                    }
+
                     else
-                    {
                         outName = Directory.GetCurrentDirectory() + "\\Segmentation\\" + fileName + "_EdgeDefV1" + "Th_" + threshold.ToString() + ImgExtension;
-                    }
                 }
                 else
                 {
                     result = EdgeHelperv2(scale, im, threshold, Filter.Dx3FWindow("Sobel"), Filter.Dx3FWindow("SobelT"), 8, EdgeDirection.both);
                     if (threshold == 0)
-                    {
                         outName = Directory.GetCurrentDirectory() + "\\Segmentation\\" + fileName + "_EdgeDefV2" + ImgExtension;
-                    }
+
                     else
-                    {
                         outName = Directory.GetCurrentDirectory() + "\\Segmentation\\" + fileName + "_EdgeDefV2" + "Th_" + threshold.ToString() + ImgExtension;
-                    }
                 }
 
                 image = Helpers.SetPixels(image, result, result, result);
@@ -331,32 +325,31 @@ namespace Image
 
         public static int[,] EdgeHelperv1(double scale, int[,] im, double threshold, double[,] filter,
             double[,] filterT, double fdiv, EdgeDirection direction, string fName, string extension, EdgeTempName tempName)
-        {           
+        {
             int[,] result = new int[im.GetLength(0), im.GetLength(1)];
             int[,] b = new int[im.GetLength(0), im.GetLength(1)];
 
             double cutoff = 0;
             double tresh = 0;
 
-            //Sobel approximation to derivative            
-            var bx = (Filter.Filter_double(im, filterT, fdiv)).ArrayToUint8();           
+            //Sobel approximation to derivative           
+            var bx = (Filter.Filter_double(im, filterT, fdiv)).ArrayToUint8();
             var by = (Filter.Filter_double(im, filter, fdiv)).ArrayToUint8();
 
             //compute the magnitude
             if (direction == EdgeDirection.horizontal)
-            { b = by.PowArrayElements(2).Uint8Range(); }
+                b = by.PowArrayElements(2).Uint8Range();
             else if (direction == EdgeDirection.vertical)
-            { b = bx.PowArrayElements(2).Uint8Range(); } 
-            else if (direction == EdgeDirection.both)
+                b = bx.PowArrayElements(2).Uint8Range();
+            else if (direction == EdgeDirection.both || direction == EdgeDirection.def)
             {
-                //var d = ArrOp.Uint8Range(ArrOp.SumArrays(ArrOp.Uint8Range(ArrOp.PowArrayElements(bx, 2)), ArrOp.Uint8Range(ArrOp.PowArrayElements(by, 2)))); //old
-                var byt = by.PowArrayElements(2).Uint8Range(); //temp res, part of expression
-
-                b = bx.PowArrayElements(2).Uint8Range().SumArrays(byt).Uint8Range();
-
+                var bt = by.PowArrayElements(2).Uint8Range(); //temp res, part of expression
+                b = bx.PowArrayElements(2).Uint8Range().SumArrays(bt).Uint8Range();
             }
             else
-            { Console.WriteLine("Wrong direction"); }
+            {
+                Console.WriteLine("Wrong direction");
+            }
 
             fName = fName + tempName.ToString() + extension;
             Helpers.WriteImageToFile(b, b, b, fName, "Segmentation");
@@ -392,29 +385,24 @@ namespace Image
         public static int[,] EdgeHelperv2(double scale, int[,] im, double threshold, double[,] filter,
             double[,] filterT, double fdiv, EdgeDirection direction)
         {
-            //ArrayOperations ArrOp = new ArrayOperations();
             int[,] result = new int[im.GetLength(0), im.GetLength(1)];
             double[,] b = new double[im.GetLength(0), im.GetLength(1)];
 
             double cutoff = 0;
             double tresh = 0;
 
-            //Sobel approximation to derivative   
-            //var bx = Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filterT, fdiv), PadType.replicate);
+            //Sobel approximation to derivative             
             var bx = Filter.Filter_double(im, filterT, fdiv);
-            //var by = Filter.Filter_double(ArrOp.ArrayToDouble(im), ArrOp.ArrayDivByConst(filter, fdiv), PadType.replicate);
             var by = Filter.Filter_double(im, filter, fdiv);
 
             //compute the magnitude
             if (direction == EdgeDirection.horizontal)
-            { b = by.PowArrayElements(2); }  //b = ArrOp.PowArrayElements(by, 2);
+                b = by.PowArrayElements(2);
             else if (direction == EdgeDirection.vertical)
-            { b = bx.PowArrayElements(2); } //b = ArrOp.PowArrayElements(bx, 2);
-            else if (direction == EdgeDirection.both)
-            {
-                //b = ArrOp.SumArrays(ArrOp.PowArrayElements(bx, 2), ArrOp.PowArrayElements(by, 2));
+                b = bx.PowArrayElements(2);
+            else if (direction == EdgeDirection.both || direction == EdgeDirection.def)
                 b = bx.PowArrayElements(2).SumArrays(by.PowArrayElements(2));
-            }
+
             else
             { Console.WriteLine("Wrong direction"); }
 
@@ -445,12 +433,12 @@ namespace Image
 
             return result;
         }
-        //
+
+        //only B&W images
         public static void Graythresh(Bitmap img, InEdgeImage inIm, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            //ArrayOperations ArrOp = new ArrayOperations();
             MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Segmentation");
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
@@ -516,9 +504,8 @@ namespace Image
                 }
 
                 image = Helpers.SetPixels(image, result, result, result);
-
                 outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Segmentation\\" + fileName + "_GrayTresh" + ImgExtension);
-                //dont forget, that directory Rand must exist. Later add if not exist - creat
+
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
             }
@@ -534,7 +521,7 @@ namespace Image
                     Console.WriteLine("Wrong input arguments, input image not BW8b");
                     return empty;
                 }
-                else { im = ColorList[0].Color; }
+                else { im = MoreHelpers.Obtain8bppdata(img); }
             }
             else if (inIm == InEdgeImage.rgb)
             {
@@ -591,7 +578,7 @@ namespace Image
         both,
         horizontal,
         vertical,
-        def
+        def //zatu4ka
     }
 
     public enum EdgeTempName

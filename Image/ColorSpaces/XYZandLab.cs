@@ -11,9 +11,8 @@ namespace Image.ColorSpaces
 
         //bad when from file, coz lost a lot after round values in all planes, when saved xyz result to file
         public static List<ArraysListDouble> XYZ2Lab(Bitmap img)
-        {        
+        {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
             var X = (ColorList[0].Color).ArrayToDouble();
@@ -61,7 +60,7 @@ namespace Image.ColorSpaces
 
         //L values - double, not in [0 1] range, a & b - same, but have negative values
         public static List<ArraysListDouble> XYZ2LabCount(double[,] X, double[,] Y, double[,] Z)
-        {        
+        {
             int width  = X.GetLength(1);
             int height = X.GetLength(0);
 
@@ -71,9 +70,9 @@ namespace Image.ColorSpaces
             const double Y_D65 = 100;
             const double Z_D65 = 108.883;
 
-            X = X.ArrayDivByConst(X_D65); 
-            Y = Y.ArrayDivByConst(Y_D65); 
-            Z = Z.ArrayDivByConst(Z_D65); 
+            X = X.ArrayDivByConst(X_D65);
+            Y = Y.ArrayDivByConst(Y_D65);
+            Z = Z.ArrayDivByConst(Z_D65);
 
             double[,] X_temp = new double[height, width];
             double[,] Y_temp = new double[height, width];
@@ -133,14 +132,13 @@ namespace Image.ColorSpaces
 
         //bad when from file, coz lost a and b negative value when save to file
         public static List<ArraysListDouble> Lab2XYZ(Bitmap img)
-        {        
+        {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            double[,] L = (ColorList[0].Color).ArrayToDouble(); 
-            double[,] a = (ColorList[1].Color).ArrayToDouble(); 
-            double[,] b = (ColorList[2].Color).ArrayToDouble(); 
+            double[,] L = (ColorList[0].Color).ArrayToDouble();
+            double[,] a = (ColorList[1].Color).ArrayToDouble();
+            double[,] b = (ColorList[2].Color).ArrayToDouble();
 
             xyzResult = Lab2XYZCount(L, a, b);
 
@@ -185,7 +183,7 @@ namespace Image.ColorSpaces
 
         //X Y Z values - double > 1, can be <1 if represent small R G B values
         public static List<ArraysListDouble> Lab2XYZCount(double[,] L, double[,] a, double[,] b)
-        {         
+        {
             int width  = L.GetLength(1);
             int height = L.GetLength(0);
 

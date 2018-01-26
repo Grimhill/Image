@@ -52,21 +52,21 @@ namespace Image
                 }
                 else if (Variant == CountourVariant.Variant2_BW)
                 {
-                    //gradient for one color component B&W result                    
+                    //gradient for one color component B&W result                   
                     resultR = Gradient.Grad(Rx, Ry, Gx, Gy, Bx, By).SumArrays(Gradient.Grad(Rx, Ry, Gx, Gy, Bx, By)).ImageArrayToUint8();
                     resultG = resultR; resultB = resultR; //Black & White result
                     outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV2" + ImgExtension;
                 }
                 else
                 {
-                    //RGB gradients                    
-                    var RG = Rx.PowArrayElements(2).SumArrays(Ry.PowArrayElements(2)).SqrtArrayElements(); //R gradient                    
+                    //RGB gradients               
+                    var RG = Rx.PowArrayElements(2).SumArrays(Ry.PowArrayElements(2)).SqrtArrayElements(); //R gradient               
                     var GG = Gx.PowArrayElements(2).SumArrays(Gy.PowArrayElements(2)).SqrtArrayElements(); //G gradient                   
                     var BG = Bx.PowArrayElements(2).SumArrays(By.PowArrayElements(2)).SqrtArrayElements(); //B gradient
 
-                    resultR = RG.ArrayToUint8(); 
-                    resultG = GG.ArrayToUint8(); 
-                    resultB = BG.ArrayToUint8(); 
+                    resultR = RG.ArrayToUint8();
+                    resultG = GG.ArrayToUint8();
+                    resultB = BG.ArrayToUint8();
                     outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV5" + ImgExtension;
                 }
             }
@@ -78,18 +78,18 @@ namespace Image
                 double[,] GG = new double[img.Height, img.Height]; //gray gradient
 
                 if (Variant == CountourVariant.Variant3_BW)
-                {                   
-                    var Gx = Filter.Filter_double(gray, "Sobel");                    
+                {
+                    var Gx = Filter.Filter_double(gray, "Sobel");
                     var Gy = Filter.Filter_double(gray, "SobelT");
-                   
+
                     GG = Gx.PowArrayElements(2).SumArrays(Gy.PowArrayElements(2)).SqrtArrayElements();
                     outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV3" + ImgExtension;
                 }
                 else
-                {                    
-                    var Gx = Filter.Filter_int(gray, "Sobel");                    
+                {
+                    var Gx = Filter.Filter_int(gray, "Sobel");
                     var Gy = Filter.Filter_int(gray, "SobelT");
-                    
+
                     GG = Gx.ArrayToDouble().PowArrayElements(2).SumArrays(Gy.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements();
                     outName = Directory.GetCurrentDirectory() + "\\Contour\\" + fileName + "_ContourV4" + ImgExtension;
                 }
@@ -107,9 +107,9 @@ namespace Image
 
                 var Bx = Filter.Filter_int(Bluecolor, "Sobel");
                 var By = Filter.Filter_int(Bluecolor, "SobelT");
-                                
-                var RG = Rx.ArrayToDouble().PowArrayElements(2).SumArrays(Ry.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements(); //R gradient                
-                var GG = Gx.ArrayToDouble().PowArrayElements(2).SumArrays(Gy.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements(); //G gradient                
+
+                var RG = Rx.ArrayToDouble().PowArrayElements(2).SumArrays(Ry.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements(); //R gradient               
+                var GG = Gx.ArrayToDouble().PowArrayElements(2).SumArrays(Gy.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements(); //G gradient             
                 var BG = Bx.ArrayToDouble().PowArrayElements(2).SumArrays(By.ArrayToDouble().PowArrayElements(2)).SqrtArrayElements(); //B gradient
 
                 resultR = RG.ArrayToUint8();
@@ -119,10 +119,8 @@ namespace Image
             }
 
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
-
             outName = MoreHelpers.OutputFileNames(outName);
 
-            //dont forget, that directory Contour must exist. Later add if not exist - creat
             //image.Save(outName);
             Helpers.SaveOptions(image, outName, ImgExtension);
         }
@@ -130,10 +128,10 @@ namespace Image
 
     public enum CountourVariant
     {
-        Variant1_BW = 1,
-        Variant2_BW = 2,
-        Variant3_BW = 3,
-        Variant4_BW = 4,
+        Variant1_BW  = 1,
+        Variant2_BW  = 2,
+        Variant3_BW  = 3,
+        Variant4_BW  = 4,
         Variant5_RGB = 5,
         Variant6_RGB = 6
     }

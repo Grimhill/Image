@@ -22,7 +22,6 @@ namespace Image
         public static void ContrastBlackWhite(Bitmap img, double low_in, double high_in, string fileName)
         {
             ContrastBlackWhiteHelper(img, low_in, high_in, 0, 0, 1, fileName);
-
         }
 
         //low_in & high_in Adjust the grayscale image, specifying the contrast limits at input
@@ -97,27 +96,26 @@ namespace Image
                 }
                 else if (low_out == 0 && high_out == 0)
                 {
-                    outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastInLim" + ImgExtension);
-
                     if (gamma != 1)
                     {
                         outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
                     "\\Contrast\\" + fileName + "_ContrastInLimGam" + ImgExtension);
                     }
+                    else
+                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
+                        "\\Contrast\\" + fileName + "_ContrastInLim" + ImgExtension);
                 }
                 else
                 {
                     Out = new double[2] { low_out, high_out };
-
-                    outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastInOutLim" + ImgExtension);
-
                     if (gamma != 1)
                     {
                         outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
                     "\\Contrast\\" + fileName + "_ContrastInOutLimGam" + ImgExtension);
                     }
+                    else
+                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
+                        "\\Contrast\\" + fileName + "_ContrastInOutLim" + ImgExtension);
                 }
 
                 Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
@@ -220,14 +218,14 @@ namespace Image
                 if (Rc_low_out == 0 && Rc_high_out == 0 && Gc_low_out == 0 && Gc_high_out == 0
                     && Bc_low_out == 0 && Bc_high_out == 0)
                 {
-                    outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastRGBInLim" + ImgExtension);
-
                     if (gamma != 1)
                     {
                         outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
                     "\\Contrast\\" + fileName + "_ContrastRGBInLimGam" + ImgExtension);
                     }
+                    else
+                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
+                        "\\Contrast\\" + fileName + "_ContrastRGBInLim" + ImgExtension);
                 }
                 else
                 {
@@ -235,14 +233,14 @@ namespace Image
                     GcOut = new double[2] { Gc_low_out, Gc_high_out };
                     BcOut = new double[2] { Bc_low_out, Bc_high_out };
 
-                    outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastRGBInOutLim" + ImgExtension);
-
                     if (gamma != 1)
                     {
                         outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
                     "\\Contrast\\" + fileName + "_ContrastRGBInOutLimGam" + ImgExtension);
                     }
+                    else
+                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
+                        "\\Contrast\\" + fileName + "_ContrastRGBInOutLim" + ImgExtension);
                 }
 
                 //Look up table
@@ -261,7 +259,7 @@ namespace Image
         //Find limits to contrast stretch an image\\ Using for default BW contrast
         //IntensityProcent - intensity in % pixels saturated at low and high intensities of image
         public static double[] Stretchlims(int[,] Gc, double IntensityProcent)
-        {          
+        {
             double[] ImLH = new double[2]; //contatin a pair of gray values, which represent image low & high limits to contrast stretch an image
             double[] tol = new double[2]; //tol saturates equal fractions at low and high pixel values
 
@@ -294,8 +292,8 @@ namespace Image
                     }
                 }
 
-                //cumulative distribution function                
-                var cdf = CumulativeSum.VectorToDouble().VectorDivByConst(ImHist.Sum());
+                //cumulative distribution function             
+                var cdf   = CumulativeSum.VectorToDouble().VectorDivByConst(ImHist.Sum());
                 var ilow  = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
                 var ihigh = Array.IndexOf(cdf, cdf.First(x => x >= tol[1])); //index first high
 
@@ -318,9 +316,8 @@ namespace Image
 
         //if want for use for RGB image, input Rc, Gc, Bc args
         public static double[] Stretchlims(int[,] Gc, double low, double high)
-        {            
+        {       
             double[] ImLH = new double[2];
-
             double[] tol = { low, high };
 
             if (tol[0] < tol[1]) // tol[0] - low, tol[1] - high
@@ -341,8 +338,9 @@ namespace Image
                     }
                 }
 
-                //cumulative distribution function                
-                var cdf = CumulativeSum.VectorToDouble().VectorDivByConst(ImHist.Sum());
+                //cumulative distribution function
+                //var cdf   = ArrOp.VectorDivByConst(ArrOp.VectorToDouble(CumulativeSum), ImHist.Sum());
+                var cdf   = CumulativeSum.VectorToDouble().VectorDivByConst(ImHist.Sum());
                 var ilow  = Array.IndexOf(cdf, cdf.First(x => x > tol[0])); //index first low
                 var ihigh = Array.IndexOf(cdf, cdf.First(x => x >= tol[1])); //index first high
 
@@ -409,7 +407,7 @@ namespace Image
 
             if (Out[0] == 0 && Out[1] == 1) //if out [0 1]
             {
-                //(arr - low_in) ./ (high_in - low_in)) .^ gamma                
+                //(arr - low_in) ./ (high_in - low_in)) .^ gamma               
                 Lut = temp.VectorSubConst(In[0]).VectorDivByConst((In[1] - In[0])).PowVectorElements(gamma);
 
                 for (int i = 0; i < Lut.Length; i++)
@@ -421,8 +419,8 @@ namespace Image
             else if (Out[0] == 1 && Out[1] == 0) //if out [1 0]
             {
                 //(arr - low_in) ./ (high_in - low_in)) .^ gamma                
-                //1 - result
-               Lut = temp.VectorSubConst(In[0]).VectorDivByConst((In[1] - In[0])).PowVectorElements(gamma).ConstSubVectorElements(1);
+                //1 - result               
+                Lut = temp.VectorSubConst(In[0]).VectorDivByConst((In[1] - In[0])).PowVectorElements(gamma).ConstSubVectorElements(1);
 
                 for (int i = 0; i < Lut.Length; i++)
                 {
@@ -468,15 +466,15 @@ namespace Image
 
                 //  1) = (arr < low_in) .* low_out
                 //  2) = (1) + (arr >= low_in & arr < high_in) .* (low_out + (high_out - low_out) .* ((arr - low_in) ./ (high_in - low_in)) .^ gamma)
-                //  3) = (2) + (arr >= hign_in) .* high_out
-                
-                Lut = temp.VectorSubConst(In[0]).VectorDivByConst((In[1] - In[0])).PowVectorElements(gamma);                
+                //  3) = (2) + (arr >= hign_in) .* high_out                
+
+                Lut = temp.VectorSubConst(In[0]).VectorDivByConst((In[1] - In[0])).PowVectorElements(gamma);
                 Lut = Lut.VectorMultByConst((Out[1] - Out[0])).VectorSumConst(Out[0]);
 
                 //sum with arr >= low_in & arr < high_in                
                 Lut = Lut.MultVectors(partTwo);
 
-                //sum with (arr < low_in) .* low_out                
+                //sum with (arr < low_in) .* low_out               
                 Lut = partOne.SumVectors(Lut);
 
                 //sum with (arr >= hign_in) .* high_out                
@@ -490,8 +488,8 @@ namespace Image
 
         //redefine array using look up table 
         public static int[,] Inlut(int[,] im, double[] lut)
-        {         
-            int[,] lutResult = new int[im.GetLength(0), im.GetLength(1)];            
+        {
+            int[,] lutResult = new int[im.GetLength(0), im.GetLength(1)];
             var luts = lut.ImageVectorToUint8();
 
             for (int i = 0; i < im.GetLength(0); i++)

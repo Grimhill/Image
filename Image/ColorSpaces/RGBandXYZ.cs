@@ -13,7 +13,6 @@ namespace Image.ColorSpaces
         public static List<ArraysListDouble> RGB2XYZ(Bitmap img)
         {
             var ColorList = Helpers.GetPixels(img);
-
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
             xyzResult = RGB2XYZCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -57,7 +56,7 @@ namespace Image.ColorSpaces
 
         //X Y Z values - double > 1, can be <1 if represent small R G B values
         public static List<ArraysListDouble> RGB2XYZCount(int[,] R, int[,] G, int[,] B)
-        {    
+        {
             int width  = R.GetLength(1);
             int height = R.GetLength(0);
 
@@ -130,13 +129,13 @@ namespace Image.ColorSpaces
 
         //XYZ D65/2 to sRGB
         public static List<ArraysListInt> XYZ2RGB(Bitmap img)
-        { 
+        {
             var ColorList = Helpers.GetPixels(img);
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            var X = (ColorList[0].Color).ArrayToDouble(); 
-            var Y = (ColorList[1].Color).ArrayToDouble(); 
-            var Z = (ColorList[2].Color).ArrayToDouble(); 
+            var X = (ColorList[0].Color).ArrayToDouble();
+            var Y = (ColorList[1].Color).ArrayToDouble();
+            var Z = (ColorList[2].Color).ArrayToDouble();
 
             rgbResult = XYZ2RGBbCount(X, Y, Z);
 
@@ -180,7 +179,7 @@ namespace Image.ColorSpaces
         }
 
         public static List<ArraysListInt> XYZ2RGBbCount(double[,] X, double[,] Y, double[,] Z)
-        {      
+        {
             int width  = X.GetLength(1);
             int height = X.GetLength(0);
 
