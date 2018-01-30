@@ -11,6 +11,7 @@ namespace Image
 {
     public static class Helpers
     {
+        #region Pixels area
         public static int[,] RGBToGrayArray(Bitmap image)
         {
             int[,] gray = new int[image.Height, image.Width]; ;
@@ -47,9 +48,9 @@ namespace Image
                     for (int j = 0; j < image.Width; j++)
                     {
                         Color pixelColor = image.GetPixel(j, i);
-                        RedColor[i, j]   = pixelColor.R;
+                        RedColor[i, j] = pixelColor.R;
                         GreenColor[i, j] = pixelColor.G;
-                        BlueColor[i, j]  = pixelColor.B;
+                        BlueColor[i, j] = pixelColor.B;
                     }
                 }
             }
@@ -58,9 +59,46 @@ namespace Image
                 Console.WriteLine("Problem at GetPixels method: " + e.Message);
             }
 
-            aRList.Add(new ArraysListInt() { Color = RedColor }); //R
+            aRList.Add(new ArraysListInt() { Color = RedColor });   //R
             aRList.Add(new ArraysListInt() { Color = GreenColor }); //G
-            aRList.Add(new ArraysListInt() { Color = BlueColor }); //B
+            aRList.Add(new ArraysListInt() { Color = BlueColor });  //B
+
+            return aRList;
+        }
+
+        public static List<ArraysListInt> GetPixelswithAlpha(Bitmap image)
+        {
+            List<ArraysListInt> aRList = new List<ArraysListInt>();
+
+            int[,] RedColor   = new int[image.Height, image.Width];
+            int[,] GreenColor = new int[image.Height, image.Width];
+            int[,] BlueColor  = new int[image.Height, image.Width];
+            int[,] Alpha      = new int[image.Height, image.Width];
+
+            try
+            {
+                //read row by row image R\G\B pixels value
+                for (int i = 0; i < image.Height; i++)
+                {
+                    for (int j = 0; j < image.Width; j++)
+                    {
+                        Color pixelColor = image.GetPixel(j, i);
+                        RedColor[i, j] = pixelColor.R;
+                        GreenColor[i, j] = pixelColor.G;
+                        BlueColor[i, j] = pixelColor.B;
+                        Alpha[i, j] = pixelColor.A;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Problem at GetPixels method: " + e.Message);
+            }
+
+            aRList.Add(new ArraysListInt() { Color = RedColor });   //R
+            aRList.Add(new ArraysListInt() { Color = GreenColor }); //G
+            aRList.Add(new ArraysListInt() { Color = BlueColor });  //B
+            aRList.Add(new ArraysListInt() { Color = Alpha });  //A
 
             return aRList;
         }
@@ -88,35 +126,6 @@ namespace Image
             return image;
         }
 
-        //default such as input format
-        public static void SaveOptions(Bitmap image, string name, string ImgExtension)
-        {
-            ImageFormat imageFormat;
-            switch (ImgExtension)
-            {
-                case ".jpg":
-                    imageFormat = ImageFormat.Jpeg;
-                    break;
-                case ".jpeg":
-                    imageFormat = ImageFormat.Jpeg;
-                    break;
-                case ".bmp":
-                    imageFormat = ImageFormat.Bmp;
-                    break;
-                case ".png":
-                    imageFormat = ImageFormat.Png;
-                    break;
-                case ".tif":
-                    imageFormat = ImageFormat.Tiff;
-                    break;
-                default:
-                    imageFormat = ImageFormat.Jpeg;
-                    break;
-            }
-
-            image.Save(name, imageFormat);
-        }
-
         //dont know what doing wrong and alpha didnt work correctly
         public static Bitmap SetPixelsAlpha(Bitmap image, int[,] resultR, int[,] resultG, int[,] resultB, double alpha)
         {
@@ -142,6 +151,61 @@ namespace Image
             return img;
         }
 
+        public static Bitmap SetPixelsAlpha(Bitmap image, int[,] resultR, int[,] resultG, int[,] resultB, int[,] Alpha)
+        {
+            Bitmap img = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    int red   = resultR[y, x];
+                    int green = resultG[y, x];
+                    int blue  = resultB[y, x];
+                    int alpha = Alpha[y, x];
+                    try
+                    {
+                        img.SetPixel(x, y, Color.FromArgb(alpha, red, green, blue));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> setPixelsAlpha <-");
+                    }
+                }
+            }
+            return img;
+        }
+
+        #endregion Pixels area
+
+        //default such as input format
+        public static void SaveOptions(Bitmap image, string path, string ImgExtension)
+        {
+            ImageFormat imageFormat;
+            switch (ImgExtension)
+            {
+                case ".jpg":
+                    imageFormat = ImageFormat.Jpeg;
+                    break;
+                case ".jpeg":
+                    imageFormat = ImageFormat.Jpeg;
+                    break;
+                case ".bmp":
+                    imageFormat = ImageFormat.Bmp;
+                    break;
+                case ".png":
+                    imageFormat = ImageFormat.Png;
+                    break;
+                case ".tif":
+                    imageFormat = ImageFormat.Tiff;
+                    break;
+                default:
+                    imageFormat = ImageFormat.Jpeg;
+                    break;
+            }
+
+            image.Save(path, imageFormat);
+        }
+
         //Sharp image after some operations with default unsharp filter
         public static Bitmap FastSharpImage(Bitmap img)
         {
@@ -159,16 +223,16 @@ namespace Image
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
             return image;
-        }
+        }        
 
-        //some bad     
-        //Look SomeLittle -> ImageTo1Bpp to obtain binary image with write to file 
-        public static int[,] Image2Binary(Bitmap img, double level, InEdgeImage inIm)
+        //Look SomeLittle -> ImageTo1Bpp to obtain binary image with write to file
+        //make return result as bool?     
+
+        public static int[,] Image2Binary(Bitmap img, double level)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format1bppIndexed);
             int[,] result = new int[img.Height, img.Width];
             string outName = String.Empty;
-            double Depth = 0;
 
             if (level > 1 || level < 0)
             {
@@ -176,28 +240,7 @@ namespace Image
                 level = 0.5;
             }
 
-            Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-            int[,] im = new int[img.Height, img.Width];
-            var ColorList = Helpers.GetPixels(img);
-
-            if (inIm.ToString() == "BW8b")
-            {
-                if (Depth != 8)
-                { Console.WriteLine("Wrong input arguments, input image not BW8b"); }
-                else { im = ColorList[0].Color; }
-            }
-            else if (inIm.ToString() == "rgb")
-            {
-                if (Depth != 24)
-                { Console.WriteLine("Wrong input arguments, input image not rgb"); }
-                else { im = Helpers.RGBToGrayArray(img); }
-            }
-            else if (inIm.ToString() == "BW24b")
-            {
-                if (Depth != 24)
-                { Console.WriteLine("Wrong input arguments, input image not BW24b"); }
-                else { im = ColorList[0].Color; }
-            }
+            var im = MoreHelpers.BlackandWhiteProcessHelper(img);
 
             for (int i = 0; i < im.GetLength(0); i++)
             {
@@ -215,120 +258,12 @@ namespace Image
             }
 
             return result;
-        }     
-
-        //Some scary. Rework all some time
-        #region write image to file overload methods
-        public static void WriteImageToFile(Bitmap img, string fileName)
-        {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-
-            string outName = outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ImgExtension);
-
-            Helpers.SaveOptions(img, outName, ImgExtension);
-            //image.Save(outName);
-        }
-
-        public static void WriteImageToFile(List<ArraysListInt> Colors, string fileName)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            if (Colors[0].Color.Length != Colors[1].Color.Length || Colors[0].Color.Length != Colors[2].Color.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(List<arraysListInt> Colors, string fileName) <-");
-            }
-            else
-            {
-                System.Drawing.Bitmap image = new System.Drawing.Bitmap(Colors[0].Color.GetLength(1), Colors[0].Color.GetLength(0), PixelFormat.Format24bppRgb);
-
-                image = SetPixels(image, Colors[0].Color, Colors[1].Color, Colors[2].Color);
-
-                string outName = outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ".jpg");
-                image.Save(outName);
-            }
-        }
-
-        public static void WriteImageToFile(List<ArraysListInt> Colors, string fileName, double alpha)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            if (Colors[0].Color.Length != Colors[1].Color.Length || Colors[0].Color.Length != Colors[2].Color.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(List<arraysListInt> Colors, string fileName) <-");
-            }
-            else
-            {
-                System.Drawing.Bitmap image = new System.Drawing.Bitmap(Colors[0].Color.GetLength(1), Colors[0].Color.GetLength(0));
-
-                image = SetPixelsAlpha(image, Colors[0].Color, Colors[1].Color, Colors[2].Color, alpha);
-
-                string outName = outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ".jpg");
-                image.Save(outName);
-            }
-        }
-
-        public static void WriteImageToFile(List<ArraysListDouble> Colors, string fileName)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            if (Colors[0].Color.Length != Colors[1].Color.Length || Colors[0].Color.Length != Colors[2].Color.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(List<arraysListDouble> Colors, string fileName) <-");
-            }
-            else
-            {
-                int[,] colorPlaneOne   = new int[Colors[0].Color.GetLength(0), Colors[0].Color.GetLength(1)];
-                int[,] colorPlaneTwo   = new int[Colors[0].Color.GetLength(0), Colors[0].Color.GetLength(1)];
-                int[,] colorPlaneThree = new int[Colors[0].Color.GetLength(0), Colors[0].Color.GetLength(1)];
-
-                var cat = Colors[0].Color.Cast<double>().ToArray().Max();
-                if (cat < 1)
-                {
-                    colorPlaneOne   = (Colors[0].Color).ImageArrayToUint8();
-                    colorPlaneTwo   = (Colors[1].Color).ImageArrayToUint8();
-                    colorPlaneThree = (Colors[2].Color).ImageArrayToUint8();
-                }
-                else if (cat >= 0 & cat <= 255)
-                {
-                    colorPlaneOne   = (Colors[0].Color).ArrayToUint8();
-                    colorPlaneTwo   = (Colors[1].Color).ArrayToUint8();
-                    colorPlaneThree = (Colors[2].Color).ArrayToUint8();
-                }
-
-                Bitmap image = new Bitmap(Colors[0].Color.GetLength(1), Colors[0].Color.GetLength(0), PixelFormat.Format24bppRgb);
-
-                image = SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
-
-                string outName = outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ".jpg");
-                image.Save(outName);
-            }
-        }
-
-        public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName)
-        {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-
-            if (R.Length != G.Length || R.Length != B.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in hsv2rgb operation -> WriteImageToFile(int[,] R, int[,] G, int[,] B) <-");
-            }
-            else
-            {
-                Bitmap image = new Bitmap(R.GetLength(1), G.GetLength(0), PixelFormat.Format24bppRgb);
-                image = SetPixels(image, R, G, B);
-
-                string outName = outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ImgExtension);
-                //image.Save(outName);
-                Helpers.SaveOptions(image, outName, ImgExtension);
-            }
-        }
+        }                 
 
         public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName, OutType type)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
 
             if (R.Length != G.Length || R.Length != B.Length)
             {
@@ -350,19 +285,18 @@ namespace Image
                 }
                 else
                 {
-                    string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName);
+                    string outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName);
                     //image.Save(outName);
                     Helpers.SaveOptions(image, outName, ImgExtension);
                 }
             }
         }
 
-        //
         public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName, string directoryName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
 
             if (R.Length != G.Length || R.Length != B.Length)
             {
@@ -373,116 +307,12 @@ namespace Image
                 Bitmap image = new Bitmap(R.GetLength(1), G.GetLength(0), PixelFormat.Format24bppRgb);
                 image = SetPixels(image, R, G, B);
 
-                string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\" + directoryName + "\\" + fileName + ImgExtension);
+                string outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\" + directoryName + "\\" + fileName + ImgExtension);
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
-
-        public static void WriteImageToFile(int[,] R, int[,] G, int[,] B, string fileName, double alpha)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            if (R.Length != G.Length || R.Length != B.Length)
-            {
-                Console.WriteLine("mage plane arrays size dismatch in hsv2rgb operation -> WriteImageToFile(int[,] R, int[,] G, int[,] B) <-");
-            }
-            else
-            {
-                Bitmap image = new Bitmap(R.GetLength(1), G.GetLength(0));
-                image = SetPixelsAlpha(image, R, G, B, alpha);
-
-                string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ".jpg");
-                image.Save(outName);
-            }
-        }
-
-        public static void WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName)
-        {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-            if (planeOne.Length != planeTwo.Length || planeTwo.Length != planeThree.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName) <-");
-            }
-            else
-            {
-                int[,] colorPlaneOne   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneTwo   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneThree = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-
-                var cat = planeOne.Cast<double>().ToArray().Max(); //risk, then only first plane Meets the condition. Make for all?
-                if (cat < 1)
-                {
-                    colorPlaneOne   = planeOne.ImageArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ImageArrayToUint8();
-                    colorPlaneThree = planeThree.ImageArrayToUint8();
-                }
-                else if (cat >= 0 & cat <= 255)
-                {
-                    colorPlaneOne   = planeOne.ArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ArrayToUint8();
-                    colorPlaneThree = planeThree.ArrayToUint8();
-                }
-                else if (cat < 0 || cat > 255)
-                {
-                    colorPlaneOne   = planeOne.ArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ArrayToUint8();
-                    colorPlaneThree = planeThree.ArrayToUint8();
-                }
-
-                Bitmap image = new Bitmap(planeOne.GetLength(1), planeOne.GetLength(0), PixelFormat.Format24bppRgb);
-                image = SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
-
-                string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + ".jpg");
-                image.Save(outName);
-            }
-        }
-
-        //
-        public static void WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName, string directoryName)
-        {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
-
-            if (planeOne.Length != planeTwo.Length || planeTwo.Length != planeThree.Length)
-            {
-                Console.WriteLine("Image plane arrays size dismatch in operation -> WriteImageToFile(double[,] planeOne, double[,] planeTwo, double[,] planeThree, string fileName) <-");
-            }
-            else
-            {
-                int[,] colorPlaneOne   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneTwo   = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-                int[,] colorPlaneThree = new int[planeOne.GetLength(0), planeOne.GetLength(1)];
-
-                var cat = planeOne.Cast<double>().ToArray().Max(); //risk, then only first plane Meets the condition. Make for all?
-                if (cat < 1)
-                {
-                    colorPlaneOne   = planeOne.ImageArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ImageArrayToUint8();
-                    colorPlaneThree = planeThree.ImageArrayToUint8();
-                }
-                else if (cat >= 0 & cat <= 255)
-                {
-                    colorPlaneOne   = planeOne.ArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ArrayToUint8();
-                    colorPlaneThree = planeThree.ArrayToUint8();
-                }
-                else if (cat < 0 || cat > 255)
-                {
-                    colorPlaneOne   = planeOne.ArrayToUint8();
-                    colorPlaneTwo   = planeTwo.ArrayToUint8();
-                    colorPlaneThree = planeThree.ArrayToUint8();
-                }
-
-                Bitmap image = new Bitmap(planeOne.GetLength(1), planeOne.GetLength(0), PixelFormat.Format24bppRgb);
-                image = SetPixels(image, colorPlaneOne, colorPlaneTwo, colorPlaneThree);
-
-                string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\" + directoryName + "\\" + fileName + ImgExtension);
-                //image.Save(outName);
-                Helpers.SaveOptions(image, outName, ImgExtension);
-            }
-        }
-        #endregion write image to file overload methods
+              
 
         //obtain array with random
         public static int[,] RandArray(int w, int h, int min, int max)

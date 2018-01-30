@@ -11,33 +11,40 @@ namespace Image
     public static class Filter
     {
         public static double[,] Filter_double(double[,] arr, double[,] filter, PadType padType)
-        {        
+        {
             int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
-            //padarray or not, here we save  
             double[,] temp;
-
-            PadMyArray<double> padArr;
-            padArr = new PadMyArray<double>();
-
-            if (padType.ToString() == "replicate")
-            {
-                temp = padArr.PadArray(arr, 1, 1, PadType.replicate, Direction.both);
-            }
-            else
-            {
-                //Symmetric? why not, coz 1 row and col, lul
-                temp = padArr.PadArray(arr, 1, 1, PadType.symmetric, Direction.both);
-            }
+            PadMyArray<double> padArr = new PadMyArray<double>();
 
             double[,] result = new double[height, width];
             double[,] toConv = new double[filter.GetLength(0), filter.GetLength(1)];
 
+            if (arr.Length < filter.Length)
+            {
+                Console.WriteLine("Cannot filter image, less than filter window. Returned array with zeros. Method: filter_double");
+                return result;
+            }
+
+            int padsizeR, padsizeC = 0;
+            if (filter.GetLength(0) % 2 == 0)
+                padsizeR = filter.GetLength(0) / 2;
+            else
+                padsizeR = (filter.GetLength(0) - 1) / 2;
+
+            if (filter.GetLength(1) % 2 == 0)
+                padsizeC = filter.GetLength(1) / 2;
+            else
+                padsizeC = (filter.GetLength(1) - 1) / 2;
+            //if 2x2 or 2x3 or 3x2 - pad pre. 3x3 - pad both - for morphology                       
+
+            temp = padArr.PadArray(arr, padsizeR, padsizeC, padType, Direction.both);
+
             //filtering
             try
             {
-                for (int i = 1; i <= height; i++)
+                for (int i = 1; i <= height; i++) //(int i = 1; i <= height; i++) padR\padC?
                 {
                     for (int j = 1; j <= width; j++)
                     {
@@ -66,69 +73,36 @@ namespace Image
             return result;
         }
 
-        public static double[,] Filter_double(double[,] arr, double[,] filter)
-        {
-            int width  = arr.GetLength(1);
-            int height = arr.GetLength(0);
-
-            double[,] result = new double[height, width];
-            double[,] toConv = new double[filter.GetLength(0), filter.GetLength(1)];
-
-            //filtering
-            try
-            {
-                for (int i = 1; i < height - 1; i++)
-                {
-                    for (int j = 1; j < width - 1; j++)
-                    {
-                        for (int m = 0; m < filter.GetLength(0); m++)
-                        {
-                            for (int n = 0; n < filter.GetLength(1); n++)
-                            {
-                                toConv[m, n] = arr[i + m - 1, j + n - 1];
-                            }
-                        }
-
-                        //such size coz array mult by elements, and we take part same size as filter window
-                        double[,] convolution = new double[filter.GetLength(0), filter.GetLength(1)];                    
-                        convolution = toConv.ArrayMultElements(filter);
-
-                        result[i, j] = convolution.Cast<double>().Sum(); //get elemt after filter
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" +
-                    e.Message);
-            }
-
-            return result;
-        }
-
         public static int[,] Filter_int(int[,] arr, int[,] filter, PadType padType)
-        {    
+        {
             int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             //padarray or not, here we save         
             int[,] temp;
-
-            PadMyArray<int> padArr;
-            padArr = new PadMyArray<int>();
-
-            if (padType.ToString() == "replicate")
-            {
-                temp = padArr.PadArray(arr, 1, 1, padType, Direction.both);
-            }
-            else
-            {
-                //Symmetric? why not, coz 1 row and col, lul
-                temp = padArr.PadArray(arr, 1, 1, PadType.symmetric, Direction.both);
-            }
+            PadMyArray<int> padArr = new PadMyArray<int>();
 
             int[,] result = new int[height, width];
             int[,] toConv = new int[filter.GetLength(0), filter.GetLength(1)];
+
+            if (arr.Length < filter.Length)
+            {
+                Console.WriteLine("Cannot filter image, less than filter window. Returned array with zeros. Method: filter_int");
+                return result;
+            }
+
+            int padsizeR, padsizeC = 0;
+            if (filter.GetLength(0) % 2 == 0)
+                padsizeR = filter.GetLength(0) / 2;
+            else
+                padsizeR = (filter.GetLength(0) - 1) / 2;
+
+            if (filter.GetLength(1) % 2 == 0)
+                padsizeC = filter.GetLength(1) / 2;
+            else
+                padsizeC = (filter.GetLength(1) - 1) / 2;
+
+            temp = padArr.PadArray(arr, padsizeR, padsizeC, padType, Direction.both);
 
             //filtering
             try
@@ -152,7 +126,7 @@ namespace Image
                         //get elemt after filter
                         if (convolution.Cast<int>().Sum() < 0) { result[i - 1, j - 1] = 0; }
                         else if (convolution.Cast<int>().Sum() > 255) { result[i - 1, j - 1] = 255; }
-                        else { result[i - 1, j - 1] = convolution.Cast<int>().Sum(); }                         
+                        else { result[i - 1, j - 1] = convolution.Cast<int>().Sum(); }                                 
                     }
                 }
             }
@@ -163,52 +137,8 @@ namespace Image
             }
 
             return result;
-        }
-
-        public static int[,] Filter_int(int[,] arr, int[,] filter)
-        {
-            int width  = arr.GetLength(1);
-            int height = arr.GetLength(0);
-
-            int[,] result = new int[height, width];
-            int[,] toConv = new int[filter.GetLength(0), filter.GetLength(1)];
-
-            //filtering
-            try
-            {
-                for (int i = 1; i < height - 1; i++)
-                {
-                    for (int j = 1; j < width - 1; j++)
-                    {
-                        for (int m = 0; m < filter.GetLength(0); m++)
-                        {
-                            for (int n = 0; n < filter.GetLength(1); n++)
-                            {
-                                toConv[m, n] = arr[i + m - 1, j + n - 1];
-                            }
-                        }
-
-                        //such size coz array mult by elements, and we take part same size as filter window
-                        int[,] convolution = new int[filter.GetLength(0), filter.GetLength(1)];                       
-                        convolution = toConv.ArrayMultElements(filter);
-
-                        //get elemt after filter
-                        if (convolution.Cast<int>().Sum() < 0) { result[i - 1, j - 1] = 0; }
-                        else if (convolution.Cast<int>().Sum() > 255) { result[i - 1, j - 1] = 255; }
-                        else { result[i - 1, j - 1] = convolution.Cast<int>().Sum(); }                                     
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Problem in filter, most likely OutOfRangeException, here message:\n" +
-                    e.Message);
-            }
-
-            return result;
-        }
-
-
+        }       
+        
         #region Shorters
         //shorter double
         public static double[,] Filter_double(int[,] arr, string filterType)

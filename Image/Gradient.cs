@@ -26,6 +26,19 @@ namespace Image
             return PPG;
         }
 
+        public static double[,] Grad(double[,] Cx, double[,] Cy)
+        {
+            //Compute per-plane gradients
+            // sqrt(Rx .^ 2 + Ry .^ 2)         
+            var CG = Cx.PowArrayElements(2).SumArrays(Cy.PowArrayElements(2)).SqrtArrayElements();
+
+            //Composite gradient image scaled to [0, 1].          
+            //per-line gradient 
+            var PPG = CG.ArrayDivByConst(CG.Cast<double>().Max());
+
+            return PPG;
+        }
+
         //Some problems, receive NaN
         public static double[,] GradientExtended(double[,] Rx, double[,] Ry, double[,] Gx, double[,] Gy, double[,] Bx, double[,] By)
         {

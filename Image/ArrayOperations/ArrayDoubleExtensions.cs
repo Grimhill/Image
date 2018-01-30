@@ -138,7 +138,7 @@ namespace Image.ArrayOperations
             {
                 for (int m = 0; m < cols; m++)
                 {
-                    z[k, m] = x[k, m] + (int)conts;
+                    z[k, m] = x[k, m] + conts;
                 }
             }
             return z;

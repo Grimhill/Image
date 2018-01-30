@@ -27,13 +27,14 @@ namespace Image
                 SaltPepperFilterHelper(img, m, n, 0, spfiltType, false, fileName);
         }
 
-        public static void SaltPepperFilterHelper(Bitmap img, int m, int n, double Q, SaltPepperfilterType spfiltType, bool unsharp, string fileName)
+        private static void SaltPepperFilterHelper(Bitmap img, int m, int n, double Q, SaltPepperfilterType spfiltType, bool unsharp, string fileName)
         {
             //m & n - filter window dimentions (m - row, n - col)
             //Q - filter order Q for Contraharmonic mean           
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\SaltPepper");
+            string defPass = Directory.GetCurrentDirectory() + "\\SaltPepper\\";
+            Checks.DirectoryExistance(defPass);
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
@@ -49,8 +50,10 @@ namespace Image
             string outName = String.Empty;
 
             ArrGen<double> arrGen = new ArrGen<double>();
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+            if (Depth == 8) { ImgExtension = ".png"; }
 
-            if ((m < 4 && n < 4) && (m > 0 && n > 0))
+            if (m > 0 && n > 0)
             {
                 switch (spfiltType)
                 {
@@ -63,7 +66,7 @@ namespace Image
                         resultG = (Filter.Filter_double(Gc, filter)).ArrayToUint8();
                         resultB = (Filter.Filter_double(Bc, filter)).ArrayToUint8();
 
-                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_ameanspFilt" + ImgExtension;
+                        outName = defPass + fileName + "_ameanspFilt" + ImgExtension;
                         break;
 
                     //Geometric mean filtering.
@@ -79,7 +82,7 @@ namespace Image
                         resultG = g_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
                         resultB = b_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
 
-                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_gmeanspFilt" + ImgExtension;
+                        outName = defPass + fileName + "_gmeanspFilt" + ImgExtension;
                         break;
 
                     //harmonic mean filter
@@ -95,7 +98,7 @@ namespace Image
                         resultG = g_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
                         resultB = b_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
 
-                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_hmeanspFilt" + ImgExtension;
+                        outName = defPass + fileName + "_hmeanspFilt" + ImgExtension;
                         break;
 
                     //contraharmonic mean filter Q>0 for pepper & <0 for salt
@@ -114,13 +117,13 @@ namespace Image
                         resultG = g_charmean.ImageArrayToUint8();
                         resultB = b_charmean.ImageArrayToUint8();
 
-                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_chmeanspFilt" + ImgExtension;
+                        outName = defPass + fileName + "_chmeanspFilt" + ImgExtension;
                         break;
 
                     default:
                         resultR = Rc; resultG = Gc; resultB = Bc;
 
-                        outName = Directory.GetCurrentDirectory() + "\\SaltPepper\\" + fileName + "_wrongspFilt" + ImgExtension;
+                        outName = defPass + fileName + "_wrongspFilt" + ImgExtension;
                         break;
                 }
 
@@ -131,14 +134,17 @@ namespace Image
                     image = Helpers.FastSharpImage(image);
                 }
 
-                outName = MoreHelpers.OutputFileNames(outName);
+                outName = Checks.OutputFileNames(outName);
+
+                if (Depth == 8)
+                { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
 
                 //image.Save(outName);
                 Helpers.SaveOptions(image, outName, ImgExtension);
             }
             else
             {
-                Console.WriteLine("Can`t implement filter larger, than 3x3, sorry");
+                Console.WriteLine("m and n parameters must be greater, then 0. Recommended 2 & 2 and higher. Method >SaltandPapperFilter<");
             }
         }
     }

@@ -1,59 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Collections.Generic;
+using Image.ArrayOperations;
 
 namespace Image
 {
     public static class MoreHelpers
     {
-        public static List<string> AvailableFormats = new List<string>() { ".jpg", ".jpeg", ".bmp", ".png", ".tif" };
-        public static bool CheckForInputFormat(string ImgExtension)
+        //Correction for input 8bit or one of planes of color image
+        public static int[,] GammaCorrection(int[,] cPlane, double c, double gamma)
         {
-            if (!AvailableFormats.Contains(ImgExtension))
-            {
-                Console.WriteLine("Unsupport image format (extension. Support: jpg, jpeg, bmp, png, tif");
-                return false;
-            }
-            return true;
-        }
+            int[,] result = new int[cPlane.GetLength(0), cPlane.GetLength(1)];
 
-        public static string OutputFileNames(string fullFilePath)
-        {
-            if (File.Exists(fullFilePath))
-            {
-                string folder    = Path.GetDirectoryName(fullFilePath);
-                string filename  = Path.GetFileNameWithoutExtension(fullFilePath);
-                string extension = Path.GetExtension(fullFilePath);
-                int number = 0;
+            //higher c and gamma - lighter image after correction            
+            result = cPlane.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(c).ArrayToUint8();
 
-                Match regex = Regex.Match(fullFilePath, @"(.+) \((\d+)\)\.\w+");
-
-                if (regex.Success)
-                {
-                    filename = regex.Groups[1].Value;
-                    number = int.Parse(regex.Groups[2].Value);
-                }
-
-                do
-                {
-                    number++;
-                    fullFilePath = Path.Combine(folder, string.Format("{0} ({1}){2}", filename, number, extension));
-                }
-                while (System.IO.File.Exists(fullFilePath));
-            }
-            return fullFilePath;
-
-        }
-
-        public static void DirectoryExistance(string path)
-        {
-            bool exists = Directory.Exists(path);
-
-            if (!exists)
-                Directory.CreateDirectory(path);
+            return result;
         }
 
         public static int[,] Obtain8bppdata(Bitmap img)
@@ -87,14 +51,14 @@ namespace Image
 
         public static void Bbp24Gray2Gray8bpp(Bitmap img, string fileName)
         {
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format8bppIndexed);
-            image = Bbp24Gray2Gray8bppHelper(img);           
-
-            string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_24bppGray28bppIndexed" + ImgExtension);
+            image = Bbp24Gray2Gray8bppHelper(img);
+            
+            string outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_24bppGray28bppIndexed" + ImgExtension);
             image.Save(outName);
         }
 
@@ -225,6 +189,67 @@ namespace Image
                 Console.WriteLine("Exception in setPixels:" + e.Message + "\n Method: -> SetColorPlanePixels <-");
             }
             return image;
+        }
+
+        public static int[,] BlackandWhiteProcessHelper(Bitmap img)
+        {
+            int[,] empty = new int[1, 1];
+            int[,] im = new int[img.Height, img.Width];
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+            if (Depth == 8)
+            {
+                im = MoreHelpers.Obtain8bppdata(img);
+            }
+            else if (Depth == 24 || Depth == 32)
+            {
+                if (Checks.BlackandWhite24bppCheck(img))
+                {
+                    var ColorList = Helpers.GetPixels(img);
+                    im = ColorList[0].Color;
+                }
+                else
+                {
+                    im = Helpers.RGBToGrayArray(img);
+                }
+            }
+            else if (img.Height <= 3 || img.Width < 3)
+            {
+                Console.WriteLine("Bad input. Image less then filter 3x3");
+                return empty;
+            }
+            else
+            {
+                Console.WriteLine("Bad input. Image didn`t 8bit BW or 24bit RGB/BW");
+                return empty;
+            }
+
+            return im;
+        }
+
+        public static Bitmap Uint16toUint8Compression(Bitmap img)
+        {
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+            Bitmap result;
+
+            List<ArraysListInt> ColorList = new List<ArraysListInt>();
+
+            if (Depth == 48)
+            {
+                result = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+
+                ColorList = Helpers.GetPixels(img);
+                result = Helpers.SetPixels(result, (ColorList[0].Color).ImageUint16ToUint8(),
+                    (ColorList[1].Color).ImageUint16ToUint8(), (ColorList[2].Color).ImageUint16ToUint8());
+                return result;
+            }
+            else
+            {
+                result = new Bitmap(img.Width, img.Height, PixelFormat.Format32bppArgb);
+                ColorList = Helpers.GetPixelswithAlpha(img);
+                result = Helpers.SetPixelsAlpha(result, (ColorList[0].Color).ImageUint16ToUint8(), (ColorList[1].Color).ImageUint16ToUint8(),
+                    (ColorList[2].Color).ImageUint16ToUint8(), (ColorList[3].Color).ImageUint16ToUint8());
+                return result;
+            }
         }
     }
 }

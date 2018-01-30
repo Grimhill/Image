@@ -9,36 +9,29 @@ namespace Image
         static void Main(string[] args)
         {
             string ImageFilePath = "dragon.jpg";
+            //string ImageModFilePath = ""; //for difference method
             string ImgExtension = Path.GetExtension(ImageFilePath).ToLower();
             string FileName = Path.GetFileName(ImageFilePath);
+            Bitmap image;
 
-            if (MoreHelpers.CheckForInputFormat(ImgExtension))
+            if (Checks.CheckForInputFormat(ImgExtension))
             {
-                Bitmap image = new Bitmap(ImageFilePath);                         
+                image = new Bitmap(ImageFilePath);
 
-                Contour.GlobalContour(image, CountourVariant.Variant6_RGB, FileName);      
+                if (Checks.InputDepthControl(image))
+                {
+                    double Depth = System.Drawing.Image.GetPixelFormatSize(image.PixelFormat);
+                    if (Depth == 48 || Depth == 64)
+                    {
+                        image = MoreHelpers.Uint16toUint8Compression(image);
+                    }
 
+                    Contour.GlobalContour(image, CountourVariant.Variant6_RGB, FileName);
+                }
             }
             else { }
 
             Console.ReadLine();
         }
-    }    
-
-    public enum SupportFormats
-    {
-        jpg,
-        jpeg,
-        png,
-        bmp,
-        tiff,
-        gif
-    }
-
-    public enum OutType
-    {
-        OneBpp,
-        EightBpp,
-        TwentyFourBpp
-    }
+    } 
 }

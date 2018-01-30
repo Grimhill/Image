@@ -46,83 +46,93 @@ namespace Image
             ContrastBlackWhiteHelper(img, low_in, high_in, low_out, high_out, gamma, fileName);
         }
 
-        public static void ContrastBlackWhiteHelper(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma, string fileName)
+        private static void ContrastBlackWhiteHelper(Bitmap img, double low_in, double high_in, double low_out, double high_out, double gamma, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
+            string defPass = Directory.GetCurrentDirectory() + "\\Contrast\\BlackandWhite\\";
+            Checks.DirectoryExistance(defPass);
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.GetPixels(img);
-            var GrayC = ColorList[0].Color;
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+            if (Depth == 8) { ImgExtension = ".png"; }
 
-            //default
-            //gamma - linear mapping
-
-            //In values between low_in and high_in
-            //Find In limits to contrast image Based on it`s intensity
-            //No sence for values 0.5 and more. 0.01 - here use only default value
-            double[] In = new double[2] { 0, 1 };
-
-            //make Out intensity to values between low_out and high_out
-            //Only positive values in range [0:1; 0:1]
-            // If high_out < low_out, the output image is reversed, as in a photographic negative. 
-            double[] Out = new double[2] { 0, 1 };
-
-            int[,] Cont = new int[img.Height, img.Width];
-            string outName = String.Empty;
-
-            if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0 ||
-                low_out > 1 || high_out > 1 || low_out < 0 || high_out < 0)
+            if (Depth == 8 || Checks.BlackandWhite24bppCheck(img))
             {
-                Console.WriteLine("low_in and high_in limits must be in range [0:1] \n" +
-                    "low_out and high_out limits must be in range [1:0]");
-            }
-            else if (low_in > high_in)
-            {
-                Console.WriteLine("low_in must be less then high_in");
-            }
-            else
-            {
-                In = new double[2] { low_in, high_in }; //low and high specifying the contrast limits
+                var GrayC = MoreHelpers.Obtain8bppdata(img);
 
-                if (low_in == 0 && high_in == 0 && low_out == 0 && high_out == 0)
+                //default
+                //gamma - linear mapping
+
+                //In values between low_in and high_in
+                //Find In limits to contrast image Based on it`s intensity
+                //No sence for values 0.5 and more. 0.01 - here use only default value
+                double[] In = new double[2] { 0, 1 };
+
+                //make Out intensity to values between low_out and high_out
+                //Only positive values in range [0:1; 0:1]
+                // If high_out < low_out, the output image is reversed, as in a photographic negative. 
+                double[] Out = new double[2] { 0, 1 };
+
+                int[,] Cont = new int[img.Height, img.Width];
+                string outName = String.Empty;
+
+                if (low_in > 1 || high_in > 1 || low_in < 0 || high_in < 0 ||
+                    low_out > 1 || high_out > 1 || low_out < 0 || high_out < 0)
                 {
-                    In = Stretchlims(GrayC, 0.01); //number - intensity in % pixels saturated at low and high intensities of image  
-
-                    outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                "\\Contrast\\" + fileName + "_ContrastDefault" + ImgExtension);
+                    Console.WriteLine("low_in and high_in limits must be in range [0:1] \n" +
+                        "low_out and high_out limits must be in range [1:0]");
                 }
-                else if (low_out == 0 && high_out == 0)
+                else if (low_in > high_in)
                 {
-                    if (gamma != 1)
-                    {
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastInLimGam" + ImgExtension);
-                    }
-                    else
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                        "\\Contrast\\" + fileName + "_ContrastInLim" + ImgExtension);
+                    Console.WriteLine("low_in must be less then high_in");
                 }
                 else
                 {
-                    Out = new double[2] { low_out, high_out };
-                    if (gamma != 1)
+                    In = new double[2] { low_in, high_in }; //low and high specifying the contrast limits
+
+                    if (low_in == 0 && high_in == 0 && low_out == 0 && high_out == 0)
                     {
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastInOutLimGam" + ImgExtension);
+                        In = Stretchlims(GrayC, 0.01); //number - intensity in % pixels saturated at low and high intensities of image  
+
+                        outName = defPass + fileName + "_ContrastDefault" + ImgExtension;
+                    }
+                    else if (low_out == 0 && high_out == 0)
+                    {
+                        if (gamma != 1)
+                        {
+                            outName = defPass + fileName + "_ContrastIn[" + low_in + ";" + high_in + "]Gam_" + gamma + ImgExtension;
+                        }
+                        else
+                            outName = defPass + fileName + "_ContrastIn[" + low_in + ";" + high_in + "]" + ImgExtension;
                     }
                     else
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                        "\\Contrast\\" + fileName + "_ContrastInOutLim" + ImgExtension);
+                    {
+                        Out = new double[2] { low_out, high_out };
+                        if (gamma != 1)
+                        {
+                            outName = defPass + fileName + "_ContrastIn[" + low_in + ";" + high_in + "]Out[" + low_out + ";" + high_out + "]Gam_" + gamma + ImgExtension;
+                        }
+                        else
+                            outName = defPass + fileName + "_ContrastIn[" + low_in + ";" + high_in + "]Out[" + low_out + ";" + high_out + "]" + ImgExtension;
+                    }
+
+                    Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
+
+                    image = Helpers.SetPixels(image, Cont, Cont, Cont);
+                    outName = Checks.OutputFileNames(outName);
+
+                    if (Depth == 8)
+                    { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
+
+                    //image.Save(outName);
+                    Helpers.SaveOptions(image, outName, ImgExtension);
                 }
-
-                Cont = Inlut(GrayC, CountLut(In, Out, gamma));  //Convert integer values using lookup table
-
-                image = Helpers.SetPixels(image, Cont, Cont, Cont);
-                //image.Save(outName);
-                Helpers.SaveOptions(image, outName, ImgExtension);
+            }
+            else
+            {
+                Console.WriteLine("There non 8bit or 24bit black and white image at input. Method: ContrastBlackandWhite");
             }
         }
 
@@ -162,95 +172,104 @@ namespace Image
                 Rc_low_out, Rc_high_out, Gc_low_out, Gc_high_out, Bc_low_out, Bc_high_out, gamma, fileName);
         } //double [,] Lh_in, double [,] Lh_out
 
-        public static void ContrastRGBHelper(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in,
+        private static void ContrastRGBHelper(Bitmap img, double Rc_low_in, double Rc_high_in, double Gc_low_in, double Gc_high_in, double Bc_low_in, double Bc_high_in,
             double Rc_low_out, double Rc_high_out, double Gc_low_out, double Gc_high_out, double Bc_low_out, double Bc_high_out, double gamma, string fileName)
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Contrast");
+            string defPass = Directory.GetCurrentDirectory() + "\\Contrast\\RGB\\";
+            Checks.DirectoryExistance(defPass);
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.GetPixels(img);
-            var Rc = ColorList[0].Color;
-            var Gc = ColorList[1].Color;
-            var Bc = ColorList[2].Color;
-            string outName = String.Empty;
-
-            //default
-            //gamma - linear mapping
-
-            //In values between low_in and high_in
-            //Find In limits to contrast image Based on it`s intensity
-            //No sence for values 0.5 and more. 0.01 - here use only default value
-            //low and high specifying the In contrast limits                              
-            double[] RcIn = new double[2] { 0, 1 };
-            double[] GcIn = new double[2] { 0, 1 };
-            double[] BcIn = new double[2] { 0, 1 };
-
-            //make Out intensity to values between low_out and high_out
-            //Only positive values in range [0:1; 0:1]
-            // If high_out < low_out, the output image is reversed, as in a photographic negative. 
-            //low and high specifying the Out contrast limits                              
-            double[] RcOut = new double[2] { 0, 1 };
-            double[] GcOut = new double[2] { 0, 1 };
-            double[] BcOut = new double[2] { 0, 1 };
-            double[] Out = { 0, 1 }; //default value
-
-            if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1
-                || Rc_low_in < 0 || Rc_high_in < 0 || Gc_low_in < 0 || Gc_high_in < 0 || Bc_low_in < 0 || Bc_high_in < 0
-                || Rc_low_out > 1 || Rc_high_out > 1 || Gc_low_out > 1 || Gc_high_out > 1 || Bc_low_out > 1 || Bc_high_out > 1
-                || Rc_low_out < 0 || Rc_high_out < 0 || Gc_low_out < 0 || Gc_high_out < 0 || Bc_low_out < 0 || Bc_high_out < 0)
+            if (Checks.NonRGBinput(img))
             {
-                Console.WriteLine("low_in limit and high_in limits must be in range [0:1]\n" +
-                    "low_out and high_out limits must be in range [0:1]");
-            }
-            else if (Rc_low_in > Rc_high_in || Gc_low_in > Gc_high_in || Bc_low_in > Bc_high_in)
-            {
-                Console.WriteLine("lo_inw limit must be less then high_in limit for each image plane");
-            }
-            else
-            {
-                RcIn = new double[2] { Rc_low_in, Rc_high_in };
-                GcIn = new double[2] { Gc_low_in, Gc_high_in };
-                BcIn = new double[2] { Bc_low_in, Bc_high_in };
+                var ColorList = Helpers.GetPixels(img);
+                var Rc = ColorList[0].Color;
+                var Gc = ColorList[1].Color;
+                var Bc = ColorList[2].Color;
+                string outName = String.Empty;
 
-                if (Rc_low_out == 0 && Rc_high_out == 0 && Gc_low_out == 0 && Gc_high_out == 0
-                    && Bc_low_out == 0 && Bc_high_out == 0)
+                //default
+                //gamma - linear mapping
+
+                //In values between low_in and high_in
+                //Find In limits to contrast image Based on it`s intensity
+                //No sence for values 0.5 and more. 0.01 - here use only default value
+                //low and high specifying the In contrast limits                              
+                double[] RcIn = new double[2] { 0, 1 };
+                double[] GcIn = new double[2] { 0, 1 };
+                double[] BcIn = new double[2] { 0, 1 };
+
+                //make Out intensity to values between low_out and high_out
+                //Only positive values in range [0:1; 0:1]
+                // If high_out < low_out, the output image is reversed, as in a photographic negative. 
+                //low and high specifying the Out contrast limits                              
+                double[] RcOut = new double[2] { 0, 1 };
+                double[] GcOut = new double[2] { 0, 1 };
+                double[] BcOut = new double[2] { 0, 1 };
+                double[] Out = { 0, 1 }; //default value
+
+                if (Rc_low_in > 1 || Rc_high_in > 1 || Gc_low_in > 1 || Gc_high_in > 1 || Bc_low_in > 1 || Bc_high_in > 1
+                    || Rc_low_in < 0 || Rc_high_in < 0 || Gc_low_in < 0 || Gc_high_in < 0 || Bc_low_in < 0 || Bc_high_in < 0
+                    || Rc_low_out > 1 || Rc_high_out > 1 || Gc_low_out > 1 || Gc_high_out > 1 || Bc_low_out > 1 || Bc_high_out > 1
+                    || Rc_low_out < 0 || Rc_high_out < 0 || Gc_low_out < 0 || Gc_high_out < 0 || Bc_low_out < 0 || Bc_high_out < 0)
                 {
-                    if (gamma != 1)
-                    {
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastRGBInLimGam" + ImgExtension);
-                    }
-                    else
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                        "\\Contrast\\" + fileName + "_ContrastRGBInLim" + ImgExtension);
+                    Console.WriteLine("low_in limit and high_in limits must be in range [0:1]\n" +
+                        "low_out and high_out limits must be in range [0:1]");
+                }
+                else if (Rc_low_in > Rc_high_in || Gc_low_in > Gc_high_in || Bc_low_in > Bc_high_in)
+                {
+                    Console.WriteLine("lo_inw limit must be less then high_in limit for each image plane");
                 }
                 else
                 {
-                    RcOut = new double[2] { Rc_low_out, Rc_high_out };
-                    GcOut = new double[2] { Gc_low_out, Gc_high_out };
-                    BcOut = new double[2] { Bc_low_out, Bc_high_out };
+                    RcIn = new double[2] { Rc_low_in, Rc_high_in };
+                    GcIn = new double[2] { Gc_low_in, Gc_high_in };
+                    BcIn = new double[2] { Bc_low_in, Bc_high_in };
 
-                    if (gamma != 1)
+                    if (Rc_low_out == 0 && Rc_high_out == 0 && Gc_low_out == 0 && Gc_high_out == 0
+                        && Bc_low_out == 0 && Bc_high_out == 0)
                     {
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                    "\\Contrast\\" + fileName + "_ContrastRGBInOutLimGam" + ImgExtension);
+                        if (gamma != 1)
+                        {
+                            outName = defPass + fileName + "_ContrastRGBIn[" + Rc_low_in + "," + Gc_low_in + "," + Bc_low_in
+                                + ";" + Rc_high_in + "," + Gc_high_in + "," + Bc_high_in + "]Gam_" + gamma + ImgExtension;
+                        }
+                        else
+                            outName = defPass + fileName + "_ContrastRGBIn[" + Rc_low_in + "," + Gc_low_in + "," + Bc_low_in
+                                + ";" + Rc_high_in + "," + Gc_high_in + "," + Bc_high_in + "]" + ImgExtension;
                     }
                     else
-                        outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() +
-                        "\\Contrast\\" + fileName + "_ContrastRGBInOutLim" + ImgExtension);
+                    {
+                        RcOut = new double[2] { Rc_low_out, Rc_high_out };
+                        GcOut = new double[2] { Gc_low_out, Gc_high_out };
+                        BcOut = new double[2] { Bc_low_out, Bc_high_out };
+
+                        if (gamma != 1)
+                        {
+                            outName = defPass + fileName + "_ContrastRGBIn[" + Rc_low_in + "," + Gc_low_in + "," + Bc_low_in
+                                + ";" + Rc_high_in + "," + Gc_high_in + "," + Bc_high_in + "]Out[";
+                            outName = outName + Rc_low_out + "," + Gc_low_out + "," + Bc_low_out
+                                + ";" + Rc_high_out + "," + Gc_high_out + "," + Bc_high_out + "]Gam_" + gamma + ImgExtension;
+                        }
+                        else
+                            outName = defPass + fileName + "_ContrastRGBIn[" + Rc_low_in + "," + Gc_low_in + "," + Bc_low_in
+                                + ";" + Rc_high_in + "," + Gc_high_in + "," + Bc_high_in + "]Out[";
+                        outName = outName + Rc_low_out + "," + Gc_low_out + "," + Bc_low_out
+                            + ";" + Rc_high_out + "," + Gc_high_out + "," + Bc_high_out + "]" + ImgExtension;
+                    }
+
+                    //Look up table
+                    var ContRc = Inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
+                    var ContGc = Inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
+                    var ContBc = Inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
+
+                    image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
+                    outName = Checks.OutputFileNames(outName);
+                    //image.Save(outName);
+                    Helpers.SaveOptions(image, outName, ImgExtension);
                 }
-
-                //Look up table
-                var ContRc = Inlut(Rc, CountLut(RcIn, RcOut, gamma));  //Convert integer values using lookup table
-                var ContGc = Inlut(Gc, CountLut(GcIn, GcOut, gamma));  //Convert integer values using lookup table
-                var ContBc = Inlut(Bc, CountLut(BcIn, BcOut, gamma));  //Convert integer values using lookup table
-
-                image = Helpers.SetPixels(image, ContRc, ContGc, ContBc);
-                //image.Save(outName);
-                Helpers.SaveOptions(image, outName, ImgExtension);
             }
         }
         #endregion Contrast_RGB
@@ -258,7 +277,7 @@ namespace Image
 
         //Find limits to contrast stretch an image\\ Using for default BW contrast
         //IntensityProcent - intensity in % pixels saturated at low and high intensities of image
-        public static double[] Stretchlims(int[,] Gc, double IntensityProcent)
+        private static double[] Stretchlims(int[,] Gc, double IntensityProcent)
         {
             double[] ImLH = new double[2]; //contatin a pair of gray values, which represent image low & high limits to contrast stretch an image
             double[] tol = new double[2]; //tol saturates equal fractions at low and high pixel values
@@ -315,8 +334,8 @@ namespace Image
         }
 
         //if want for use for RGB image, input Rc, Gc, Bc args
-        public static double[] Stretchlims(int[,] Gc, double low, double high)
-        {       
+        private static double[] Stretchlims(int[,] Gc, double low, double high)
+        {
             double[] ImLH = new double[2];
             double[] tol = { low, high };
 
@@ -364,7 +383,7 @@ namespace Image
 
         //image histogram (for BW or RC\GC\Bc)
         //only for uint8 images realization
-        public static int[] ImHist(int[,] Im) //imHist(int[,] Im, n) where n - uint size. 8 - 256, 16 - 65536
+        private static int[] ImHist(int[,] Im) //imHist(int[,] Im, n) where n - uint size. 8 - 256, 16 - 65536
         {
             int[] tempData = Im.Cast<int>().ToArray();
             int[] imHistResult = new int[256];
@@ -393,7 +412,7 @@ namespace Image
 
 
         //count Look up table
-        public static double[] CountLut(double[] In, double[] Out, double gamma)
+        private static double[] CountLut(double[] In, double[] Out, double gamma)
         {
             //prepare for look up table, receive vector of doubles for uint8 [0 255]
             //Cumulating sum of elemets 1/256
@@ -481,13 +500,12 @@ namespace Image
                 Lut = Lut.SumVectors(partThree);
             }
 
-
             return Lut;
         }
 
 
         //redefine array using look up table 
-        public static int[,] Inlut(int[,] im, double[] lut)
+        private static int[,] Inlut(int[,] im, double[] lut)
         {
             int[,] lutResult = new int[im.GetLength(0), im.GetLength(1)];
             var luts = lut.ImageVectorToUint8();

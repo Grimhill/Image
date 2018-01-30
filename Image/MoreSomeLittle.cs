@@ -15,11 +15,18 @@ namespace Image
             Bitmap difference;
             int width, height;
             bool identical = true;
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+
+            double DepthOrig = System.Drawing.Image.GetPixelFormatSize(imgOrig.PixelFormat);
+            double DepthMod = System.Drawing.Image.GetPixelFormatSize(imgMod.PixelFormat);
 
             if (imgOrig.Width != imgMod.Width || imgOrig.Height != imgMod.Height)
             {
                 Console.WriteLine("Origin and modified images dimentions dismatch or them different");
+            }
+            else if (DepthOrig != DepthMod)
+            {
+                Console.WriteLine("Can`t obtain difference between 8bit and 24bit iamge");
             }
 
             else
@@ -59,20 +66,51 @@ namespace Image
                 }
                 else
                 {
-                    string outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + "_difference.jpg");
-                   
+                    string outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + "_difference.png");
+
+                    if (DepthOrig == 8)
+                    { difference = MoreHelpers.Bbp24Gray2Gray8bppHelper(difference); }
+
                     difference.Save(outName);
                     //Helpers.SaveOptions(image, outName, ImgExtension);
                 }
             }
+
+            #region bad
+            //else //bad variant
+            //{
+            //    width  = Math.Min(imgOrig.Width, imgMod.Width);
+            //    height = Math.Min(imgOrig.Height, imgMod.Height);
+            //    difference = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            //
+            //    for (int y = 0; y < height; y++)
+            //    {
+            //        for (int x = 0; x < width; x++)
+            //        {
+            //            if (imgOrig.GetPixel(x, y).Equals(imgMod.GetPixel(x, y)))
+            //                difference.SetPixel(x, y, Color.White);
+            //            else
+            //            {                           
+            //                difference.SetPixel(x, y, Color.Red);
+            //                identical = false;
+            //            }
+            //        }
+            //    }
+            //} 
+            #endregion
         }
 
         public static void Difference(Bitmap imgOrig, Bitmap imgMod, double coefOne, double coefTwo, double alpha) //, double alpha
         {
+            string outName = String.Empty;
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+
             int width  = imgOrig.Width;
             int height = imgOrig.Height;
             Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            string outName = String.Empty;
+
+            double DepthOrig = System.Drawing.Image.GetPixelFormatSize(imgOrig.PixelFormat);
+            double DepthMod = System.Drawing.Image.GetPixelFormatSize(imgMod.PixelFormat);
 
             if (imgOrig.Width != imgMod.Width || imgOrig.Height != imgMod.Height)
             {
@@ -82,12 +120,18 @@ namespace Image
             {
                 Console.WriteLine("Alpha must be in range [0..1]");
             }
+            else if (DepthOrig != DepthMod)
+            {
+                Console.WriteLine("Can`t obtain difference between 8bit and 24bit iamge");
+            }
             else
             {
                 var cListOrigin = Helpers.GetPixels(imgOrig);
                 var cListMod = Helpers.GetPixels(imgMod);
 
-                //get difference               
+                //get difference
+
+                //suppose work with uint8
                 var Rdif = (cListOrigin[0].Color).SubArrays(cListMod[0].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
                 var Gdif = (cListOrigin[1].Color).SubArrays(cListMod[1].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
                 var Bdif = (cListOrigin[2].Color).SubArrays(cListMod[2].Color).AbsArrayElements().ArraySubWithConst(coefOne).Uint8Range();
@@ -183,7 +227,11 @@ namespace Image
                 //lay difference on alpha image
 
                 image = Helpers.SetPixels(image, R, G, B);
-                outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.jpg");                
+                outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\Diff.png");
+
+                if (DepthOrig == 8)
+                { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
+
                 image.Save(outName);
             }
         }
@@ -191,10 +239,12 @@ namespace Image
         //n - pixels per cell
         public static void CheckerBoard(int n, OutType type)
         {
+            //int[] wCell = new int[n];
+            //int[] bCell = new int[n];
             int[,] result = new int[n * 8, n * 8]; //8 -default cells
             result = CheckerBoardHelper(n, 8, 8);
 
-            Helpers.WriteImageToFile(result, result, result, "checkerboard.jpg", type);
+            Helpers.WriteImageToFile(result, result, result, "checkerboard.png", type);
         }
 
         //r & c must be greater than 1
@@ -203,10 +253,10 @@ namespace Image
             int[,] result = new int[n * r, n * c];
             result = CheckerBoardHelper(n, r, c);
 
-            Helpers.WriteImageToFile(result, result, result, "checkerboard_.jpg", type);
+            Helpers.WriteImageToFile(result, result, result, "checkerboard_.png", type);
         }
 
-        public static int[,] CheckerBoardHelper(int n, int r, int c)//r - rows, c - cols, n - pixels per cell
+        private static int[,] CheckerBoardHelper(int n, int r, int c)//r - rows, c - cols, n - pixels per cell
         {
             int[] wCell = new int[n];
             int[] bCell = new int[n];
@@ -291,62 +341,66 @@ namespace Image
         {
             string ImgExtension = Path.GetExtension(fileName).ToLower();
             fileName = Path.GetFileNameWithoutExtension(fileName);
-            MoreHelpers.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
+            Checks.DirectoryExistance(Directory.GetCurrentDirectory() + "\\Rand");
 
-            var ColorList = Helpers.GetPixels(img);
-            int[,] resultR = new int[img.Height, img.Width];
-            int[,] resultG = new int[img.Height, img.Width];
-            int[,] resultB = new int[img.Height, img.Width];
             string outName = String.Empty;
-
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
-            int Boardrows = (int)Math.Ceiling((double)img.Height / n);
-            int Boardcols = (int)Math.Ceiling((double)img.Width / n);
-
-            var board = CheckerBoardHelper(n, Boardrows, Boardcols);
-            var gray = Helpers.RGBToGrayArray(img);
-
-            for (int i = 0; i < img.Height; i++)
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+            if (Checks.NonRGBinput(img))
             {
-                for (int j = 0; j < img.Width; j++)
+                var ColorList = Helpers.GetPixels(img);
+                int[,] resultR = new int[img.Height, img.Width];
+                int[,] resultG = new int[img.Height, img.Width];
+                int[,] resultB = new int[img.Height, img.Width];
+
+                int Boardrows = (int)Math.Ceiling((double)img.Height / n);
+                int Boardcols = (int)Math.Ceiling((double)img.Width / n);
+
+                var board = CheckerBoardHelper(n, Boardrows, Boardcols);
+                var gray = Helpers.RGBToGrayArray(img);
+
+                for (int i = 0; i < img.Height; i++)
                 {
-                    if (var == WildBoardVariant.Variant1)
+                    for (int j = 0; j < img.Width; j++)
                     {
-                        if (board[i, j] == 0)
+                        if (var == WildBoardVariant.Variant1)
                         {
-                            resultR[i, j] = ColorList[0].Color[i, j];
-                            resultG[i, j] = ColorList[1].Color[i, j];
-                            resultB[i, j] = ColorList[2].Color[i, j];
+                            if (board[i, j] == 0)
+                            {
+                                resultR[i, j] = ColorList[0].Color[i, j];
+                                resultG[i, j] = ColorList[1].Color[i, j];
+                                resultB[i, j] = ColorList[2].Color[i, j];
+                            }
+                            else
+                            {
+                                resultR[i, j] = gray[i, j];
+                                resultG[i, j] = gray[i, j];
+                                resultB[i, j] = gray[i, j];
+                            }
                         }
                         else
                         {
-                            resultR[i, j] = gray[i, j];
-                            resultG[i, j] = gray[i, j];
-                            resultB[i, j] = gray[i, j];
-                        }
-                    }
-                    else
-                    {
-                        if (board[i, j] == 255)
-                        {
-                            resultR[i, j] = ColorList[0].Color[i, j];
-                            resultG[i, j] = ColorList[1].Color[i, j];
-                            resultB[i, j] = ColorList[2].Color[i, j];
-                        }
-                        else
-                        {
-                            resultR[i, j] = gray[i, j];
-                            resultG[i, j] = gray[i, j];
-                            resultB[i, j] = gray[i, j];
+                            if (board[i, j] == 255)
+                            {
+                                resultR[i, j] = ColorList[0].Color[i, j];
+                                resultG[i, j] = ColorList[1].Color[i, j];
+                                resultB[i, j] = ColorList[2].Color[i, j];
+                            }
+                            else
+                            {
+                                resultR[i, j] = gray[i, j];
+                                resultG[i, j] = gray[i, j];
+                                resultB[i, j] = gray[i, j];
+                            }
                         }
                     }
                 }
-            }
 
-            image = Helpers.SetPixels(image, resultR, resultG, resultB);
-            outName = MoreHelpers.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_CheckerBoard" + ImgExtension);
-            image.Save(outName);
+                image = Helpers.SetPixels(image, resultR, resultG, resultB);
+                outName = Checks.OutputFileNames(Directory.GetCurrentDirectory() + "\\Rand\\" + fileName + "_CheckerBoard" + ImgExtension);
+                image.Save(outName);
+            }
         }
     }
 
@@ -354,5 +408,12 @@ namespace Image
     {
         Variant1,
         Variant2
+    }
+
+    public enum OutType
+    {
+        OneBpp,
+        EightBpp,
+        TwentyFourBpp
     }
 }

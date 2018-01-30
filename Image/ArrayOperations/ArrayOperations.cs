@@ -1,4 +1,7 @@
-﻿//Some array helping array operations
+﻿using System;
+using System.Runtime.CompilerServices;
+
+//Some array helping array operations
 namespace Image
 {
     public class ArrGen<T>
@@ -91,6 +94,17 @@ namespace Image
             }
 
             return arr;
+        }
+
+        public bool ArrayOperationSizeMismatch(T[,] x, T[,] y, [CallerMemberName]string callName = "")
+        {
+            if (x.GetLength(0) != y.GetLength(0) || x.GetLength(1) != y.GetLength(1))
+            {
+                Console.WriteLine("Mismatch in size of arrays in operation: " + callName);
+                return false;
+            }
+            else
+                return true;
         }
     }
 }

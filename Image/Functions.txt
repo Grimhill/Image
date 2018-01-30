@@ -55,46 +55,49 @@
 
 	 Image segmentation
 	 image for test - imgfortest\segmentation\segmentation.png
-     Parameters: InEdgeImage - 8/24bit image, edge variant    
-3.2) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var1, FileName);
+     Parameters: edge variant    
+3.2) Segmentation.Edge(image, Edgevar.var1, FileName);
 
-	 Parameters: InEdgeImage - 8/24bit image, edge variant, threshhold [0..1]    
-3.3) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var1, 0.3, FileName);
+	 Parameters: edge variant, threshhold [0..1]    
+3.3) Segmentation.Edge(image, Edgevar.var1, 0.3, FileName);
 
-	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method
-3.4) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, FileName);
+	 Parameters: edge variant, edge method
+3.4) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, FileName);
 
-	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, threshhold [0..1] 
-3.5) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, 0.2, FileName); 
+	 Parameters: edge variant, edge method, threshhold [0..1] 
+3.5) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, 0.2, FileName); 
 
-	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, direction
-3.6) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.horizontal, FileName); 
+	 Parameters: edge variant, edge method, direction
+3.6) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.horizontal, FileName); 
 
-	 Parameters: InEdgeImage - 8/24bit image, edge variant, edge method, direction, threshhold [0..1] 
-3.7) Segmentation.Edge(image, InEdgeImage.BW8b, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.vertical, 0.2, FileName);
+	 Parameters: edge variant, edge method, direction, threshhold [0..1] 
+3.7) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.vertical, 0.2, FileName);
 
 	 Image graythresh. Recomended 8/24bit b&w image
      image for test - imgfortest\segmentation\Graythresh.png
-	 Parameters: InEdgeImage - 8/24bit image
-3.8) Segmentation.Graythresh(image, InEdgeImage.BW8b, FileName);
+	 Parameters: 
+3.8) Segmentation.Graythresh(image, FileName);
      
+
+	 SharpSmoothEqualize directory
 
 	 Sharp.cs
 	 Sharp image
-
 	 image for test - imgfortest\Sharp\Sharpen_8.png || pic_toSharp.png
 	 Parameters: UnSharpInColorSpace - sharp image in selected color space, FilterType - select filter type for sharp
-4.1) Sharp.UnSharp(image, UnSharpInColorSpace.fakeCIE1976L, FilterType.Laplassian2, FileName);
-
+4.1) Sharping.Sharp(image, UnSharpInColorSpace.fakeCIE1976L, FilterType.Laplassian2, FileName);
+	 
+	 Smooth.cs
 	 Smooth image
 	 image for test - imgfortest\Sharp\pic_toSharp.png
-	 Parameters: SmoothFilterWindow - select filter window, SmoothInColorSpace - smooth image in selected color space
-4.2) Smoothing.Smooth(image, SmoothFilterWindow.window3x3, SmoothInColorSpace.fakeCIE1976L , FileName);
-
+	 Parameters: m & n - average filter dimentions, SmoothInColorSpace - smooth image in selected color space
+4.2) Smoothing.Smooth(image, 2, 2, SmoothInColorSpace.fakeCIE1976L , FileName);
+     
+	 HistogramEqualization.cs
 	 Image histogram equalization
      image for test - imgfortest\Sharp\pic_toSharp.png
 	 Parameters: HisteqColorSpace - make histeq image in selected color space 
-4.3) Histeq.Hist(image, HisteqColorSpace.fakeCIE1976L, FileName);
+4.3) HistogramEqualization.Equalize(image, HisteqColorSpace.fakeCIE1976L, FileName);
 	 
 
 	 spFilt.cs
@@ -125,7 +128,7 @@
 	 Contain variable operations with arrays and vectors
 
 
-	 Helpers.cs & MoreHelpers.cs
+	 Helpers.cs & MoreHelpers.cs & Checks.cs
 	 Contain some utility functions for image process
 
 
@@ -213,7 +216,8 @@
 
      Save image in another supported format
 	 image for test - some image
-18)  SomeLittle.SaveImageInOtherFormat(image, FileName);
+	 Parameters: newFormat - choose new format from available Formats
+18)  SomeLittle.SaveImageInOtherFormat(image, newFormat, FileName);
 
 
 	 MoreSomeLittle.cs
