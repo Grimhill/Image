@@ -23,7 +23,7 @@ namespace Image
             return true;
         }
 
-        public static List<double> AllowableDepth = new List<double>() { 1, 8, 24, 32, 48, 64 };
+        public static List<double> AllowableDepth = new List<double>() { 1, 8, 24, 32, 48 };
         public static bool InputDepthControl(Bitmap img)
         {
             double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
@@ -31,7 +31,7 @@ namespace Image
             if (!AllowableDepth.Contains(Depth))
             {
                 Console.WriteLine("Unsupport image pixel format for input.\n" +
-                    "Allowable: 1bit, 8bit B&W, 24bit RGB, 32bit ARGB, 48bit RGB, 64bit ARGB - all them can be B&W");
+                    "Allowable: 1bit, 8bit, 24bit, 32bit. 48bit - Bimap represent as 32bppArgb. All them can be B&W");
                 return false;
             }
 

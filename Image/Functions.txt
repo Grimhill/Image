@@ -166,58 +166,110 @@
 	 Parameters: 
 7.4) ColorSpaceToFile.FakeCIE1976LtoFile(image, fileName);
 
+	 
+	 Morphology directory
+
+	 Dilate.cs & Erode.cs - dilatation and erosion realization
+
+	 StructureElement.cs
+	 Create structure element for morph operation
+
+	 Create line
+	 Parameters: size - line length in pixels, LineStructElementDegree - line direction 
+8.1) Line(3, LineStructElementDegree.plus45);
+	
+	 Create square
+	 Parameters: size - length of the square side in pixels
+8.2) Square(3);
+
+     Create rectangle
+	 Parameters: m & n - rectangle size in pixels 
+8.3) Rectangle(3, 2);
+
+	 Create disk
+	 Parameters: r - disk radius
+8.4) Disk(3);
+
+	 Create diamond-shaped element (rhombus)
+	 Parameters: dist - distance from the structuring element origin to the points of the diamond
+8.5) Diamond(2);
+
+	 Create Octagon
+	 Parameters: dist - distance from the structuring element origin to the sides of the octagon, as measured along the horizontal and vertical axes. dist must be a nonnegative multiple of 3
+8.6) Octagon(3);
+
+	
+	 MorphOperationsCall.cs
+	 Application morph operation: dilatation, erosion, open and close
+
+	 Return bitmap object after morph operation
+	 Parameters: MorphOp operation, structerElement - created Structure Element
+9.1) MorphOperationsCall.MorphOperation(img, MothOp.Dilate, int[,] structerElement);
+
+	 Save image from file after morph operation
+	 Parameters: MorphOp operation, structerElement - created Structure Element
+9.2) MorphOperationsCall.MorphOperation2File(Bitmap img, MothOp.Erode, int[,] structerElement, string fileName);
+
+	 Return int[,] object after morph operation
+	 Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
+9.3) MorphOperationsCall.MorphOperation(int[,] arr, MothOp.imOpen, int[,] structerElement);
+
+	 Save arr int[,] after morph operation into file
+	 Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
+9.4) MorphOperationsCall.MorphOperationArray2File(int[,] arr, MothOp.inClose, int[,] structerElement);
+
 
 	 SomeLittle.cs
 	 Some little functions with images
 
 	 Save image to file if have R, G, B arrays
 	 Parameters: R, G, B int[,] arrays
-8)	 SomeLittle.RGBArrayToImage(Rc, Gc, Bc);
+10)	 SomeLittle.RGBArrayToImage(Rc, Gc, Bc);
 
 	 Transform RGB image to gray scale and save as 24b
 	 image for test - some RGB image
-9)	 SomeLittle.RGBToGray24bpp(image, FileName);
+11)	 SomeLittle.RGBToGray24bpp(image, FileName);
      
      Transform RGB image to gray scale and save as 8b
 	 image for test - some RGB image
-10)  SomeLittle.RGB2Gray8bpp(image, FileName);
+12)  SomeLittle.RGB2Gray8bpp(image, FileName);
      
 	 Transform RGB image to binary and save
 	 image for test - some image
 	 Parameters: level - level to devide 0 or 1 pixels by formula: pixelValue/255 <> level
-11)  SomeLittle.ImageTo1Bpp(image, 0.5, FileName);
+13)  SomeLittle.ImageTo1Bpp(image, 0.5, FileName);
      
 	 Make negative from image or back image from negative
 	 image for test - some image
-12)  SomeLittle.MakeNegativeAndBack(image, FileName);     
+14)  SomeLittle.MakeNegativeAndBack(image, FileName);     
    
 	 image for test - imgfortest\GammaCorrection_8.png
 	 Parameters: formula S = c*r^gamma. r - image array
-13)  SomeLittle.GammaCorrectionFun(image, 40, 0.3, FileName);
+15)  SomeLittle.GammaCorrectionFun(image, 40, 0.3, FileName);
      
 	 Mirror image from side
 	 image for test - some image
-14)  SomeLittle.Mirror(image, Mirror.right, FileName);
+16)  SomeLittle.Mirror(image, Mirror.right, FileName);
 
 	 Crop image in pixels from side 
 	 image for test - some image
 	 Parameters: left, right, top, bottom - how many pixels to cut
-15)	 SomeLittle.CropImage(image, 0, 10, 20, 0, FileName);
+17)	 SomeLittle.CropImage(image, 0, 10, 20, 0, FileName);
 
 	 Convert 8b gray image to 24b gray
 	 image for test - some 8b image
 	 Recommendation: dont use .jpg, .jpeg and .tif 8b images
-16)	 SomeLittle.Bpp8ConvertTo24bpp(image, FileName);    
+18)	 SomeLittle.Bpp8ConvertTo24bpp(image, FileName);    
      
 	 Save image with alpha channel
 	 image for test - some 8b image
 	 Parameters: alpha [0..1]
-17)	 SomeLittle.SetPixelsAlpha(image, 0.5);
+19)	 SomeLittle.SetPixelsAlpha(image, 0.5);
 
      Save image in another supported format
 	 image for test - some image
 	 Parameters: newFormat - choose new format from available Formats
-18)  SomeLittle.SaveImageInOtherFormat(image, newFormat, FileName);
+20)  SomeLittle.SaveImageInOtherFormat(image, newFormat, FileName);
 
 
 	 MoreSomeLittle.cs
@@ -225,27 +277,27 @@
 
 	 Save different pixels of image and changed image to view
 	 image for test - some image and changed image
-19)	 MoreSomeLittle.DifferenceLight(image, img);
+21)	 MoreSomeLittle.DifferenceLight(image, img);
 
 	 Save result, where emphasized difference between source image and it`s changed one
 	 image for test - some image and changed image
 	 Parameters: count coefficients coefOne, coefTwo to highlight changed pixels. 
 	 alpha [0..1] - black out the original to show the difference on its as background
 	 recomended: coefOne = 40, coefTwo = 20
-20)  MoreSomeLittle.Difference(image, img, 40, 20, 0.7);  
+22)  MoreSomeLittle.Difference(image, img, 40, 20, 0.7);  
      
      Make default 8x8 CheckerBoard and save to file 
 	 Parameters: n - size in pixels for board cell, OutType - save as 1\8\24b
-21)	 MoreSomeLittle.CheckerBoard(50, OutType.OneBpp);
+23)	 MoreSomeLittle.CheckerBoard(50, OutType.OneBpp);
 
 	 Make CheckerBoard with entered rows and cols and save to file 
 	 Parameters: n - size in pixels for board cell, r & c - number of row and cols, OutType - save as 1\8\24b
-22)  MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
+24)  MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
      
 	 Make CheckerBoard on image alternating the ones grayscale and RGB
      image for test - imgfortest\papper.jpg or another RGB image
 	 Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
-23)  MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2, FileName);    
+25)  MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2, FileName);    
 
      
      

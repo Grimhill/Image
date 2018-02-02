@@ -2,7 +2,6 @@
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image
@@ -224,32 +223,6 @@ namespace Image
             }
 
             return im;
-        }
-
-        public static Bitmap Uint16toUint8Compression(Bitmap img)
-        {
-            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-            Bitmap result;
-
-            List<ArraysListInt> ColorList = new List<ArraysListInt>();
-
-            if (Depth == 48)
-            {
-                result = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-
-                ColorList = Helpers.GetPixels(img);
-                result = Helpers.SetPixels(result, (ColorList[0].Color).ImageUint16ToUint8(),
-                    (ColorList[1].Color).ImageUint16ToUint8(), (ColorList[2].Color).ImageUint16ToUint8());
-                return result;
-            }
-            else
-            {
-                result = new Bitmap(img.Width, img.Height, PixelFormat.Format32bppArgb);
-                ColorList = Helpers.GetPixelswithAlpha(img);
-                result = Helpers.SetPixelsAlpha(result, (ColorList[0].Color).ImageUint16ToUint8(), (ColorList[1].Color).ImageUint16ToUint8(),
-                    (ColorList[2].Color).ImageUint16ToUint8(), (ColorList[3].Color).ImageUint16ToUint8());
-                return result;
-            }
         }
     }
 }

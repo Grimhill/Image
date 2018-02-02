@@ -65,6 +65,10 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="MoreHelpers.cs" />
     <Compile Include="MoreSomeLittle.cs" />
+    <Compile Include="Morphology\Dilate.cs" />
+    <Compile Include="Morphology\Erode.cs" />
+    <Compile Include="Morphology\MorphOperationsCall.cs" />
+    <Compile Include="Morphology\StructureElement.cs" />
     <Compile Include="padMyArray.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
