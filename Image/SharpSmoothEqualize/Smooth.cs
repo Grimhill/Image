@@ -1,94 +1,114 @@
-﻿using Image.ArrayOperations;
-using Image.ColorSpaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Linq;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
+using System.Collections.Generic;
+using Image.ArrayOperations;
+using Image.ColorSpaces;
 
-namespace Image.SharpSmoothEqualize
+namespace Image
 {
     public static class Smoothing
     {
-        //only for RGB images, b&w 24bbp.
-        public static void Smooth(Bitmap img, int m, int n, SmoothInColorSpace cSpace, string fileName)
-        {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            string defPass = Directory.GetCurrentDirectory() + "\\Sharp\\Smooth\\";
-            Checks.DirectoryExistance(defPass);
+        private static List<string> SmoothVariants = new List<string>()
+        { "_SmoothRGB", "_SmoothHSV", "_SmoothLab", "_SmoothfakeCIE1976L" };
 
+        //image smoothing by entered size for average filter and save to file
+        public static void Smooth(Bitmap img, int m, int n, SmoothInColorSpace cSpace)
+        {        
+            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
+            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
+            string defPath      = GetImageInfo.MyPath("Sharp\\Smooth");
+           
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
-            var ColorList = Helpers.GetPixels(img);
-            List<ArraysListInt> Result = new List<ArraysListInt>();
+            image = SmoothHelper(img, m, n, cSpace);
 
-            double[,] filter;
-            string outName = String.Empty;
+            string outName = defPath + imgName + SmoothVariants.ElementAt((int)cSpace) + imgExtension;
+            
+            Helpers.SaveOptions(image, outName, imgExtension);           
+        }
 
+        //image smoothing by entered size for average filter and return bitmap
+        public static Bitmap SmoothBitmap(Bitmap img, int m, int n, SmoothInColorSpace cSpace)
+        {
+            return SmoothHelper(img, m, n, cSpace);
+        }
+
+        //image smoothing by entered size for average filter process
+        private static Bitmap SmoothHelper(Bitmap img, int m, int n, SmoothInColorSpace cSpace)
+        {        
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-            if (Depth == 8) { ImgExtension = ".png"; }
+            List<ArraysListInt> Result = new List<ArraysListInt>();
+            double[,] filter;
 
-            if (m > 0 && n > 0)
+            if (!Checks.BinaryInput(img))
             {
+                List<ArraysListInt> ColorList = Helpers.GetPixels(img);
 
-                filter = Filter.Fspecial(m, n, "average");
-
-                switch (cSpace)
+                if (m >= 1 && n >= 1)
                 {
-                    case SmoothInColorSpace.RGB:
-                        Result.Add(new ArraysListInt() { Color = Filter.Filter_double(ColorList[0].Color, filter).ArrayToUint8() });
-                        Result.Add(new ArraysListInt() { Color = Filter.Filter_double(ColorList[1].Color, filter).ArrayToUint8() });
-                        Result.Add(new ArraysListInt() { Color = Filter.Filter_double(ColorList[2].Color, filter).ArrayToUint8() });
+                    //create average filter by entered size
+                    filter = ImageFilter.FspecialSize(m, n, "average");
 
-                        outName = defPass + fileName + "_SmoothRGB" + ImgExtension;
-                        break;
+                    //smooth in choosen color space
+                    switch (cSpace)
+                    {
+                        case SmoothInColorSpace.RGB:
+                            if (Depth == 8)
+                            {
+                                var bw = ImageFilter.Filter_double(ColorList[0].Color, filter).ArrayToUint8();
+                                Result.Add(new ArraysListInt() { Color = bw }); Result.Add(new ArraysListInt() { Color = bw });
+                                Result.Add(new ArraysListInt() { Color = bw });
+                            }
+                            else
+                            {
+                                Result.Add(new ArraysListInt() { Color = ImageFilter.Filter_double(ColorList[0].Color, filter).ArrayToUint8() });
+                                Result.Add(new ArraysListInt() { Color = ImageFilter.Filter_double(ColorList[1].Color, filter).ArrayToUint8() });
+                                Result.Add(new ArraysListInt() { Color = ImageFilter.Filter_double(ColorList[2].Color, filter).ArrayToUint8() });
+                            }
+                            break;
 
-                    case SmoothInColorSpace.HSV:
-                        var hsv = RGBandHSV.RGB2HSV(img);
-                        var hsv_temp = Filter.Filter_double(hsv[2].Color, filter, PadType.replicate);
+                        case SmoothInColorSpace.HSV:
+                            var hsv = RGBandHSV.RGB2HSV(img);
+                            var hsv_temp = ImageFilter.Filter_double(hsv[2].Color, filter, PadType.replicate);
 
-                        //Filter by V - Value (Brightness/яркость)
-                        //artificially if V > 1, make him 1
-                        Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ToBorderGreaterZero(1));
+                            //Filter by V - Value (Brightness/яркость)
+                            //artificially if V > 1; make him 1
+                            Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ToBorderGreaterZero(1));
+                            break;
 
-                        outName = defPass + fileName + "_SmoothHSV" + ImgExtension;
-                        break;
+                        case SmoothInColorSpace.Lab:
+                            var lab = RGBandLab.RGB2Lab(img);
+                            var lab_temp = ImageFilter.Filter_double(lab[0].Color, filter, PadType.replicate);
 
-                    case SmoothInColorSpace.Lab:
-                        var lab = RGBandLab.RGB2Lab(img);
-                        var lab_temp = Filter.Filter_double(lab[0].Color, filter, PadType.replicate);
+                            //Filter by L - lightness                    
+                            Result = RGBandLab.Lab2RGB(lab_temp.ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
+                            break;
 
-                        //Filter by L - lightness                    
-                        Result = RGBandLab.Lab2RGB(lab_temp.ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
+                        case SmoothInColorSpace.fakeCIE1976L:
+                            var fakeCIE1976L = RGBandLab.RGB2Lab1976(img);
+                            var fakeCIE1976L_temp = ImageFilter.Filter_double(fakeCIE1976L[0].Color, filter, PadType.replicate);
 
-                        outName = defPass + fileName + "_SmoothLab" + ImgExtension;
-                        break;
+                            //Filter by L - lightness                    
+                            Result = RGBandLab.Lab1976toRGB(fakeCIE1976L_temp, fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                            break;
+                    }
 
-                    case SmoothInColorSpace.fakeCIE1976L:
-                        var fakeCIE1976L = RGBandLab.RGB2Lab(img);
-                        var fakeCIE1976L_temp = Filter.Filter_double((fakeCIE1976L[0].Color).ArrayMultByConst(2.57), filter, PadType.replicate);
+                    image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
 
-                        //Filter by L - lightness                    
-                        Result = RGBandLab.Lab2RGB(fakeCIE1976L_temp.ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
-
-                        outName = defPass + fileName + "_SmoothfakeCIE1976L" + ImgExtension;
-                        break;
+                    if (Depth == 8)
+                    { image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image); }
                 }
-
-                image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
-                outName = Checks.OutputFileNames(outName);
-
-                if (Depth == 8)
-                { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
-
-                //image.Save(outName);
-                Helpers.SaveOptions(image, outName, ImgExtension);
+                else
+                {
+                    Console.WriteLine("m and n parameters must be positive and greater or equal 1. Recommended 2 & 2 and higher. Method >Smooth<. Return black square.");
+                }
             }
-            else
-            {
-                Console.WriteLine("m and n parameters must be greater, then 0. Recommended 2 & 2 and higher. Method >Smooth<");
-            }
+            else { Console.WriteLine("What did you expected to smooth binaty image? Return black square."); }
+
+            return image;
         }
     }
 

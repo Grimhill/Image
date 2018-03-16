@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Drawing;
+using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
@@ -12,7 +12,7 @@ namespace Image.ColorSpaces
 
         public static List<ArraysListDouble> RGB2CMY(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> cmyResult = new List<ArraysListDouble>();
 
             cmyResult = RGB2CMYCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -38,26 +38,26 @@ namespace Image.ColorSpaces
         }
 
         //R G B arrays in In the following order R G B
-        public static List<ArraysListDouble> RGB2CMY(int[,] R, int[,] G, int[,] B)
+        public static List<ArraysListDouble> RGB2CMY(int[,] r, int[,] g, int[,] b)
         {
             List<ArraysListDouble> cmyResult = new List<ArraysListDouble>();
-            if (R.Length != G.Length || R.Length != B.Length)
+            if (r.Length != g.Length || r.Length != b.Length)
             {
                 Console.WriteLine("R G B arrays size dismatch in rgb2cmy operation -> rgb2cmy(int[,] R, int[,] G, int[,]B) <-");
             }
             else
             {
-                cmyResult = RGB2CMYCount(R, G, B);
+                cmyResult = RGB2CMYCount(r, g, b);
             }
 
             return cmyResult;
         }
 
         //C M Y values - double in range [0:1]
-        public static List<ArraysListDouble> RGB2CMYCount(int[,] R, int[,] G, int[,] B)
+        private static List<ArraysListDouble> RGB2CMYCount(int[,] r, int[,] g, int[,] b)
         {
-            int width  = R.GetLength(1);
-            int height = R.GetLength(0);
+            int width  = r.GetLength(1);
+            int height = r.GetLength(0);
 
             List<ArraysListDouble> cmyResult = new List<ArraysListDouble>();
 
@@ -65,9 +65,10 @@ namespace Image.ColorSpaces
             double[,] M = new double[height, width];  //Magenta (пурпурный)
             double[,] Y = new double[height, width];  //Yellow
 
-            C = R.ImageUint8ToDouble().ConstSubArrayElements(1);
-            M = G.ImageUint8ToDouble().ConstSubArrayElements(1);
-            Y = B.ImageUint8ToDouble().ConstSubArrayElements(1);
+            //formula C = 1 - R/255
+            C = r.ImageUint8ToDouble().ConstSubArrayElements(1);
+            M = g.ImageUint8ToDouble().ConstSubArrayElements(1);
+            Y = b.ImageUint8ToDouble().ConstSubArrayElements(1);
 
             cmyResult.Add(new ArraysListDouble() { Color = C });
             cmyResult.Add(new ArraysListDouble() { Color = M });
@@ -82,7 +83,7 @@ namespace Image.ColorSpaces
         //
         public static List<ArraysListInt> CMY2RGB(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             double[,] C = (ColorList[0].Color).ImageUint8ToDouble();
@@ -121,34 +122,34 @@ namespace Image.ColorSpaces
 
         //C M Y in double values (as after convert rgb2cmy, in range [0 1])
         //C M Y arrays in In the following order C-M-Y
-        public static List<ArraysListInt> CMY2RGB(double[,] C, double[,] M, double[,] Y)
+        public static List<ArraysListInt> CMY2RGB(double[,] c, double[,] m, double[,] y)
         {
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            if (C.Length != M.Length || C.Length != Y.Length)
+            if (c.Length != m.Length || c.Length != y.Length)
             {
-                Console.WriteLine("C M Y arrays size dismatch in cmy2rgb operation -> cmy2rgb(double[,] C, double[,] M, double[,] Y) <-");
+                Console.WriteLine("C M Y arrays size dismatch in cmy2rgb operation -> cmy2rgb(double[;] C; double[;] M; double[;] Y) <-");
             }
-            else if (C.Cast<double>().ToArray().Max() > 1)
+            else if (c.Cast<double>().ToArray().Max() > 1)
             {
                 //may be need transform?
                 //C = C.ArrayDivByConst(255);
                 //M = M.ArrayDivByConst(255);
                 //Y = Y.ArrayDivByConst(255);
-                Console.WriteLine("C M Y arrays Values must be in range [0 1], in cmy2rgb operation -> cmy2rgb(double[,] C, double[,] M, double[,] Y) <-");
+                Console.WriteLine("C M Y arrays Values must be in range [0 1]; in cmy2rgb operation -> cmy2rgb(double[;] C; double[;] M; double[;] Y) <-");
             }
             else
             {
-                rgbResult = CMY2RGBCount(C, M, Y);
+                rgbResult = CMY2RGBCount(c, m, y);
             }
 
             return rgbResult;
         }
 
-        public static List<ArraysListInt> CMY2RGBCount(double[,] C, double[,] M, double[,] Y)
+        private static List<ArraysListInt> CMY2RGBCount(double[,] c, double[,] m, double[,] y)
         {
-            int width  = C.GetLength(1);
-            int height = C.GetLength(0);
+            int width  = c.GetLength(1);
+            int height = c.GetLength(0);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -156,9 +157,11 @@ namespace Image.ColorSpaces
             int[,] G = new int[height, width];
             int[,] B = new int[height, width];
 
-            R = C.ConstSubArrayElements(1).ImageArrayToUint8();
-            G = M.ConstSubArrayElements(1).ImageArrayToUint8();
-            B = Y.ConstSubArrayElements(1).ImageArrayToUint8();
+            //formula R = (1 - C) * 255
+            //C\M\Y in 0.. 1 range
+            R = c.ConstSubArrayElements(1).ImageArrayToUint8();
+            G = m.ConstSubArrayElements(1).ImageArrayToUint8();
+            B = y.ConstSubArrayElements(1).ImageArrayToUint8();
 
             rgbResult.Add(new ArraysListInt() { Color = R });
             rgbResult.Add(new ArraysListInt() { Color = G });

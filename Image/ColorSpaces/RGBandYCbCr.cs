@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Drawing;
+using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
@@ -12,7 +12,7 @@ namespace Image.ColorSpaces
 
         public static List<ArraysListDouble> RGB2YCbCr(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> YCbCrResult = new List<ArraysListDouble>();
 
             YCbCrResult = RGB2YCbCrCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -38,33 +38,33 @@ namespace Image.ColorSpaces
         }
 
         //R G B arrays in In the following order R G B
-        public static List<ArraysListDouble> RGB2YCbCr(int[,] R, int[,] G, int[,] B)
+        public static List<ArraysListDouble> RGB2YCbCr(int[,] r, int[,] g, int[,] b)
         {
             List<ArraysListDouble> YCbCrResult = new List<ArraysListDouble>();
 
-            if (R.Length != G.Length || R.Length != B.Length)
+            if (r.Length != g.Length || r.Length != b.Length)
             {
                 Console.WriteLine("R G B arrays size dismatch in rgb2YCbCr operation -> rgb2YCbCr(int[,] R, int[,] G, int[,] B) <-");
             }
             else
             {
-                YCbCrResult = RGB2YCbCrCount(R, G, B);
+                YCbCrResult = RGB2YCbCrCount(r, g, b);
             }
 
             return YCbCrResult;
         }
 
         //Y Cb Cr values - double, not in range [0 1]
-        public static List<ArraysListDouble> RGB2YCbCrCount(int[,] R, int[,] G, int[,] B)
+        private static List<ArraysListDouble> RGB2YCbCrCount(int[,] r, int[,] g, int[,] b)
         {
-            int width  = R.GetLength(1);
-            int height = R.GetLength(0);
+            int width  = r.GetLength(1);
+            int height = r.GetLength(0);
 
             List<ArraysListDouble> YCbCrResult = new List<ArraysListDouble>();
 
-            var Rcd = R.ImageUint8ToDouble();
-            var Gcd = G.ImageUint8ToDouble();
-            var Bcd = B.ImageUint8ToDouble();
+            var Rcd = r.ImageUint8ToDouble();
+            var Gcd = g.ImageUint8ToDouble();
+            var Bcd = b.ImageUint8ToDouble();
 
             double[,] Y  = new double[height, width]; //luma (яркостная составляющая)
             double[,] Cb = new double[height, width]; //difference between B and Y ?
@@ -100,7 +100,7 @@ namespace Image.ColorSpaces
 
         public static List<ArraysListInt> YCbCr2RGB(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             var Y  = (ColorList[0].Color).ArrayToDouble();
@@ -128,7 +128,7 @@ namespace Image.ColorSpaces
                 //YCbCrList[0].Color = (YCbCrList[0].Color).ArrayMultByConst(255);
                 //YCbCrList[1].Color = (YCbCrList[1].Color).ArrayMultByConst(255);  
                 //YCbCrList[2].Color = (YCbCrList[2].Color).ArrayMultByConst(255);  
-                Console.WriteLine("Y Cb Cr arrays Values must be not in range [-1 1], in YCbCr2rgb operation -> YCbCr2rgb(List<arraysListDouble> YCbCrList) <-");
+                Console.WriteLine("Y Cb Cr arrays Values must be not in range [-1 1]; in YCbCr2rgb operation -> YCbCr2rgb(List<arraysListDouble> YCbCrList) <-");
             }
             else
             {
@@ -140,40 +140,40 @@ namespace Image.ColorSpaces
 
         //Y Cb Cr in double values (as after convert rgb2YCbCr, not in range [-1 1])
         //Y Cb Cr arrays in In the following order Y-Cb-Cr
-        public static List<ArraysListInt> YCbCr2RGB(double[,] Y, double[,] Cb, double[,] Cr)
+        public static List<ArraysListInt> YCbCr2RGB(double[,] y, double[,] cb, double[,] cr)
         {
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            if (Y.Length != Cb.Length || Y.Length != Cr.Length)
+            if (y.Length != cb.Length || y.Length != cr.Length)
             {
                 Console.WriteLine("Y Cb Cr arrays size dismatch in YCbCr2rgb operation -> YCbCr2rgb(double[,] Y, double[,] Cb, double[,] Cr) <-");
             }
-            else if (Y.Cast<double>().ToArray().Max() < 1)
+            else if (y.Cast<double>().ToArray().Max() < 1)
             {
                 //may be need transform?
                 //Y  = Y.ArrayMultByConst(255);  
                 //Cb = Cb.ArrayMultByConst(255); 
                 //Cr = Cr.ArrayMultByConst(255); 
-                Console.WriteLine("Y Cb Cr arrays Values must be not in range [-1 1], in YCbCr2rgb operation -> YCbCr2rgb(double[,] Y, double[,] Cb, double[,] Cr) <-");
+                Console.WriteLine("Y Cb Cr arrays Values must be not in range [-1 1]; in YCbCr2rgb operation -> YCbCr2rgb(double[,] Y, double[,] Cb, double[,] Cr) <-");
             }
             else
             {
-                rgbResult = YCbCr2RGBCount(Y, Cb, Cr);
+                rgbResult = YCbCr2RGBCount(y, cb, cr);
             }
 
             return rgbResult;
         }
 
-        public static List<ArraysListInt> YCbCr2RGBCount(double[,] Y, double[,] Cb, double[,] Cr)
+        private static List<ArraysListInt> YCbCr2RGBCount(double[,] y, double[,] cb, double[,] cr)
         {
-            int width  = Y.GetLength(1);
-            int height = Y.GetLength(0);
+            int width = y.GetLength(1);
+            int height = y.GetLength(0);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            Y  = Y.ArrayDivByConst(255);
-            Cb = Cb.ArrayDivByConst(255);
-            Cr = Cr.ArrayDivByConst(255);
+            y  = y.ArrayDivByConst(255);
+            cb = cb.ArrayDivByConst(255);
+            cr = cr.ArrayDivByConst(255);
 
             double[,] R = new double[height, width];
             double[,] G = new double[height, width];
@@ -188,7 +188,7 @@ namespace Image.ColorSpaces
             {
                 for (int j = 0; j < width; j++)
                 {
-                    double[] temp = new double[3] { Y[i, j], Cb[i, j], Cr[i, j] };
+                    double[] temp = new double[3] { y[i, j], cb[i, j], cr[i, j] };
 
                     R[i, j] = Coef[0] + Ycon.MultVectors(temp).Sum();
                     G[i, j] = Coef[1] + Cbcon.MultVectors(temp).Sum();

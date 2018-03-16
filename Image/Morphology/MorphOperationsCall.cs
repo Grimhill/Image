@@ -1,18 +1,17 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 
-namespace Image.Morphology
+namespace Image
 {
     public static class MorphOperationsCall
     {
-        public static Bitmap MorphOperation(Bitmap img, MorphOp operation, int[,] structerElement)
+        //return bitmap after morph operation
+        public static Bitmap MorphOperationBitmap(Bitmap img, MorphOp operation, int[,] structerElement)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             bool type = true;
 
-            //array, where store color components result after operations
+            //array; where store color components result after operations
             int[,] resultR = new int[img.Height, img.Width];
             int[,] resultG = new int[img.Height, img.Width];
             int[,] resultB = new int[img.Height, img.Width];
@@ -21,7 +20,7 @@ namespace Image.Morphology
 
             double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
 
-            if (Depth == 8 || Checks.BlackandWhite24bppCheck(img))
+            if (Depth == 8 || Checks.BlackandWhite24bppCheck(ColorList))
             { type = false; }
 
             if (type)
@@ -39,20 +38,19 @@ namespace Image.Morphology
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
 
             if (Depth == 8)
-            { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
+            { image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image); }
 
             return image;
         }
 
-        public static void MorphOperation2File(Bitmap img, MorphOp operation, int[,] structerElement, string fileName)
+        //morph operation result into file
+        public static void MorphOperation(Bitmap img, MorphOp operation, int[,] structerElement)
         {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            string defPass = Directory.GetCurrentDirectory() + "\\Morph\\";
-            Checks.DirectoryExistance(defPass);
+            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
+            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
+            string defPath      = GetImageInfo.MyPath("Morph");
 
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-            string outName = String.Empty;
             bool type = true;
 
             //array, where store color components result after operations
@@ -60,13 +58,12 @@ namespace Image.Morphology
             int[,] resultG = new int[img.Height, img.Width];
             int[,] resultB = new int[img.Height, img.Width];
 
-            //obtain color components. form 8bpp works too, but not recommended to use 8-bit .jpeg\tif\jpg images
+            //obtain color components. form 8bpp works too; but not recommended to use 8-bit .jpeg\tif\jpg images
             var ColorList = Helpers.GetPixels(img);
 
             double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
 
-            if (Depth == 8) { ImgExtension = ".png"; }
-            if (Depth == 8 || Checks.BlackandWhite24bppCheck(img))
+            if (Depth == 8 || Checks.BlackandWhite24bppCheck(ColorList))
             { type = false; }
 
             if (type)
@@ -80,18 +77,84 @@ namespace Image.Morphology
                 resultR = MorphOperationHelper(ColorList[0].Color, operation, structerElement);
                 resultG = resultR; resultB = resultR;
             }
-            outName = defPass + fileName + "_" + operation.ToString() + ImgExtension;
-            
+
+            string outName = defPath + imgName + "_" + operation.ToString() + imgExtension;
+
+            #region ka
+            //switch (operation)
+            //{
+            //    case MothOp.Dilate:
+            //        if(type)
+            //        {
+            //            resultR = Dilate.DilateMe(ColorList[0].Color, structerElement);
+            //            resultG = Dilate.DilateMe(ColorList[1].Color, structerElement);
+            //            resultB = Dilate.DilateMe(ColorList[2].Color, structerElement);
+            //        }
+            //        else
+            //        {
+            //            resultR = Dilate.DilateMe(ColorList[0].Color, structerElement);
+            //            resultG = resultR; resultB = resultR;
+            //        }
+            //        outName = defPass + fileName + "_Dilate" + ImgExtension;
+            //        break;
+            //
+            //    case MothOp.Erode:
+            //        if (type)
+            //        {
+            //            resultR = Erode.ErodeMe(ColorList[0].Color, structerElement);
+            //            resultG = Erode.ErodeMe(ColorList[1].Color, structerElement);
+            //            resultB = Erode.ErodeMe(ColorList[2].Color, structerElement);
+            //        }
+            //        else
+            //        {
+            //            resultR = Erode.ErodeMe(ColorList[0].Color, structerElement);
+            //            resultG = resultR; resultB = resultR;
+            //        }
+            //        outName = defPass + fileName + "_Erode" + ImgExtension;
+            //        break;
+            //
+            //    case MothOp.imOpen:
+            //        if (type)
+            //        {
+            //            resultR = Dilate.DilateMe(Erode.ErodeMe(ColorList[0].Color, structerElement), structerElement);
+            //            resultG = Dilate.DilateMe(Erode.ErodeMe(ColorList[1].Color, structerElement), structerElement);
+            //            resultB = Dilate.DilateMe(Erode.ErodeMe(ColorList[2].Color, structerElement), structerElement);
+            //        }
+            //        else
+            //        {
+            //            resultR = Dilate.DilateMe(Erode.ErodeMe(ColorList[0].Color, structerElement), structerElement);
+            //            resultG = resultR; resultB = resultR;
+            //        }
+            //        outName = defPass + fileName + "_imOpen" + ImgExtension;
+            //        break;
+            //
+            //    case MothOp.imClose:
+            //        if (type)
+            //        {
+            //            resultR = Erode.ErodeMe(Dilate.DilateMe(ColorList[0].Color, structerElement), structerElement);
+            //            resultG = Erode.ErodeMe(Dilate.DilateMe(ColorList[1].Color, structerElement), structerElement);
+            //            resultB = Erode.ErodeMe(Dilate.DilateMe(ColorList[2].Color, structerElement), structerElement);
+            //        }
+            //        else
+            //        {
+            //            resultR = Erode.ErodeMe(Dilate.DilateMe(ColorList[0].Color, structerElement), structerElement);
+            //            resultG = resultR; resultB = resultR;
+            //        }
+            //        outName = defPass + fileName + "_imClose" + ImgExtension;
+            //        break;
+            //}
+            #endregion
+
             image = Helpers.SetPixels(image, resultR, resultG, resultB);
-            outName = Checks.OutputFileNames(outName);
 
             if (Depth == 8)
-            { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
+            { image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image); }
 
-            Helpers.SaveOptions(image, outName, ImgExtension);
+            Helpers.SaveOptions(image, outName, imgExtension);
         }
 
-        public static int[,] MorphOperation(int[,] arr, MorphOp operation, int[,] structerElement)
+        //return array after morph operation
+        public static int[,] MorphOperationArray(int[,] arr, MorphOp operation, int[,] structerElement)
         {
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
             result = MorphOperationHelper(arr, operation, structerElement);
@@ -99,25 +162,24 @@ namespace Image.Morphology
             return result;
         }
 
+        //array after some morph operation to file
         public static void MorphOperationArray2File(int[,] arr, MorphOp operation, int[,] structerElement)
         {
-            string defPass = Directory.GetCurrentDirectory() + "\\Morph\\";
-            Checks.DirectoryExistance(defPass);
+            string defPath = GetImageInfo.MyPath("Morph");
 
             Bitmap image = new Bitmap(arr.GetLength(1), arr.GetLength(0), PixelFormat.Format24bppRgb);
-            int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
-            string outName = String.Empty;
+            int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];            
 
             result = MorphOperationHelper(arr, operation, structerElement);
 
             image = Helpers.SetPixels(image, result, result, result);
-            outName = Checks.OutputFileNames(defPass + "Array2File_" + operation.ToString() + ".png");
+            string outName = defPath + "_Array2File_" + operation.ToString() + ".png";
 
-            image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image);
-
+            image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image);
             Helpers.SaveOptions(image, outName, ".png");
         }
 
+        //call and process selected morph opeartion at image array(-s)
         private static int[,] MorphOperationHelper(int[,] arr, MorphOp operation, int[,] structerElement)
         {
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];

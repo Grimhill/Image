@@ -17,7 +17,7 @@ namespace Image.ArrayOperations
             double[] z = new double[x.Length];
             if (consts == 0)
                 throw new System.DivideByZeroException("Constant can`t be zero");
-            //Console.WriteLine("Cant div by 0");            
+            //Console.WriteLine("Cant div by 0"),            
             else
                 z = x.Select(r => r / consts).ToArray();
 
@@ -66,12 +66,19 @@ namespace Image.ArrayOperations
             return x.Zip(y, (a, b) => a - b).ToArray();
         }
 
-        //Area
+        //Convert type from int to double
         public static double[] VectorToDouble(this int[] x)
         {
             return x.Select(r => (double)r).ToArray();
         }
 
+        //Convert type from double to int
+        public static int[] VectorToInt(this double[] x)
+        {
+            return x.Select(r => Convert.ToInt32(r)).ToArray();
+        }
+
+        //Convert double values to uint8 range
         public static int[] ImageVectorToUint8(this double[] x)
         {
             int[] z = new int[x.Length];

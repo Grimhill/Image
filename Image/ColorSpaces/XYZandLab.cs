@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
+using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
@@ -9,10 +9,10 @@ namespace Image.ColorSpaces
     {
         #region xyz2lab
 
-        //bad when from file, coz lost a lot after round values in all planes, when saved xyz result to file
+        //bad when from file, coz lost a lot after round values in all planes; when saved xyz result to file
         public static List<ArraysListDouble> XYZ2Lab(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
             var X = (ColorList[0].Color).ArrayToDouble();
@@ -42,27 +42,27 @@ namespace Image.ColorSpaces
         }
 
         //X Y Z arrays in In the following order X Y Z
-        public static List<ArraysListDouble> XYZ2Lab(double[,] X, double[,] Y, double[,] Z)
+        public static List<ArraysListDouble> XYZ2Lab(double[,] x, double[,] y, double[,] z)
         {
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
-            if (X.Length != Y.Length || X.Length != Z.Length)
+            if (x.Length != y.Length || x.Length != z.Length)
             {
                 Console.WriteLine("X Y Z arrays size dismatch in xyz2lab operation -> xyz2lab(double[,] X, double[,] Y, double[,] Z) <-");
             }
             else
             {
-                labResult = XYZ2LabCount(X, Y, Z);
+                labResult = XYZ2LabCount(x, y, z);
             }
 
             return labResult;
         }
 
-        //L values - double, not in [0 1] range, a & b - same, but have negative values
-        public static List<ArraysListDouble> XYZ2LabCount(double[,] X, double[,] Y, double[,] Z)
+        //L values - double, not in [0 1] range; a & b - same, but have negative values
+        private static List<ArraysListDouble> XYZ2LabCount(double[,] x, double[,] y, double[,] z)
         {
-            int width  = X.GetLength(1);
-            int height = X.GetLength(0);
+            int width  = x.GetLength(1);
+            int height = x.GetLength(0);
 
             List<ArraysListDouble> labResult = new List<ArraysListDouble>();
 
@@ -70,9 +70,9 @@ namespace Image.ColorSpaces
             const double Y_D65 = 100;
             const double Z_D65 = 108.883;
 
-            X = X.ArrayDivByConst(X_D65);
-            Y = Y.ArrayDivByConst(Y_D65);
-            Z = Z.ArrayDivByConst(Z_D65);
+            x = x.ArrayDivByConst(X_D65);
+            y = y.ArrayDivByConst(Y_D65);
+            z = z.ArrayDivByConst(Z_D65);
 
             double[,] X_temp = new double[height, width];
             double[,] Y_temp = new double[height, width];
@@ -86,31 +86,31 @@ namespace Image.ColorSpaces
             {
                 for (int j = 0; j < width; j++)
                 {
-                    if (X[i, j] > 0.008856)
+                    if (x[i, j] > 0.008856)
                     {
-                        X_temp[i, j] = Math.Pow(X[i, j], (1d / 3d));
+                        X_temp[i, j] = Math.Pow(x[i, j], (1d / 3d));
                     }
                     else
                     {
-                        X_temp[i, j] = (7.787 * X[i, j]) + (16d / 116d);
+                        X_temp[i, j] = (7.787 * x[i, j]) + (16d / 116d);
                     }
 
-                    if (Y[i, j] > 0.008856)
+                    if (y[i, j] > 0.008856)
                     {
-                        Y_temp[i, j] = Math.Pow(Y[i, j], (1d / 3d));
+                        Y_temp[i, j] = Math.Pow(y[i, j], (1d / 3d));
                     }
                     else
                     {
-                        Y_temp[i, j] = (7.787 * Y[i, j]) + (16d / 116d);
+                        Y_temp[i, j] = (7.787 * y[i, j]) + (16d / 116d);
                     }
 
-                    if (Z[i, j] > 0.008856)
+                    if (z[i, j] > 0.008856)
                     {
-                        Z_temp[i, j] = Math.Pow(Z[i, j], (1d / 3d));
+                        Z_temp[i, j] = Math.Pow(z[i, j], (1d / 3d));
                     }
                     else
                     {
-                        Z_temp[i, j] = (7.787 * Z[i, j]) + (16d / 116d);
+                        Z_temp[i, j] = (7.787 * z[i, j]) + (16d / 116d);
                     }
 
                     L[i, j] = (116 * Y_temp[i, j]) - 16;
@@ -133,7 +133,7 @@ namespace Image.ColorSpaces
         //bad when from file, coz lost a and b negative value when save to file
         public static List<ArraysListDouble> Lab2XYZ(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
             double[,] L = (ColorList[0].Color).ArrayToDouble();
@@ -165,27 +165,27 @@ namespace Image.ColorSpaces
 
         //L a b in double values (as after convert rgb2XYZ, not in range [0 1])
         //L a b arrays in In the following order L-a-b
-        public static List<ArraysListDouble> Lab2XYZ(double[,] L, double[,] a, double[,] b)
+        public static List<ArraysListDouble> Lab2XYZ(double[,] l, double[,] a, double[,] b)
         {
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            if (L.Length != a.Length || L.Length != b.Length)
+            if (l.Length != a.Length || l.Length != b.Length)
             {
                 Console.WriteLine("L a b arrays size dismatch in lab2xyz operation -> lab2xyz(double[,] L, double[,] a, double[,] b) <-");
             }
             else
             {
-                xyzResult = Lab2XYZCount(L, a, b);
+                xyzResult = Lab2XYZCount(l, a, b);
             }
 
             return xyzResult;
         }
 
-        //X Y Z values - double > 1, can be <1 if represent small R G B values
-        public static List<ArraysListDouble> Lab2XYZCount(double[,] L, double[,] a, double[,] b)
+        //X Y Z values - double > 1; can be <1 if represent small R G B values
+        private static List<ArraysListDouble> Lab2XYZCount(double[,] l, double[,] a, double[,] b)
         {
-            int width  = L.GetLength(1);
-            int height = L.GetLength(0);
+            int width  = l.GetLength(1);
+            int height = l.GetLength(0);
 
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
@@ -205,7 +205,7 @@ namespace Image.ColorSpaces
             {
                 for (int j = 0; j < width; j++)
                 {
-                    Y_temp[i, j] = (L[i, j] + 16) / 116;
+                    Y_temp[i, j] = (l[i, j] + 16) / 116;
                     X_temp[i, j] = a[i, j] / 500 + Y_temp[i, j];
                     Z_temp[i, j] = Y_temp[i, j] - b[i, j] / 200;
 

@@ -1,12 +1,44 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Image.Morphology
+namespace Image
 {
-    //structure-forming element
+    //structure-forming element for morph operation
     public static class StructureElement
     {
         public static int[,] Line(int size, LineStructElementDegree lineType)
+        {
+            return LineProcess(size, lineType);
+        }
+
+        public static int[,] Square(int size)
+        {
+            return SquareProcess(size);
+        }
+
+        public static int[,] Rectangle(int m, int n)
+        {
+            return RectangleProcess(m, n);
+        }
+
+        public static int[,] Disk(int radius)
+        {
+            return DiskProcess(radius);
+        }
+
+        public static int[,] Diamond(int dist)
+        {
+            return DiamondProcess(dist);
+        }
+
+        public static int[,] Octagon(int dist)
+        {
+            return OctagonProcess(dist);
+        }
+
+
+        //create line with lenght and diretion
+        private static int[,] LineProcess(int size, LineStructElementDegree lineType)
         {
             int[,] resultH = new int[1, size];
             int[,] resultV = new int[size, 1];
@@ -56,7 +88,8 @@ namespace Image.Morphology
             return tempRes;
         }
 
-        public static int[,] Square(int size)
+        //create square with entered square side size
+        private static int[,] SquareProcess(int size)
         {
             ArrGen<int> d = new ArrGen<int>();
             if (HelpMe(size, size))
@@ -67,7 +100,8 @@ namespace Image.Morphology
             return new int[size, size];
         }
 
-        public static int[,] Rectangle(int m, int n)
+        //create rectangle with entred height and width 
+        private static int[,] RectangleProcess(int m, int n)
         {
             ArrGen<int> d = new ArrGen<int>();
             if (HelpMe(m, n))
@@ -77,14 +111,15 @@ namespace Image.Morphology
             return new int[m, n];
         }
 
-        public static int[,] Disk(int radius)
+        //create disk with radius
+        private static int[,] DiskProcess(int radius)
         {
             int[,] result = new int[(radius * 2) + 1, (radius * 2) + 1];
 
             ArrGen<int> d = new ArrGen<int>();
 
             if (HelpMe(radius, radius))
-            {            
+            {                
                 if (radius == 1)
                     result = new int[3, 3] { { 0, 1, 0 }, { 1, 1, 1 }, { 0, 1, 0 } };
                 else if (radius == 3)
@@ -122,15 +157,16 @@ namespace Image.Morphology
             return result;
         }
 
-        public static int[,] Diamond(int dist) //dist from center point 1 to each direction
+        //create diamond with dist from center point 1 to each direction 
+        private static int[,] DiamondProcess(int dist)
         {
-            int[,] result = new int[(dist * 2) + 1, (dist * 2) + 1];                
+            int[,] result = new int[(dist * 2) + 1, (dist * 2) + 1];                 
 
             ArrGen<int> d = new ArrGen<int>();
 
             if (HelpMe(dist, dist))
             {
-                result = d.ArrOfSingle(result.GetLength(0), result.GetLength(0), 1);                        
+                result = d.ArrOfSingle(result.GetLength(0), result.GetLength(0), 1);
 
                 for (int i = 0; i < result.GetLength(0); i++)
                 {
@@ -151,7 +187,8 @@ namespace Image.Morphology
             return result;
         }
 
-        public static int[,] Octagon(int dist)
+        //create octagon with dist from center point 1 to each direction 
+        private static int[,] OctagonProcess(int dist)
         {
             ArrGen<int> d = new ArrGen<int>();
 
@@ -181,25 +218,26 @@ namespace Image.Morphology
             return result;
         }
 
+        //check for acceptability of creating structure elements
         private static bool HelpMe(int m, int n, [CallerMemberName]string callName = "")
         {
             bool check = true;
 
             if (m < 2 && n < 2)
             {
-                if (m == 1 && n == 1 && (callName == "Disk" || callName == "Diamond"))
+                if (m == 1 && n == 1 && (callName == "DiskProcess" || callName == "DiamondProcess"))
                 {
                     check = true;
                 }
                 else
                 {
                     check = false;
-                    Console.WriteLine("I do not want to make structure with such low size. Or, you entered negative value.\n"
-                        + "Obtain zeros, muchachos. Structure element: " + callName);
+                    Console.WriteLine("I do not want to make structure with such low size. Or you entered negative value.\n"
+                        + "Obtain zeros muchachos. Structure element: " + callName);
                     Console.WriteLine("Line: > 1, Square: > 1, Rectangle: > [1 1], Diamond: > 0, Disk: > 0, Octagon: nonnegative multiple of 3.");
                 }
             }
-            else if (m % 3 != 0 && callName == "Octagon")
+            else if (m % 3 != 0 && callName == "OctagonProcess")
             {
                 check = false;
                 Console.WriteLine("Octagon imput parameter must be a nonnegative multiple of 3.\n"

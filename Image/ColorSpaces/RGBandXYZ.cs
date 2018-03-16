@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
+using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
@@ -12,7 +12,7 @@ namespace Image.ColorSpaces
         //sRGB to XYZ D65/2
         public static List<ArraysListDouble> RGB2XYZ(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
             xyzResult = RGB2XYZCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -38,33 +38,33 @@ namespace Image.ColorSpaces
         }
 
         //R G B arrays in In the following order R G B
-        public static List<ArraysListDouble> RGB2XYZ(int[,] R, int[,] G, int[,] B)
+        public static List<ArraysListDouble> RGB2XYZ(int[,] r, int[,] g, int[,] b)
         {
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            if (R.Length != G.Length || R.Length != B.Length)
+            if (r.Length != g.Length || r.Length != b.Length)
             {
                 Console.WriteLine("R G B arrays size dismatch in rgb2xyz operation -> rgb2xyz(int[,] R, int[,] G, int[,] B) <-");
             }
             else
             {
-                xyzResult = RGB2XYZCount(R, G, B);
+                xyzResult = RGB2XYZCount(r, g, b);
             }
 
             return xyzResult;
         }
 
         //X Y Z values - double > 1, can be <1 if represent small R G B values
-        public static List<ArraysListDouble> RGB2XYZCount(int[,] R, int[,] G, int[,] B)
+        private static List<ArraysListDouble> RGB2XYZCount(int[,] r, int[,] g, int[,] b)
         {
-            int width  = R.GetLength(1);
-            int height = R.GetLength(0);
+            int width  = r.GetLength(1);
+            int height = r.GetLength(0);
 
             List<ArraysListDouble> xyzResult = new List<ArraysListDouble>();
 
-            var Rcd = R.ImageUint8ToDouble();
-            var Gcd = G.ImageUint8ToDouble();
-            var Bcd = B.ImageUint8ToDouble();
+            var Rcd = r.ImageUint8ToDouble();
+            var Gcd = g.ImageUint8ToDouble();
+            var Bcd = b.ImageUint8ToDouble();
 
             double[,] R_temp = new double[height, width];
             double[,] G_temp = new double[height, width];
@@ -130,7 +130,7 @@ namespace Image.ColorSpaces
         //XYZ D65/2 to sRGB
         public static List<ArraysListInt> XYZ2RGB(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
             var X = (ColorList[0].Color).ArrayToDouble();
@@ -162,26 +162,26 @@ namespace Image.ColorSpaces
 
         //X Y Z in double values (as after convert rgb2XYZ, not in range [0 1], only if represent small R G B values)
         //X Y Z arrays in In the following order X-Y-Z
-        public static List<ArraysListInt> XYZ2RGB(double[,] X, double[,] Y, double[,] Z)
+        public static List<ArraysListInt> XYZ2RGB(double[,] x, double[,] y, double[,] z)
         {
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
-            if (X.Length != Y.Length || X.Length != Z.Length)
+            if (x.Length != y.Length || x.Length != z.Length)
             {
                 Console.WriteLine("X Y Z arrays size dismatch in xyz2rgb operation -> xyz2rgb(double[,] X, double[,] Y, double[,] Z) <-");
             }
             else
             {
-                rgbResult = XYZ2RGBbCount(X, Y, Z);
+                rgbResult = XYZ2RGBbCount(x, y, z);
             }
 
             return rgbResult;
         }
 
-        public static List<ArraysListInt> XYZ2RGBbCount(double[,] X, double[,] Y, double[,] Z)
+        private static List<ArraysListInt> XYZ2RGBbCount(double[,] x, double[,] y, double[,] z)
         {
-            int width  = X.GetLength(1);
-            int height = X.GetLength(0);
+            int width  = x.GetLength(1);
+            int height = x.GetLength(0);
 
             List<ArraysListInt> rgbResult = new List<ArraysListInt>();
 
@@ -197,13 +197,13 @@ namespace Image.ColorSpaces
             {
                 for (int j = 0; j < width; j++)
                 {
-                    X[i, j] = X[i, j] / 100;
-                    Y[i, j] = Y[i, j] / 100;
-                    Z[i, j] = Z[i, j] / 100;
+                    x[i, j] = x[i, j] / 100;
+                    y[i, j] = y[i, j] / 100;
+                    z[i, j] = z[i, j] / 100;
 
-                    R_temp[i, j] = X[i, j] * 3.2406 + Y[i, j] * (-1.5372) + Z[i, j] * (-0.4986);
-                    G_temp[i, j] = X[i, j] * (-0.9689) + Y[i, j] * 1.8758 + Z[i, j] * 0.0415;
-                    B_temp[i, j] = X[i, j] * 0.0557 + Y[i, j] * (-0.2040) + Z[i, j] * 1.057;
+                    R_temp[i, j] = x[i, j] * 3.2406 + y[i, j] * (-1.5372) + z[i, j] * (-0.4986);
+                    G_temp[i, j] = x[i, j] * (-0.9689) + y[i, j] * 1.8758 + z[i, j] * 0.0415;
+                    B_temp[i, j] = x[i, j] * 0.0557 + y[i, j] * (-0.2040) + z[i, j] * 1.057;
 
                     if (R_temp[i, j] > 0.0031308)
                     {

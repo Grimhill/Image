@@ -1,303 +1,625 @@
-﻿     Not recommended to use 8-bit .jpeg\tif\jpg images
-     there some problems on .NET to process with them
-     You can convert them into 8-bit .png by using non-windows stanadrt program
-     such as Matlab or ACDSee
-     
-	 Global Parameters: image - input bitmap, FileName - input image filename with extension
+﻿      I)   Not recommended to use 8-bit .jpeg\tif\jpg images
+           there some problems on .NET to process with them
+           You can convert them into 8-bit .png by using non-windows stanadrt program
+           such as Matlab or ACDSee
+	  II)  1bit images bitmap read as: white - 255, black  - 0, and some times read them as black square - all values 0
+	  III) All test images read form ~bin\debug\ directory by default. You can change path in program class
+	  IV)  Path for directorys for output image can be changed. Look at Helpers\ImageInfo.cs
+	  V)   Sorry, that functions not follow as in solution hierarchy and looks chaotic. This file started to form for a long time before
+	 	   functions was sorted and divided into structural units and so lazy to change order and indexes
+      
+	  Global Parameters: image - input bitmap, almost in all methods as input parameter
+	  
+	  ***********************************************************************************************************
+      Contour directory
 
-     Contour.cs
+	  Contour.cs
+	  
+      serach contours on image. 
+      Image for test - imgfortest\dragon.jpg 
 
-     serach contours on image. 
-     image for test - imgfortest\dragon.jpg 
-	 Parameters: variants: 1-6   
-1)   Contour.GlobalContour(image, CountourVariant.Variant6_RGB, FileName);
+	  Parameters: variants 1-6   
+1)    Contour.FindContour(image, CountourVariant.Variant6_RGB);
+	  
+	  Method Contour.ContourBitmap(); do the same as above
+	  but return bitmap object after process without saving into file
 
-     
-     Contrast.cs
+	  Gradient.cs
+	  count gradien in two vatiants - simple and different with angles
+	  In presented form used for Contour process
+	  
+      ***********************************************************************************************************
+	  	  
+      Contrast library
+	  
+	  ContrastBlackandWhite.cs
+	  
+      Contrast for black & white image
+      Image for test - imgfortest\contrast\Contrast_24.jpg or Contrast_8.png
+      
+	  Parameters: all default
+2.1)  ContrastBlackandWhite.ContrastBW(image);    
+	  
+      Parameters: low_in & high_in contrast limits [0..1]
+2.2)  ContrastBlackandWhite.ContrastBlackWhite(image, 0.3, 0.7);
+	  
+      Parameters: low_in & high_in contrast limits [0..1], gamma coefficient
+2.3)  ContrastBlackandWhite.ContrastBlackWhite(image, 0.3, 0.7, 2);
+	  
+	  Parameters: low_in & high_in and low_out & high_out contrast limits [0..1]
+2.4)  ContrastBlackandWhite.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8); 
+	  
+      Parameters: low_in & high_in and low_out & high_out contrast limits [0..1], gamma coefficient
+2.5)  ContrastBlackandWhite.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8, 2);
+	  
+	  Methods ContrastBlackandWhite.ContrastBlackWhiteBitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+      
+	  -----------------------------------------------------------------------------------------------------------
+	  ContrastColorImage.cs
+	  
+      contrast for RGB image
+	  Image for test - imgfortest\contrast\contrastRGB.png
+	  If don`t want to change contrast for some plane in\out parametes - set them in - 0, out - 1
+      
+	  Parameters: low_in & high_in contrast limits [0..1] for RGB components     
+2.6)  ContrastColorImage.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0);
+	  
+	  Parameters: low_in & high_in contrast limits [0..1] for RGB components, gamma coefficient     
+2.7)  ContrastColorImage.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 2);
+	  
+	  Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components    
+2.8)  ContrastColorImage.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8);
+	  
+	  Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components, gamma coefficient     
+2.9)  ContrastColorImage.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8, 2);
+      
+	  Methods ContrastBlackandWhite.ContrastRGBBitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  HighContrastFilter.cs
+	  
+	  High contrast for image by using filter
+	  
+	  Image for test - imgfortest\contrast\Contrast_24.jpg or Contrast_8.png
+	  Parameters: ContrastFilter - choose filter
+3.1)  HighContrastFilter.HighContrastBlackWhite(image, ContrastFilter.contrastFiltertypeOne);
+	  
+	  Image for test - imgfortest\contrast\contrastRGB.png
+	  Parameters: ContrastFilter - choose filter, HighContastRGB - choose color plane
+3.2)  HighContrastFilter.HighContrastColored(image, ContrastFilter.contrastFiltertypeOne, HighContastRGB.R);
+	  
+	  Methods HighContrastFilter.HighContrastBlackWhite(); 
+	  	      HighContrastFilter.HighContrastColored();
+	  										do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  ***********************************************************************************************************
+	  Segmentation directory
+	  
+	  Findlines.cs	 
+	  
+	  Find lines on image (recomended simple b&w images)
+	  image for test - imgfortest\segmentation\lines.png
 
-     contrast for black & white image
-     image for test - imgfortest\contrast\Contrast_24.jpg or Contrast_8.png
-     Parameters: all default
-2)   Contrast.ContrastBW(image, FileName);    
+	  Parameters: LineDirection - choose line direction
+4)    Findlines.Lines(image, LineDirection.horizontal);
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  FindEdge.cs
+	  	
+	  Image segmentation
+	  Image for test - imgfortest\segmentation\segmentation.png
 
-     Parameters: low_in & high_in contrast limits [0..1]
-2.1) Contrast.ContrastBlackWhite(image, 0.3, 0.7, FileName);
+      Parameters: edge variant    
+5.1)  FindEdge.Edge(image, Edgevar.var1);
+	  
+	  Parameters: edge variant, threshhold [0..1]    
+5.2)  FindEdge.Edge(image, Edgevar.var1, 0.3);
+	  
+	  Parameters: edge variant, edge method
+5.3)  FindEdge.Edge(image, Edgevar.var2, EdgeMethod.Sobel);
+	  
+	  Parameters: edge variant, edge method, threshhold [0..1] 
+5.4)  FindEdge.Edge(image, Edgevar.var2, EdgeMethod.Sobel, 0.2); 
+	  
+	  Parameters: edge variant, edge method, direction
+5.5)  FindEdge.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.horizontal);
+	  
+	  Parameters: edge variant, edge method, direction, threshhold [0..1] 
+5.6)  FindEdge.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.vertical, 0.2);
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  GrayThresh.cs	
+	  
+	  Image graythresh. Recomended 8\24bit b&w image
+      image for test - imgfortest\segmentation\Graythresh.png
+	  Parameters: 
+6)    GrayThresh.Graythresh(image);
+      
+	  ***********************************************************************************************************
+	  SharpSmoothEqualize directory
+	  For another color space can see "normal" difference at result for colored images
+	  
+	  Sharp.cs
+	  Sharp image
+	  image for test - imgfortest\Sharp\Sharpen_8.png || pic_toSharp.png
+	  Parameters: UnSharpInColorSpace - sharp image in selected color space, SharpFilterType - select filter type
+7)    Sharping.Sharp(image, UnSharpInColorSpace.fakeCIE1976L, SharpFilterType.Laplacian2);
+	  
+	  Smooth.cs
+	  Smooth image
+	  image for test - imgfortest\Sharp\pic_toSharp.png
+	  Parameters: m & n - average filter dimentions, SmoothInColorSpace - smooth image in selected color space
+8)    Smoothing.Smooth(image, 2, 2, SmoothInColorSpace.fakeCIE1976L);
+      
+	  HistogramEqualization.cs
+	  Image histogram equalization
+      image for test - imgfortest\Sharp\pic_toSharp.png
+	  Parameters: HisteqColorSpace - make histeq image in selected color space 
+9)    HistogramEqualization.Equalize(image, HisteqColorSpace.fakeCIE1976L);
+	  
+	  Methods -||-Bitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  ***********************************************************************************************************
+	  SomeFilter directory
+	  
+	  spFilt.cs
+	  Filter salt and papper noise on image
+	  amean, gmean, hmean for salt noize
+      chmean filter Q>0 for pepper & <0 for salt
+      recommend apply filter several times
+	  
+      Image for test - imgfortest\salt pepper\Salt_8.png or Salt_24.jpg || Pepper_8.png or Pepper_24.jpg    
+	  Parameters: m & n - filter dimentions, not more 3x3,SaltPepperfilterType - select filter type
+10.1) SaltPepperFilter.SaltPepperfilter(image, 2, 2, SaltPepperfilterType.hmean);
+	  
+	  Parameters: m & n - filter dimentions, not more 3x3, Q - filter order, SaltPepperfilterType - select filter type, unsharp - make or not sharp after filter
+10.2) SaltPepperFilter.SaltPepperfilter(image, 2, 2, 1.5, SaltPepperfilterType.hmean, false); 
+	  
+	  Method SaltPepperFilter.SaltPepperfilterBitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  ----------------------------------------------------------------------------------------------------------	 
+	  FSpecial.cs
+	  
+	  Contain function for some filters generation:
+	  Average, Gaussian, Laplacian, Laplacian of Gaussian, Unsharp, Motion, Disk
+	  They have some restriction for input paramenters (greater than zero or integer, etc.) be careful here
+	  
+	  Parameters: size - square filter side
+11.1) FSpecial.Average(uint size);
+	  
+	  Parameters: size - square filter side, sigma - standard deviation
+11.2) FSpecial.Gaussian(uint size, double sigma);
+	  
+	  Parameters: alpha controls the shape of the Laplacian and must be in the range 0.0 to 1.0
+11.3) FSpecial.Laplacian(double alpha);
+	  
+	  Parameters: size - square filter side, sigma - standard deviation
+11.4) FSpecial.LaplacofGauss(uint size, double sigma);
+	  
+	  Parameters: alpha controls the shape of the Laplacian and must be in the range 0.0 to 1.0
+11.5) FSpecial.Unsharp(double alpha);
+	  
+	  Parameters: linear motion of a camera by LEN pixels, with an angle of THETA degrees
+11.6) FSpecial.Motion(uint Len, double Theta);
+	  
+	  Parameters: raidus - raidus of the 2*radius+1 size circular averaging filter
+11.7) FSpecial.Disk(double radius)
+	  
+	  Notes: Methods without parameters return generated filter with default one:
+	  Average: size = 3
+	  Gaussian: size = 3, sigma = 0.5
+	  Laplacian: alpha = 0.2
+	  Laplacian of Gaussian: size = 5, sigma = 0.5
+	  Unsharp: alpha = 0.2
+	  Motion: Lwn = 9, thata = 0
+	  Disk: radius = 5
+	  
+	  
+	  UseFSpecial.cs
+	  
+	  Apply filter generated in FSpecial.cs
+	  For another color space can see "normal" difference at result for colored images
+	  Image for test - some non-binary image (for example \imgfortest\pic.2.png)
+	  
+	  Parameters: filter - filter window, FSpecialColorSpace - choose color space, FSpecialFilterType - select type of generated filter
+12.1) UseFSpecial.ApplyFilter(Bitmap img, double[,] filter, FSpecialColorSpace cSpace, FSpecialFilterType filterType);
+	  
+	  var filter = FSpecial.Unsharp();                   
+      UseFSpecial.ApplyFilter(image, f, FSpecialColorSpace.HSV, FSpecialFilterType.unsharp);
+	  
+	  Method UseFSpecial.ApplyFilterBitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  (Can be not available)
+	  If want to add filter parameters into output filename:
+	  
+	  Parameters: filter - filter window, filterData - filter parameters, FSpecialColorSpace - choose color space, FSpecialFilterType - select type of generated filter
+12.2) UseFSpecial.ApplyFilter(Bitmap img, double[,] filter, string filterData, FSpecialColorSpace cSpace, FSpecialFilterType filterType);
+	  
+	  var d = UseFSpecial.Average(5);
+      UseFSpecial.ApplyFilter(image, d.Item1, d.Item2, FSpecialColorSpace.HSV, d.Item3);
+	  
+      -----------------------------------------------------------------------------------------------------------
+	  ImageFilter.cs
+	  Contain realization of image filter for int and double at input.
+	  also contain prepared filter windows, which can select by name
+	  
+      **********************************************************************************************************
+	  ColorSpaces directory
+	  RGBandCMY.cs   - methods to convert RGB to SMY   and back
+	  RGBandHSV.cs   - methods to convert RGB to HSV   and back
+	  RGBandLab.cs   - methods to convert RGB to Lab   and back
+	  RGBandNTSC.cs  - methods to convert RGB to NTSC  and back
+	  RGBandXYZ.cs   - methods to convert RGB to XYZ   and back
+	  RGBandYCbCr.cs - methods to convert RGB to YCbCr and back
+	  XYZandLab.cs   - methods to convert XYZ to Lab   and back
+	  
+	  ColorSpacePlane.cs
+	  
+	  Obtain R\G\B image`s color plane
+	  image for test - some RGB image  
 
-     Parameters: low_in & high_in contrast limits [0..1], gamma coefficient
-2.2) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 2, FileName);
+	  Parameters: ColorPlaneRGB - select which plane or combination of planes save
+13.1  ColorSpacePlane.RGBcomponents(image, ColorPlaneRGB.Rnarkoman);
+	  
+	  Parameters: ColorPlaneRGB - select which plane return
+13.2) ColorSpacePlane.RGBcomponentArray(image, RGBplane.R);
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  ColorSpacetoFile.cs
+	  
+	  Save image, converted to anither color space
+	  Beware, some color planes have negative values, and before saving converted to byte [0..255]
+	  Image for test - some RGB image  or imgfortest\pic.1.png
 
-	 Parameters: low_in & high_in and low_out & high_out contrast limits [0..1]
-2.3) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8, FileName);  
+	  RGB to another color space, if you have list with RGB components
+	  Parameters: colorPlanes - list of R\G\B planes array in int format. RGBtoAnotherColorSpace - select to which space convert
+14.1) ColorSpaceToFile.RGBtoAnothercolorSpacetoFile(colorPlanes, RGBtoAnotherColorSpace.rgb2hsv);
+	  
+	  Parameters: RGBtoAnotherColorSpace - select to which space convert
+14.2) ColorSpaceToFile.RGBtoAnothercolorSpacetoFile(image, RGBtoAnotherColorSpace.rgb2hsv);
+	  
+      Another color space to rgb, if you have list with plane components
+	  Parameters: colorPlanes - list of planes array in double format. AnotherColorSpacetoRGBaXYZLab - select from which space convert
+14.3) ColorSpaceToFile.AnothercolorSpacetoRGBXYZLabtoFile(colorPlanes, AnotherColorSpacetoRGBaXYZLab.lab2rgb);
+	  
+	  RGB to another color space, directly from file or Another color space to rgb
+	  Parameters: ColorSpaceType - select from which space convert
+14.4) ColorSpaceToFile.ColorSpaceToFileDirectFromImage(image, ColorSpaceType.rgb2lab1976);
+	  
+	  Save FakeCIE1976Lab to file, image from directory
+	  Parameters: 
+14.5) ColorSpaceToFile.FakeCIE1976LtoFile(image);
+	  
+	  ***********************************************************************************************************
+	  ArrayOperations Directory
+	  Contain variable operations with arrays and vectors
+	  
+	  ***********************************************************************************************************
+	  Helpers directory
+	  Contain some utility functions for image process
+	  
+	  Helpers.cs 
+	  
+	  Contain methods:
+	  Get\Set pixels 
+	  Save bitmap object to file
+	  Obtain binaty\gray arrays for image to process
+	  Obtain random array and classes for list operations
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  MoreHelpers.cs 
+	  
+	  Contain methods:
+	  Get\Set methods for 8bit image process
+	  BlackandWhiteProcessHelper - obtain array of BW(gray) data for some functions
+	  Write to file methods for plane Arrays
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  Checks.cs
+	  Contains methods:
+	  check for allowable input formats
+	  check for file name duplicates
+	  check if such directory exist, if not - create
+	  check if image binary\black white\colored 
+	  
+	  ***********************************************************************************************************
+	  padMyArray.cs
+	  Contain functions for array padding	 
+	  
+	  Parameters: arr - array for paiidng, padR & padC - how many rows\cals to pad, num - by which number pad, 
+	  direction - pre - left and top, post - right and bot, both - all
+15.1) PadArrayByNum(T[,] arr, int padR, int padC, int num, Direction direction);
+	  
+	  Parameters: -||- padType - replicate\symmetric etc 
+15.2) PadArray(T[,] arr, int padR, int padC, PadType padType, Direction direction)
+	  
+	  ***********************************************************************************************************
+	  Morphology directory
+	  
+	  Dilate.cs & Erode.cs - dilatation and erosion realization
+	  
+	  StructureElement.cs
+	  Create structure element for morph operation
+	  
+	  Create line
+	  Parameters: size - line length in pixels, LineStructElementDegree - line direction 
+16.1) StructureElement.Line(3, LineStructElementDegree.plus45);
+	  
+	  Create square
+	  Parameters: size - length of the square side in pixels
+16.2) StructureElement.Square(3);
+	  
+      Create rectangle
+	  Parameters: m & n - rectangle size in pixels 
+17.3) StructureElement.Rectangle(3, 2);
+	  
+	  Create disk
+	  Parameters: r - disk radius
+17.4) StructureElement.Disk(3);
+	  
+	  Create diamond-shaped element (rhombus)
+	  Parameters: dist - distance from the structuring element origin to the points of the diamond
+17.5) StructureElement.Diamond(2);
+	  
+	  Create Octagon
+	  Parameters: dist - distance from the structuring element origin to the sides of the octagon, as measured along the horizontal and vertical axes. dist must be a nonnegative multiple of 3
+17.6) StructureElement.Octagon(3);
+	  
+	  
+	  MorphOperationsCall.cs
+	  Application morph operation: dilatation, erosion, open and close
+	  At first create StructureElement sa shown below
+	  Image for test - some image 
+	  
+	  Return bitmap object after morph operation
+	  Parameters: MorphOp operation, structerElement - created Structure Element
+18.1) MorphOperationsCall.MorphOperationBitmap(image, MothOp.Dilate, int[,] structerElement);
+	  
+	  Save image from file after morph operation
+	  Parameters: MorphOp operation, structerElement - created Structure Element
+18.2) MorphOperationsCall.MorphOperation(image, MothOp.Erode, int[,] structerElement);
+	  
+	  Return int[,] object after morph operation
+	  Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
+18.3) MorphOperationsCall.MorphOperationArray(int[,] arr, MothOp.imOpen, int[,] structerElement);
+	  
+	  Save arr int[,] after morph operation into file
+	  Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
+18.4) MorphOperationsCall.MorphOperationArray2File(int[,] arr, MothOp.inClose, int[,] structerElement);
+	  
+	  ----------------------------------------------------------------------------------------------------------
+	  BWMorph.cs
+	  Morphological operations, which process with binary imbage	
+	  
+	  Image for test - imgfortest\Morphology - pic.3.png & pic.4.png
 
-     Parameters: low_in & high_in and low_out & high_out contrast limits [0..1], gamma coefficient
-2.4) Contrast.ContrastBlackWhite(image, 0.3, 0.7, 1, 0.8, 2, FileName);     
-     
-     contrast for RGB image
-	 image for test - imgfortest\contrast\contrastRGB.png
-     Parameters: low_in & high_in contrast limits [0..1] for RGB components     
-2.5) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, FileName);
+	  Paramters: BwmorphOpearion - choose operation, repeat - how many times apply operation, OutType - 1\8\24 result
+19.1) BWMorph.Bwmorph(image, BwmorphOpearion.thin, 2, OutType.TwentyFourBpp);
+	  
+	  return array after bwmorph process
+	  Paramters: BwmorphOpearion - choose operation, repeat - how many times apply operation
+19.2) BWMorph.BwmorphImageArray(image, BwmorphOpearion.thin, 3)
+	  
+	  Method BWMorph.BwmorphBitmap() do the same as above
+	  but return bitmap object after process without saving into file	  
+	  
+	  ***********************************************************************************************************
+	  SomeLittle directory	  
+	  
+	  SomeLittle.cs
+	  Some little functions with images
+      
+	  Make negative from image or back image from negative
+	  Image for test - some image
+20)   SomeLittle.MakeNegativeAndBack(image);     
+   	  
+      Higher c and gamma - lighter image after correction  
+	  Image for test - imgfortest\GammaCorrection_8.png
+	  Parameters: formula S = c*r^gamma. r - image array, GammaPlane - if RGB for which plane make correction. Doenst matter which choosen for 8bit and 24bpp BW
+21)   SomeLittle.GammaCorrectionFun(image, 40, 0.3);
+      
+	  Mirror image from side
+	  Image for test - some image
+22)   SomeLittle.Mirror(image, Mirror.right);
+	  
+	  Crop image in pixels from side 
+	  image for test - some image
+	  Parameters: left, right, top, bottom - how many pixels to cut
+23)	  SomeLittle.CropImage(image, 0, 10, 20, 0);
+	  
+	  Invert binary image
+	  Image for test - some binary image
+	  Parameters: OutType - 1\8\24 result
+24)   SomeLittle.InverseBinary(image, OutType.OneBpp);
+	  
+      Invert some color plane(-s) or binary image
+	  Image for test - some image (of course for binary inversion - binary image)
+	  Parameters: InveseVariant - which color plane(-s) invert
+25)   SomeLittle.InvertColorPlane(image, InveseVariant.InverseR);
+	  Parameters: OutType - 1\8\24 bpp image at output
+	  SomeLittle.InverseBinary(image, OutType.EightBpp)
+	  
+	  Save image with alpha channel
+	  Image for test - some image
+	  Parameters: alpha - set alpha channel [0..1]
+26)   SomeLittle.SetAlpha(image, 0.7);
+	  
+      Save image in another supported format
+	  Image for test - some image
+	  Parameters: newFormat - choose new format from available Formats
+27)   SomeLittle.SaveImageInOtherFormat(image, newFormat);
+      
+	  Methods -||-Bitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  MoreSomeLittle.cs
+	  Some little functions with images
+	  
+	  Save different pixels of image and changed image to view
+	  Image for test - some image and it`s changed.
+	  Both must be at same size!
+28)	  MoreSomeLittle.DifferenceLight(image, img);
+	  
+	  Save result, where emphasized difference between source image and it`s changed one
+	  Image for test - some image and changed image
+	  Both must be at same size!
+	  Parameters: count coefficients coefOne, coefTwo to highlight changed pixels. 
+	  alpha [0..1] - black out the original to show the difference on its as background
+	  recomended: coefOne = 40, coefTwo = 20
+29)   MoreSomeLittle.Difference(image, img, 40, 20, 0.7); 
+      
+      Make default 8x8 CheckerBoard and save to file 
+	  Parameters: n - size in pixels for board cell, OutType - save as 1\8\24b
+30)	  MoreSomeLittle.CheckerBoard(50, OutType.OneBpp);
+	  
+	  Make CheckerBoard with entered rows and cols and save to file 
+	  Parameters: n - size in pixels for board cell, r & c - number of row and cols, OutType - save as 1\8\24b
+31)   MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
+      
+	  Make CheckerBoard on image alternating the ones grayscale and RGB
+      Image for test - imgfortest\papper.jpg or another RGB image
+	  Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
+32)   MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2);   
+	  
+	  Methods -||-Bitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  PixelFormatWorks.cs
+	  Some methods which change depth after process
+	  
+	  Transform RGB image to gray scale and save as 8b
+	  Image for test - some RGB image
+33)   PixelFormatWorks.RGB2Gray8bpp(image);
+	  
+	  Convert 24bpp BW image into 8bpp gray
+	  image for test - some 24bpp BW image
+34)   PixelFormatWorks.Bpp24Gray2Gray8bpp(image)
+	  
+	  Transform RGB\BW image to binary
+	  Image for test - some image
+	  Parameters: level - level to devide 0 or 1 pixels by formula: pixelValue/255 <> level
+35)   PixelFormatWorks.ImageTo1Bpp(image, 0.5);
+	  
+	  Convert 8b gray image to 24b gray
+	  Image for test - some 8b image (.png look at items in the beginning)
+	  Recommendation: dont use .jpg, .jpeg and .tif 8b images
+36)	  PixelFormatWorks.Bpp8fastTo24bppGray(image);  
+	  
+	  Methods -||-Bitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  RGBandBlackWhite24bpp.cs
+	  some little rgb and bw 24bpp
+	  
+	  Save image to file if have R, G, B arrays
+	  Parameters: R, G, B int[,] arrays
+37)	  RGBandBlackWhite24bpp.RGBArraysToFile(Rc, Gc, Bc);
+	  
+	  Transform RGB image to gray scale and save as 24b
+	  image for test - some RGB image
+38)	  RGBandBlackWhite24bpp.RGBtoBlackWhite24bpp(image); 
+	  
+	  Methods -||-Bitmap(); do the same as above
+	  but return bitmap object after process without saving into file
+	  
+	  -----------------------------------------------------------------------------------------------------------
+	  NoiseTry.cs
+	  Add noise to picture
+	  Available: salt and pepper, Speckl
+	  Image for test - some image
+	  
+	  Salt and Pepper noise
+	  Parameters: density - density of noise, SaltandPapperNoise - choose salt\pepper or both noise add to image
+39.1) NoiseTry.SaltandPepperNoise(Bitmap img, double density, SaltandPapperNoise noiseType);
+	  
+	  Parameters: densitySalt - density for salt noise, densityPepper - for pepper, SaltandPapperNoise - choose salt\pepper or both noise add to image
+39.2) NoiseTry.SaltandPepperNoise(Bitmap img, double densitySalt, double densityPepper);
+	  
+	  As above, but use default density - 0.05
+39.3) NoiseTry.SaltandPepperNoise(Bitmap img, SaltandPapperNoise noiseType);
+	  
+	  
+	  Speckle noise
+	  Parameters: variance - variance of points, which represent noise
+39.4) NoiseTry.SpeckleNoise(Bitmap img, double variance);
+	  
+	  with default variance = 0.05
+39.5) NoiseTry.SpeckleNoise(Bitmap img);
 
-	 Parameters: low_in & high_in contrast limits [0..1] for RGB components, gamma coefficient     
-2.6) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 2, FileName);
+	  -----------------------------------------------------------------------------------------------------------
+	  Rotate90.cs
+	  Rotate array by 90 degree by clockwise. Not more, than 3 times
+	  negative value of rotations - rotate in another way
+	  Used affine transformation
+	  
+	  Parameters: arr - array to rotate, howmanytimes
+40)   Rotate90.RotateArray90(int[,] arr, int howmanytimes);
+	  Rotate90.RotateArray90(double[,] arr, int howmanytimes);
+	  
+      ***********************************************************************************************************
+	  Convolution directory
+	  
+	  Convolution.cs 
+	  
+	  Make convolution of 2 vectors
+	  Parameters: u - first vector, v - second cevtor, which convolves first one, Convback - type of result full convolution or the same as first vector size
+41.1) Convolution.Conv(double[] u, double[] v, Convback convback);
+	  
+	  Convolution2.cs
+	  
+	  Make convolution of 2D array and 2 vectors represented as row and col
+	  Parameters: inArray - 2D array for convolution, hrow - convolution vector fo row, hcol - convolution vector for cols, Convback - type of result full convolution or the same as first vector size
+41.2) Convolution2.Conv2(double[,] inArray, double[] hrow,double[] hcol, Convback convback);
+	  
+	  Make convolution of 2D arrays
+	  Parameters:inArray - 2D array for convolution, convArray - convolution array, Convback - type of result full convolution or the same as first vector size
+41.3) Convolution2.Conv2(double[,] inArray, double[,] convArray, Convback convback)
+	  
+	  ***********************************************************************************************************
+	  
+	  SomeAffine directory
 
-	 Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components    
-2.7) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8, FileName);
-
-	 Parameters: low_in & high_in and low_out & high_out contrast limits for for RGB components, gamma coefficient     
-2.8) Contrast.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0, 0.1, 0.5, 0.2, 0.7, 0.3, 0.8, 2, FileName);
-     
-
-	 Segmentation.cs	 
-
-	 Find lines on image (recomended simple b&w images)
-	 image for test - imgfortest\segmentation\lines.png
-3.1) Segmentation.FindLines(image, LineDirection.horizontal, FileName);
-
-	 Image segmentation
-	 image for test - imgfortest\segmentation\segmentation.png
-     Parameters: edge variant    
-3.2) Segmentation.Edge(image, Edgevar.var1, FileName);
-
-	 Parameters: edge variant, threshhold [0..1]    
-3.3) Segmentation.Edge(image, Edgevar.var1, 0.3, FileName);
-
-	 Parameters: edge variant, edge method
-3.4) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, FileName);
-
-	 Parameters: edge variant, edge method, threshhold [0..1] 
-3.5) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, 0.2, FileName); 
-
-	 Parameters: edge variant, edge method, direction
-3.6) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.horizontal, FileName); 
-
-	 Parameters: edge variant, edge method, direction, threshhold [0..1] 
-3.7) Segmentation.Edge(image, Edgevar.var2, EdgeMethod.Sobel, EdgeDirection.vertical, 0.2, FileName);
-
-	 Image graythresh. Recomended 8/24bit b&w image
-     image for test - imgfortest\segmentation\Graythresh.png
-	 Parameters: 
-3.8) Segmentation.Graythresh(image, FileName);
-     
-
-	 SharpSmoothEqualize directory
-
-	 Sharp.cs
-	 Sharp image
-	 image for test - imgfortest\Sharp\Sharpen_8.png || pic_toSharp.png
-	 Parameters: UnSharpInColorSpace - sharp image in selected color space, FilterType - select filter type for sharp
-4.1) Sharping.Sharp(image, UnSharpInColorSpace.fakeCIE1976L, FilterType.Laplassian2, FileName);
-	 
-	 Smooth.cs
-	 Smooth image
-	 image for test - imgfortest\Sharp\pic_toSharp.png
-	 Parameters: m & n - average filter dimentions, SmoothInColorSpace - smooth image in selected color space
-4.2) Smoothing.Smooth(image, 2, 2, SmoothInColorSpace.fakeCIE1976L , FileName);
-     
-	 HistogramEqualization.cs
-	 Image histogram equalization
-     image for test - imgfortest\Sharp\pic_toSharp.png
-	 Parameters: HisteqColorSpace - make histeq image in selected color space 
-4.3) HistogramEqualization.Equalize(image, HisteqColorSpace.fakeCIE1976L, FileName);
-	 
-
-	 spFilt.cs
-	 Filter salt and papper noise on image
-	 amean, gmean, hmean for salt noize
-     chmean filter Q>0 for pepper & <0 for salt
-     recommend apply filter several times
-
-     image for test - imgfortest\salt pepper\Salt_8.png or Salt_24.jpg || Pepper_8.png or Pepper_24.jpg    
-	 Parameters: m & n - filter dimentions, not more 3x3,SaltPepperfilterType - select filter type
-5.1) SaltPepperFilter.SaltPepperfilter(image, 2, 2, SaltPepperfilterType.hmean, FileName); 
-
-	 Parameters: m & n - filter dimentions, not more 3x3, Q - filter order, SaltPepperfilterType - select filter type, unsharp - make or not sharp after filter
-5.2) SaltPepperFilter.SaltPepperfilter(image, 2, 2, 1.5, SaltPepperfilterType.hmean, false, FileName); 
-
-
-	 ColorSpaces directory
-	 RGBandCMY   - methods to convert RGB to SMY   and back
-	 RGBandHSV   - methods to convert RGB to HSV   and back
-	 RGBandLab   - methods to convert RGB to Lab   and back
-	 RGBandNTSC  - methods to convert RGB to NTSC  and back
-	 RGBandXYZ   - methods to convert RGB to XYZ   and back
-	 RGBandYCbCr - methods to convert RGB to YCbCr and back
-	 XYZandLab   - methods to convert XYZ to Lab   and back
-
-
-	 ArrayOperations Directory
-	 Contain variable operations with arrays and vectors
-
-
-	 Helpers.cs & MoreHelpers.cs & Checks.cs
-	 Contain some utility functions for image process
-
-
-	 padMyArray.cs
-	 Contain functions for array padding
-
-
-	 ColorSpacePlane.cs
-
-	 Obtain R\G\B image`s color plane
-	 image for test - some RGB image  
-	 Parameters: ColorPlaneRGB - select which plane save
-6)	 ColorSpacePlane.RGBcomponents(image, ColorPlaneRGB.Rnarkoman, FileName);
-
-
-	 ColorSpacetoFile.cs
-
-	 Save image, converted to anither color space
-	 Beware, some color planes have negative values, and before saving converted to byte [0..255]
-
-	 image for test - some RGB image  or imgfortest\pic.1.png
-	 RGB to another color space, if you have list with RGB components
-	 Parameters: colorPlanes - list of R\G\B planes array in int format. RGBtoAnotherColorSpace - select to which space convert
-7.1) ColorSpaceToFile.RGBtoAnothercolorSpacetoFile(colorPlanes, RGBtoAnotherColorSpace.rgb2hsv)
-
-     Another color space to rgb, if you have list with plane components
-	 Parameters: colorPlanes - list of planes array in double format. AnotherColorSpacetoRGBaXYZLab - select from which space convert
-7.2) ColorSpaceToFile.AnothercolorSpacetoRGBXYZLabtoFile(colorPlanes, AnotherColorSpacetoRGBaXYZLab.lab2rgb)
-
-	 RGB to another color space, directly from file or Another color space to rgb
-	 Parameters: ColorSpaceType - select from which space convert
-7.3) ColorSpaceToFile.ColorSpaceToFileDirectFromImage(image, ColorSpaceType.rgb2lab1976, FileName);
-
-	 Save FakeCIE1976Lab to file, image from directory
-	 Parameters: 
-7.4) ColorSpaceToFile.FakeCIE1976LtoFile(image, fileName);
-
-	 
-	 Morphology directory
-
-	 Dilate.cs & Erode.cs - dilatation and erosion realization
-
-	 StructureElement.cs
-	 Create structure element for morph operation
-
-	 Create line
-	 Parameters: size - line length in pixels, LineStructElementDegree - line direction 
-8.1) Line(3, LineStructElementDegree.plus45);
+	  Affine transformation operations
+	  Available: Extension, Compression, Transfer, Shift, Rotate
+	  Here some "artifacts" (black' points (zero values)) by using Rotate at some degrees and Extension at fractional values as 2.14. Recommended coefficients ended with .5
+	  
+	  Image for test - some image
+	  
+	  Parameters: height - coefficient extend on height, width - coefficient extend on width
+42.1) AffineOperations.Extenstion(Bitmap img, double height, double width);
+	  
+	  Parameters: height - coefficient extend on height, width - coefficient extend on width
+42.2) AffineOperations.Compression(Bitmap img, double height, double width);
+	  
+	  Parameters: horizontalTransfer - points to transfer on horizontal, verticalTransfer - points to transfer on vertical
+42.3) AffineOperations.Transfer(Bitmap img, int horizontalTransfer, int verticalTransfer);
+	  
+	  careful, at first try with little value for shift coefficients
+	  Parameters: horizontalShift - points to shift on horizontal, verticalShift - points to shift on vertical
+42.4) AffineOperations.Shift(Bitmap img, double horizontalShift, double verticalShift);
+	  
+	  Parameters: angle - rotate angle of image by clockwise. negative angle - rotate in another way
+42.5) AffineOperations.Rotate(Bitmap img, int angle);
+	  
+	  *********************************************************************************************************** 
+      Euclidian directory
+	  
+	  EuclidDistance.cs
+	  Search Euclidian distance for binary array
+	  
+	  Parameters: arr - input binary array
+43)	  EuclidDistance.EuclidBinary(int [,] arr);
+	  
+	  ***********************************************************************************************************
 	
-	 Create square
-	 Parameters: size - length of the square side in pixels
-8.2) Square(3);
 
-     Create rectangle
-	 Parameters: m & n - rectangle size in pixels 
-8.3) Rectangle(3, 2);
-
-	 Create disk
-	 Parameters: r - disk radius
-8.4) Disk(3);
-
-	 Create diamond-shaped element (rhombus)
-	 Parameters: dist - distance from the structuring element origin to the points of the diamond
-8.5) Diamond(2);
-
-	 Create Octagon
-	 Parameters: dist - distance from the structuring element origin to the sides of the octagon, as measured along the horizontal and vertical axes. dist must be a nonnegative multiple of 3
-8.6) Octagon(3);
-
-	
-	 MorphOperationsCall.cs
-	 Application morph operation: dilatation, erosion, open and close
-
-	 Return bitmap object after morph operation
-	 Parameters: MorphOp operation, structerElement - created Structure Element
-9.1) MorphOperationsCall.MorphOperation(img, MothOp.Dilate, int[,] structerElement);
-
-	 Save image from file after morph operation
-	 Parameters: MorphOp operation, structerElement - created Structure Element
-9.2) MorphOperationsCall.MorphOperation2File(Bitmap img, MothOp.Erode, int[,] structerElement, string fileName);
-
-	 Return int[,] object after morph operation
-	 Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
-9.3) MorphOperationsCall.MorphOperation(int[,] arr, MothOp.imOpen, int[,] structerElement);
-
-	 Save arr int[,] after morph operation into file
-	 Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
-9.4) MorphOperationsCall.MorphOperationArray2File(int[,] arr, MothOp.inClose, int[,] structerElement);
-
-
-	 SomeLittle.cs
-	 Some little functions with images
-
-	 Save image to file if have R, G, B arrays
-	 Parameters: R, G, B int[,] arrays
-10)	 SomeLittle.RGBArrayToImage(Rc, Gc, Bc);
-
-	 Transform RGB image to gray scale and save as 24b
-	 image for test - some RGB image
-11)	 SomeLittle.RGBToGray24bpp(image, FileName);
-     
-     Transform RGB image to gray scale and save as 8b
-	 image for test - some RGB image
-12)  SomeLittle.RGB2Gray8bpp(image, FileName);
-     
-	 Transform RGB image to binary and save
-	 image for test - some image
-	 Parameters: level - level to devide 0 or 1 pixels by formula: pixelValue/255 <> level
-13)  SomeLittle.ImageTo1Bpp(image, 0.5, FileName);
-     
-	 Make negative from image or back image from negative
-	 image for test - some image
-14)  SomeLittle.MakeNegativeAndBack(image, FileName);     
-   
-	 image for test - imgfortest\GammaCorrection_8.png
-	 Parameters: formula S = c*r^gamma. r - image array
-15)  SomeLittle.GammaCorrectionFun(image, 40, 0.3, FileName);
-     
-	 Mirror image from side
-	 image for test - some image
-16)  SomeLittle.Mirror(image, Mirror.right, FileName);
-
-	 Crop image in pixels from side 
-	 image for test - some image
-	 Parameters: left, right, top, bottom - how many pixels to cut
-17)	 SomeLittle.CropImage(image, 0, 10, 20, 0, FileName);
-
-	 Convert 8b gray image to 24b gray
-	 image for test - some 8b image
-	 Recommendation: dont use .jpg, .jpeg and .tif 8b images
-18)	 SomeLittle.Bpp8ConvertTo24bpp(image, FileName);    
-     
-	 Save image with alpha channel
-	 image for test - some 8b image
-	 Parameters: alpha [0..1]
-19)	 SomeLittle.SetPixelsAlpha(image, 0.5);
-
-     Save image in another supported format
-	 image for test - some image
-	 Parameters: newFormat - choose new format from available Formats
-20)  SomeLittle.SaveImageInOtherFormat(image, newFormat, FileName);
-
-
-	 MoreSomeLittle.cs
-	 Some little functions with images
-
-	 Save different pixels of image and changed image to view
-	 image for test - some image and changed image
-21)	 MoreSomeLittle.DifferenceLight(image, img);
-
-	 Save result, where emphasized difference between source image and it`s changed one
-	 image for test - some image and changed image
-	 Parameters: count coefficients coefOne, coefTwo to highlight changed pixels. 
-	 alpha [0..1] - black out the original to show the difference on its as background
-	 recomended: coefOne = 40, coefTwo = 20
-22)  MoreSomeLittle.Difference(image, img, 40, 20, 0.7);  
-     
-     Make default 8x8 CheckerBoard and save to file 
-	 Parameters: n - size in pixels for board cell, OutType - save as 1\8\24b
-23)	 MoreSomeLittle.CheckerBoard(50, OutType.OneBpp);
-
-	 Make CheckerBoard with entered rows and cols and save to file 
-	 Parameters: n - size in pixels for board cell, r & c - number of row and cols, OutType - save as 1\8\24b
-24)  MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
-     
-	 Make CheckerBoard on image alternating the ones grayscale and RGB
-     image for test - imgfortest\papper.jpg or another RGB image
-	 Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
-25)  MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2, FileName);    
-
-     
-     
+	 

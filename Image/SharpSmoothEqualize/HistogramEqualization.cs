@@ -1,88 +1,106 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
-using System.IO;
 using System.Drawing.Imaging;
-using Image.ColorSpaces;
+using System.Collections.Generic;
 using Image.ArrayOperations;
+using Image.ColorSpaces;
 
-namespace Image.SharpSmoothEqualize
-{
-    //histeq realization only for input array
+namespace Image
+{  
     public static class HistogramEqualization
     {
-        //only for RGB images, b&w 24bbp.
+        private static List<string> HisteqVariants = new List<string>()
+        { "_HisteqRGB", "_HisteqHSV", "_HisteqLab", "_HisteqfakeCIE1976L" };
+
         //Ahtung! for HSV & Lab lost in accuracy, coz convert double->int->double
-        public static void Equalize(Bitmap img, HisteqColorSpace cSpace, string fileName)
-        {
-            string ImgExtension = Path.GetExtension(fileName).ToLower();
-            fileName = Path.GetFileNameWithoutExtension(fileName);
-            string defPass = Directory.GetCurrentDirectory() + "\\Sharp\\Histeq\\";
-            Checks.DirectoryExistance(defPass);
+        //Equalize histogram for image by using separate color plane and save to file
+        public static void Equalize(Bitmap img, HisteqColorSpace cSpace)
+        {       
+            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
+            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
+            string defPath      = GetImageInfo.MyPath("Sharp\\Histeq");           
 
-            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb); 
+            image = EqualizeHelper(img, cSpace);            
 
-            var ColorList = Helpers.GetPixels(img);
-
-            List<ArraysListInt> Result = new List<ArraysListInt>();
-            string outName = String.Empty;
-
-            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-            if (Depth == 8) { ImgExtension = ".png"; }
-
-            switch (cSpace)
-            {
-                case HisteqColorSpace.RGB:
-                    Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[0].Color) });
-                    Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[1].Color) });
-                    Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[2].Color) });
-
-                    outName = defPass + fileName + "_HisteqRGB" + ImgExtension;
-                    break;
-
-                case HisteqColorSpace.HSV:
-                    var hsv = RGBandHSV.RGB2HSV(img);
-                    var hsv_temp = HisteqHelper((hsv[2].Color).ImageArrayToUint8());
-
-                    //Filter by V - Value (Brightness/яркость)                 
-                    //artificially if V > 1, make him 1
-                    Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ImageUint8ToDouble().ToBorderGreaterZero(1));
-
-                    outName = defPass + fileName + "_HisteqHSV" + ImgExtension;
-                    break;
-
-                case HisteqColorSpace.Lab:
-                    var lab = RGBandLab.RGB2Lab(img);
-                    var lab_temp = HisteqHelper((lab[0].Color).ArrayToUint8());
-
-                    //Filter by L - lightness                   
-                    Result = RGBandLab.Lab2RGB(lab_temp.ArrayToDouble().ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
-
-                    outName = defPass + fileName + "_HisteqLab" + ImgExtension;
-                    break;
-
-                case HisteqColorSpace.fakeCIE1976L:
-                    var fakeCIE1976L = RGBandLab.RGB2Lab(img);
-                    var fakeCIE1976L_temp = HisteqHelper((fakeCIE1976L[0].Color).ArrayMultByConst(2.57).ArrayToUint8());
-
-                    //Filter by L - lightness                
-                    Result = RGBandLab.Lab2RGB(fakeCIE1976L_temp.ArrayToDouble().ArrayDivByConst(2.57), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
-
-                    outName = defPass + fileName + "_HisteqfakeCIE1976L" + ImgExtension;
-                    break;
-            }
-
-            image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
-            outName = Checks.OutputFileNames(outName);
-
-            if (Depth == 8)
-            { image = MoreHelpers.Bbp24Gray2Gray8bppHelper(image); }
-
-            //image.Save(outName);
-            Helpers.SaveOptions(image, outName, ImgExtension);
+            string outName = defPath + imgName + HisteqVariants.ElementAt((int)cSpace) + imgExtension;
+            
+            Helpers.SaveOptions(image, outName, imgExtension);
         }
 
+        ////Equalize histogram for image by using separate color plane and return bitmap
+        public static Bitmap EqualizeBitmap(Bitmap img, HisteqColorSpace cSpace)
+        {
+            return EqualizeHelper(img, cSpace);
+        }
+
+        ////Equalize histogram for image brocess
+        private static Bitmap EqualizeHelper(Bitmap img, HisteqColorSpace cSpace)
+        {
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb); 
+            List<ArraysListInt> Result = new List<ArraysListInt>();            
+            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
+
+            if (!Checks.BinaryInput(img))
+            {
+                List<ArraysListInt> ColorList = Helpers.GetPixels(img);
+
+                //obtain histogram in choosen color space
+                switch (cSpace)
+                {
+                    case HisteqColorSpace.RGB:
+                        if (Depth == 8)
+                        {
+                            var bw = HisteqHelper(ColorList[0].Color);
+                            Result.Add(new ArraysListInt() { Color = bw }); Result.Add(new ArraysListInt() { Color = bw });
+                            Result.Add(new ArraysListInt() { Color = bw });
+                        }
+                        else
+                        {
+                            Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[0].Color) });
+                            Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[1].Color) });
+                            Result.Add(new ArraysListInt() { Color = HisteqHelper(ColorList[2].Color) });
+                        }
+                        break;
+
+                    case HisteqColorSpace.HSV:
+                        var hsv = RGBandHSV.RGB2HSV(img);
+                        var hsv_temp = HisteqHelper((hsv[2].Color).ImageArrayToUint8());
+
+                        //Filter by V - Value (Brightness/яркость)                 
+                        //artificially if V > 1; make him 1
+                        Result = RGBandHSV.HSV2RGB(hsv[0].Color, hsv[1].Color, hsv_temp.ImageUint8ToDouble().ToBorderGreaterZero(1));
+                        break;
+
+                    case HisteqColorSpace.Lab:
+                        var lab = RGBandLab.RGB2Lab(img);
+                        var lab_temp = HisteqHelper((lab[0].Color).ArrayToUint8());
+
+                        //Filter by L - lightness                   
+                        Result = RGBandLab.Lab2RGB(lab_temp.ArrayToDouble().ToBorderGreaterZero(255), lab[1].Color, lab[2].Color);
+                        break;
+
+                    case HisteqColorSpace.fakeCIE1976L:
+                        var fakeCIE1976L = RGBandLab.RGB2Lab1976(img);
+                        var fakeCIE1976L_temp = HisteqHelper(fakeCIE1976L[0].Color.ArrayToUint8());
+
+                        //Filter by L - lightness                
+                        Result = RGBandLab.Lab1976toRGB(fakeCIE1976L_temp.ArrayToDouble(), fakeCIE1976L[1].Color, fakeCIE1976L[2].Color);
+                        break;
+                }
+
+                image = Helpers.SetPixels(image, Result[0].Color, Result[1].Color, Result[2].Color);
+
+                if (Depth == 8)
+                { image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image); }
+            }
+            else { Console.WriteLine("What did you expected to HistogramEqualization binaty image? Return black square."); }
+
+            return image;
+        }
+
+        //process histogram by applying lut
         private static int[,] HisteqHelper(int[,] cPlane)
         {
             //gen array of the same values
@@ -166,11 +184,11 @@ namespace Image.SharpSmoothEqualize
 
             var err = errPartOne.SubArrays(errPartTwo).SumArrays(tol);
 
-            //Find all places with error. Yep, wtf code continues!
+            //Find all places with error. Yep; wtf code continues!
             List<double> erroIndexes = new List<double>();
 
             //present array as vector col by col. Coz this is cool. Cast dont need!
-            //Sorry, stupid copy step by step matlab logic           
+            //Sorry; stupid copy step by step matlab logic           
             //var errVector = d.ArrayToVectorColByCol(err);
 
             //with cast faster a little?
@@ -242,9 +260,10 @@ namespace Image.SharpSmoothEqualize
             return Result;
         }
 
-        private static int[] ImHist(int[,] Im)
+        //obtain histogram allocation of [0..255] in image array
+        private static int[] ImHist(int[,] img)
         {
-            int[] tempData = Im.Cast<int>().ToArray();
+            int[] tempData = img.Cast<int>().ToArray();
             int[] imHistResult = new int[256]; //uint8 size
             int count = 0;
 

@@ -1,14 +1,20 @@
-﻿using Image.ArrayOperations;
-using System;
+﻿using System;
 using System.Linq;
+using Image.ArrayOperations;
 
-namespace Image.Morphology
+namespace Image
 {
-    public static class Erode //careful, not all instances are checked
+    public static class Erode
     {
+        //Morphological erosion operation
         public static int[,] ErodeMe(int[,] arr, int[,] structElement)
         {
-            int width = arr.GetLength(1);
+            return ErodeProcess(arr, structElement);
+        }
+
+        private static int[,] ErodeProcess(int[,] arr, int[,] structElement)
+        {
+            int width  = arr.GetLength(1);
             int height = arr.GetLength(0);
 
             int[,] temp;
@@ -17,9 +23,9 @@ namespace Image.Morphology
             int[,] result = new int[height, width];
             int[,] toConv = new int[structElement.GetLength(0), structElement.GetLength(1)];
 
-            if (arr.Length < structElement.Length)
+            if (arr.Length < structElement.Length || arr.GetLength(0) < structElement.GetLength(0) || arr.GetLength(1) < structElement.GetLength(1))
             {
-                Console.WriteLine("Cannot operate with image, less then structure element. Returned array with zeros. Method: ErodeMe");
+                Console.WriteLine("Cannot operate with image; less then structure element. Returned array with zeros. Method: ErodeMe");
                 return result;
             }
 
@@ -34,13 +40,14 @@ namespace Image.Morphology
             else
                 padsizeC = (structElement.GetLength(1) - 1) / 2;
 
-            //[1, 2]
+            //form array at different structure element size at input
+            //[1; 2]
             if (structElement.GetLength(0) == 1 && structElement.GetLength(1) == 2)
             {
                 temp = padArr.PadArray(arr, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[1, >2 & %2 == 0]
+            //[1; >2 & %2 == 0]
             else if (structElement.GetLength(0) == 1 && structElement.GetLength(1) % 2 == 0)
             {
                 padsizeR = 0;
@@ -51,13 +58,13 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[2, 1]
+            //[2; 1]
             else if (structElement.GetLength(0) == 2 && structElement.GetLength(1) == 1)
             {
                 temp = padArr.PadArray(arr, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[>2 & %2 == 0, 1]
+            //[>2 & %2 == 0; 1]
             else if (structElement.GetLength(0) % 2 == 0 && structElement.GetLength(1) == 1)
             {
                 padsizeC = 0;
@@ -68,13 +75,13 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[2,2]
+            //[2;2]
             else if (structElement.GetLength(0) == 2 && structElement.GetLength(1) == 2)
             {
                 temp = padArr.PadArray(arr, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[2, >2 & %2 == 0]
+            //[2; >2 & %2 == 0]
             else if (structElement.GetLength(0) == 2 && structElement.GetLength(1) % 2 == 0)
             {
                 padsizeC = 0;
@@ -89,7 +96,7 @@ namespace Image.Morphology
 
             }
 
-            //[>2 & %2 == 0, 2]
+            //[>2 & %2 == 0; 2]
             else if (structElement.GetLength(0) % 2 == 0 && structElement.GetLength(1) == 2)
             {
                 padsizeR = 0;
@@ -103,7 +110,7 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[>2 & %2 == 0, >2 & %2 == 0]
+            //[>2 & %2 == 0; >2 & %2 == 0]
             else if (structElement.GetLength(0) % 2 == 0 && structElement.GetLength(1) % 2 == 0)
             {
                 padsizeR = 0;
@@ -121,7 +128,7 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.post);
             }
 
-            //[%2 != 0, 2]
+            //[%2 != 0; 2]
             else if (structElement.GetLength(0) % 2 != 0 && structElement.GetLength(1) == 2)
             {
                 padsizeR = 0;
@@ -132,7 +139,7 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
-            //[%2 !=0, >2 & %2 == 0]
+            //[%2 !=0; >2 & %2 == 0]
             else if (structElement.GetLength(0) % 2 != 0 && structElement.GetLength(1) % 2 == 0)
             {
                 padsizeR = 0;
@@ -147,7 +154,7 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
-            //[2, %2 != 0]
+            //[2; %2 != 0]
             else if (structElement.GetLength(0) == 2 && structElement.GetLength(1) % 2 != 0)
             {
                 padsizeC = 0;
@@ -158,7 +165,7 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
-            //[>2 & %2 == 0, %2 != 0]
+            //[>2 & %2 == 0; %2 != 0]
             else if (structElement.GetLength(0) % 2 == 0 && structElement.GetLength(1) % 2 != 0)
             {
                 padsizeC = 0;
@@ -173,12 +180,13 @@ namespace Image.Morphology
                 temp = padArr.PadArray(temp, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
-            //[%2 != 0, %2 != 0]
+            //[%2 != 0; %2 != 0]
             else
             {
                 temp = padArr.PadArray(arr, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
+            //obtain part of image array for erode by structure element
             try
             {
                 for (int i = 1; i <= height; i++)
@@ -202,7 +210,7 @@ namespace Image.Morphology
             }
             catch (Exception e)
             {
-                Console.WriteLine("Problem, most likely OutOfRangeException, here message:\n" +
+                Console.WriteLine("Problem; most likely OutOfRangeException. Erode method. \nHere message: " +
                     e.Message);
             }
 

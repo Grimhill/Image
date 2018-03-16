@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Drawing;
+using System.Collections.Generic;
 using Image.ArrayOperations;
 
 namespace Image.ColorSpaces
@@ -13,7 +13,7 @@ namespace Image.ColorSpaces
         //
         public static List<ArraysListDouble> RGB2HSV(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
             List<ArraysListDouble> hsvList = new List<ArraysListDouble>();
 
             hsvList = RGB2HSVCount(ColorList[0].Color, ColorList[1].Color, ColorList[2].Color);
@@ -39,27 +39,27 @@ namespace Image.ColorSpaces
         }
 
         //R G B arrays in In the following order R G B
-        public static List<ArraysListDouble> RGB2HSV(int[,] R, int[,] G, int[,] B)
+        public static List<ArraysListDouble> RGB2HSV(int[,] r, int[,] g, int[,] b)
         {
             List<ArraysListDouble> hsvList = new List<ArraysListDouble>();
 
-            if (R.Length != G.Length || R.Length != B.Length)
+            if (r.Length != g.Length || r.Length != b.Length)
             {
                 Console.WriteLine("R G B arrays size dismatch in rgb2hsv operation -> rgb2hsv(int[,] R, int[,] G, int[,] B) <-");
             }
             else
             {
-                hsvList = RGB2HSVCount(R, G, B);
+                hsvList = RGB2HSVCount(r, g, b);
             }
 
             return hsvList;
         }
 
         //H in degrees, S and V in divided by 100% values
-        public static List<ArraysListDouble> RGB2HSVCount(int[,] R, int[,] G, int[,] B)
+        private static List<ArraysListDouble> RGB2HSVCount(int[,] r, int[,] g, int[,] b)
         {
-            int width  = R.GetLength(1);
-            int height = R.GetLength(0);
+            int width  = r.GetLength(1);
+            int height = r.GetLength(0);
 
             const double HSVang = 60;
             List<ArraysListDouble> hsvList = new List<ArraysListDouble>();
@@ -69,10 +69,10 @@ namespace Image.ColorSpaces
             double[,] Sd = new double[height, width];   //Saturation (насыщеность)
             double[,] Vd = new double[height, width];   //Value (Brightness/яркость)
 
-            //he R,G,B values are divided by 255 to change the range from 0..255 to 0..1:
-            var Rcd = R.ImageUint8ToDouble();
-            var Gcd = G.ImageUint8ToDouble();
-            var Bcd = B.ImageUint8ToDouble();
+            //here R,G,B values are divided by 255 to change the range from 0..255 to 0..1:
+            var Rcd = r.ImageUint8ToDouble();
+            var Gcd = g.ImageUint8ToDouble();
+            var Bcd = b.ImageUint8ToDouble();
 
             //count Hue in degrees values
             for (int i = 0; i < height; i++)
@@ -154,11 +154,11 @@ namespace Image.ColorSpaces
 
         #region hsv2rgb
 
-        //if image is 24bpp, with H\S\V convert in range [0...255] as rgb
+        //if image is 24bpp; with H\S\V convert in range [0...255] as rgb
         //H in degrees, S and V in divided by 100% values
         public static List<ArraysListInt> HSV2RGB(Bitmap img)
         {
-            var ColorList = Helpers.GetPixels(img);
+            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
 
             var H = (ColorList[0].Color).ImageUint8ToDouble().ArrayMultByConst(360);
             var S = (ColorList[1].Color).ImageUint8ToDouble();
@@ -170,7 +170,7 @@ namespace Image.ColorSpaces
             return rgbList;
         }
 
-        //H in degrees, S and V in divided by 100% values
+        //H in degrees; S and V in divided by 100% values
         //List with H S V arrays in In the following order H-S-V
         public static List<ArraysListInt> HSV2RGB(List<ArraysListDouble> hsvList)
         {
@@ -182,11 +182,11 @@ namespace Image.ColorSpaces
             }
             else if (hsvList[0].Color.Cast<double>().ToArray().Max() < 1 || hsvList[1].Color.Cast<double>().ToArray().Max() > 1 || hsvList[2].Color.Cast<double>().ToArray().Max() > 1)
             {
-                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1], look like /100% in hsv2rgb operation -> hsv2rgb(List<arraysListDouble> hsvList) <-");
+                Console.WriteLine("Values of H array must be in 0..360 range (degrees); S & V values in range [0..1]; look like /100% in hsv2rgb operation -> hsv2rgb(List<arraysListDouble> hsvList) <-");
             }
             else if (hsvList[0].Color.Cast<double>().ToArray().Min() < 0 || hsvList[1].Color.Cast<double>().ToArray().Min() < 0 || hsvList[2].Color.Cast<double>().ToArray().Min() < 0)
             {
-                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1], look like /100%, and not negative in hsv2rgb operation -> hsv2rgb(List<arraysListDouble> hsvList) <-");
+                Console.WriteLine("Values of H array must be in 0..360 range (degrees); S & V values in range [0..1]; look like /100%; and not negative in hsv2rgb operation -> hsv2rgb(List<arraysListDouble> hsvList) <-");
             }
             else
             {
@@ -196,37 +196,37 @@ namespace Image.ColorSpaces
             return rgbList;
         }
 
-        //H in degrees, S and V in divided by 100% values
+        //H in degrees; S and V in divided by 100% values
         //H S V arrays in In the following order H-S-V
-        public static List<ArraysListInt> HSV2RGB(double[,] H, double[,] S, double[,] V)
+        public static List<ArraysListInt> HSV2RGB(double[,] h, double[,] s, double[,] v)
         {
             List<ArraysListInt> rgbList = new List<ArraysListInt>();
 
-            if (H.Length != S.Length || H.Length != V.Length)
+            if (h.Length != s.Length || h.Length != v.Length)
             {
                 Console.WriteLine("H S V arrays size dismatch in hsv2rgb operation -> hsv2rgb(double[,] H, double[,] S, double[,] V) <-");
             }
-            else if (H.Cast<double>().ToArray().Max() < 1 || S.Cast<double>().ToArray().Max() > 1 || V.Cast<double>().ToArray().Max() > 1)
+            else if (h.Cast<double>().ToArray().Max() < 1 || s.Cast<double>().ToArray().Max() > 1 || v.Cast<double>().ToArray().Max() > 1)
             {
-                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1], look like /100% in hsv2rgb operation -> hsv2rgb(double[,] H, double[,] S, double[,] V) <-");
+                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1]; look like /100% in hsv2rgb operation -> hsv2rgb(double[,] H, double[,] S, double[,] V) <-");
             }
-            else if (H.Cast<double>().ToArray().Min() < 0 || S.Cast<double>().ToArray().Min() < 0 || V.Cast<double>().ToArray().Min() < 0)
+            else if (h.Cast<double>().ToArray().Min() < 0 || s.Cast<double>().ToArray().Min() < 0 || v.Cast<double>().ToArray().Min() < 0)
             {
-                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1], look like /100%, and not negative in hsv2rgb operation -> hsv2rgb(double[,] H, double[,] S, double[,] V) <-");
+                Console.WriteLine("Values of H array must be in 0..360 range (degrees), S & V values in range [0..1]; look like /100%; and not negative in hsv2rgb operation -> hsv2rgb(double[,] H, double[,] S, double[,] V) <-");
             }
             else
             {
-                rgbList = HSV2RGBCount(H, S, V);
+                rgbList = HSV2RGBCount(h, s, v);
             }
 
             return rgbList;
         }
 
-        //H in degrees, S and V in divided by 100% values
-        public static List<ArraysListInt> HSV2RGBCount(double[,] H, double[,] S, double[,] V)
+        //H in degrees; S and V in divided by 100% values
+        private static List<ArraysListInt> HSV2RGBCount(double[,] h, double[,] s, double[,] v)
         {
-            int width  = H.GetLength(1);
-            int height = H.GetLength(0);
+            int width  = h.GetLength(1);
+            int height = h.GetLength(0);
 
             const double HSVang = 60;
 
@@ -237,49 +237,49 @@ namespace Image.ColorSpaces
             int[,] G = new int[height, width];
             int[,] B = new int[height, width];
 
-            var C = V.ArrayMultElements(S);
+            var C = v.ArrayMultElements(s);
 
-            var X = H.ArrayDivByConst(HSVang).ModArrayElements(2).ArraySubWithConst(1).AbsArrayElements();
+            var X = h.ArrayDivByConst(HSVang).ModArrayElements(2).ArraySubWithConst(1).AbsArrayElements();
             X = X.ConstSubArrayElements(1).ArrayMultElements(C);
 
-            var m = V.SubArrays(C);
+            var m = v.SubArrays(C);
 
             //R G B count
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
                 {
-                    if (H[i, j] >= 0 & H[i, j] < 60)
+                    if (h[i, j] >= 0 & h[i, j] < 60)
                     {
                         R[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                         G[i, j] = (int)((X[i, j] + m[i, j]) * 255);
                         B[i, j] = (int)(m[i, j] * 255);
                     }
-                    else if (H[i, j] >= 00 & H[i, j] < 120)
+                    else if (h[i, j] >= 00 & h[i, j] < 120)
                     {
                         R[i, j] = (int)((X[i, j] + m[i, j]) * 255);
                         G[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                         B[i, j] = (int)(m[i, j] * 255);
                     }
-                    else if (H[i, j] >= 120 & H[i, j] < 180)
+                    else if (h[i, j] >= 120 & h[i, j] < 180)
                     {
                         R[i, j] = (int)(m[i, j] * 255);
                         G[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                         B[i, j] = (int)((X[i, j] + m[i, j]) * 255);
                     }
-                    else if (H[i, j] >= 180 & H[i, j] < 240)
+                    else if (h[i, j] >= 180 & h[i, j] < 240)
                     {
                         R[i, j] = (int)(m[i, j] * 255);
                         G[i, j] = (int)((X[i, j] + m[i, j]) * 255);
                         B[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                     }
-                    else if (H[i, j] >= 240 & H[i, j] < 300)
+                    else if (h[i, j] >= 240 & h[i, j] < 300)
                     {
                         R[i, j] = (int)((X[i, j] + m[i, j]) * 255);
                         G[i, j] = (int)(m[i, j] * 255);
                         B[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                     }
-                    else if (H[i, j] >= 300 & H[i, j] < 360)
+                    else if (h[i, j] >= 300 & h[i, j] < 360)
                     {
                         R[i, j] = (int)((C[i, j] + m[i, j]) * 255);
                         G[i, j] = (int)(m[i, j] * 255);
