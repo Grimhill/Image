@@ -6,3 +6,6 @@ For example:
 - convert to another color spaces
 - segmentation
 - sharp and smooth
+- affine
+- some filter
+- and more little operations
