@@ -484,7 +484,7 @@
 31)   MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
       
 	  Make CheckerBoard on image alternating the ones grayscale and RGB
-      Image for test - imgfortest\papper.jpg or another RGB image
+      Image for test - imgfortest\pepper.jpg or another RGB image
 	  Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
 32)   MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2);   
 	  

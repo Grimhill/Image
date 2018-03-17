@@ -115,7 +115,6 @@
     <Content Include="imgfortest\Morphology\pic.2.png" />
     <Content Include="imgfortest\Morphology\pic.3.png" />
     <Content Include="imgfortest\Morphology\pic.4.png" />
-    <Content Include="imgfortest\papper.jpg" />
     <Content Include="imgfortest\pic.1.png" />
     <Content Include="imgfortest\pic.2.png" />
     <Content Include="imgfortest\salt pepper\Pepper_24.jpg" />
@@ -127,6 +126,7 @@
     <Content Include="imgfortest\segmentation\pic.3_24b.tif" />
     <Content Include="imgfortest\segmentation\pic.4_24b.tif" />
     <Content Include="imgfortest\segmentation\segmentation.png" />
+    <Content Include="imgfortest\pepper.jpg" />
     <Content Include="imgfortest\Sharp\pic_toSharp.png" />
     <Content Include="imgfortest\Sharp\sharpen_24.jpg" />
     <Content Include="imgfortest\Sharp\Sharpen_8.jpg" />

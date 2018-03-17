@@ -8,10 +8,6 @@ using Image.ColorSpaces;
 
 namespace Image
 {
-    //public delegate double[,] AverageDel(uint side);
-    //AverageDel def = new AverageDel(FSpecial.Average);
-    //UseFSpecial.ApplyFilter(image, def(5), FSpecialColorSpace.HSV, FSpecialFilterType.unsharp);
-
     public static class UseFSpecial
     {       
         private static List<string> SharpVariants = new List<string>()
