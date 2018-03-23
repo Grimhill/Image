@@ -26,8 +26,6 @@ namespace Image
             SaltandPepperShapkaProcess(img, densitySalt, densityPepper, SaltandPapperNoise.saltandpepper);
         }
 
-        delegate int[,] SaltPepper(int[,] arr);
-
         private static void SaltandPepperShapkaProcess(Bitmap img, double densitySalt, double densityPepper, SaltandPapperNoise noiseType)
         {
             string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);

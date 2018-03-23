@@ -667,7 +667,24 @@ namespace Image.ArrayOperations
                 }
             }
             return z;
-        }        
+        }
+
+        //Make 1.700000000002 double result to 1.7 by type reduction to demal and back
+        public static double[,] DecimalCorrection(this double[,] arr)
+        {
+            double[,] res = new double[arr.GetLength(0), arr.GetLength(1)];
+
+            for (int i = 0; i < arr.GetLength(0); i++)
+            {
+                for (int j = 0; j < arr.GetLength(0); j++)
+                {
+                    var dec = (decimal)arr[i, j];
+                    res[i, j] = (double)dec;
+                }
+            }
+
+            return res;
+        }
     }
 }
 

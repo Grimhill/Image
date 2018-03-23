@@ -16,9 +16,9 @@ namespace Image
             return SquareProcess(size);
         }
 
-        public static int[,] Rectangle(int m, int n)
+        public static int[,] Rectangle(int height, int width)
         {
-            return RectangleProcess(m, n);
+            return RectangleProcess(height, width);
         }
 
         public static int[,] Disk(int radius)
@@ -39,10 +39,10 @@ namespace Image
 
         //create line with lenght and diretion
         private static int[,] LineProcess(int size, LineStructElementDegree lineType)
-        {
-            int[,] resultH = new int[1, size];
-            int[,] resultV = new int[size, 1];
-            int[,] tempRes = new int[size, size];
+        {         
+            int[,] resultH = new int [1,size];
+            int[,] resultV = new int [size, 1];
+            int[,] tempRes = new int [size, size];
             ArrGen<int> d = new ArrGen<int>();
 
             if (HelpMe(size, size))
@@ -83,10 +83,10 @@ namespace Image
                         }
                         return tempRes;
                 }
-            }
+            }          
 
             return tempRes;
-        }
+        }        
 
         //create square with entered square side size
         private static int[,] SquareProcess(int size)
@@ -97,20 +97,20 @@ namespace Image
                 return d.ArrOfSingle(size, size, 1);
             }
 
-            return new int[size, size];
-        }
+            return new int[size,size];
+        }        
 
         //create rectangle with entred height and width 
-        private static int[,] RectangleProcess(int m, int n)
+        private static int[,] RectangleProcess(int height, int width)
         {
             ArrGen<int> d = new ArrGen<int>();
-            if (HelpMe(m, n))
+            if (HelpMe(height, width))
             {
-                return d.ArrOfSingle(m, n, 1);
+                return d.ArrOfSingle(height, width, 1);
             }
-            return new int[m, n];
+            return new int[height, width];
         }
-
+        
         //create disk with radius
         private static int[,] DiskProcess(int radius)
         {
@@ -119,7 +119,9 @@ namespace Image
             ArrGen<int> d = new ArrGen<int>();
 
             if (HelpMe(radius, radius))
-            {                
+            {
+                //if (radius == 0)
+                //    result = new int[1; 1] { { 1 } };
                 if (radius == 1)
                     result = new int[3, 3] { { 0, 1, 0 }, { 1, 1, 1 }, { 0, 1, 0 } };
                 else if (radius == 3)
@@ -158,16 +160,17 @@ namespace Image
         }
 
         //create diamond with dist from center point 1 to each direction 
-        private static int[,] DiamondProcess(int dist)
+        private static int[,] DiamondProcess(int dist) 
         {
-            int[,] result = new int[(dist * 2) + 1, (dist * 2) + 1];                 
+            int[,] result = new int[(dist * 2) + 1, (dist * 2) + 1];
+            //int[] resVect = result.Cast<int>().ToArray();      
 
             ArrGen<int> d = new ArrGen<int>();
 
             if (HelpMe(dist, dist))
             {
                 result = d.ArrOfSingle(result.GetLength(0), result.GetLength(0), 1);
-
+                
                 for (int i = 0; i < result.GetLength(0); i++)
                 {
                     for (int j = 0; j < result.GetLength(0); j++)
@@ -189,14 +192,14 @@ namespace Image
 
         //create octagon with dist from center point 1 to each direction 
         private static int[,] OctagonProcess(int dist)
-        {
+        {            
             ArrGen<int> d = new ArrGen<int>();
 
             int[,] result = d.ArrOfSingle((dist * 2) + 1, (dist * 2) + 1, 1);
 
             var baka = dist / 3 * 2;
 
-            if (HelpMe(dist, dist))
+            if (HelpMe(dist,dist))
             {
                 for (int i = 0; i < result.GetLength(0); i++)
                 {
@@ -206,13 +209,13 @@ namespace Image
                         {
                             result[i, j] = 0;
                         }
-                        else if (i >= result.GetLength(0) - baka && j <= baka - (result.GetLength(0) - i)
-                            || i >= result.GetLength(0) - baka && j >= result.GetLength(0) - (i - (baka * 2 + 1)) - 1)
+                        else if(i >= result.GetLength(0) - baka && j <= baka - (result.GetLength(0) - i)
+                            || i >= result.GetLength(0) - baka && j >= result.GetLength(0) - (i - (baka*2 + 1)) - 1)
                         {
                             result[i, j] = 0;
-                        }
+                        }      
                     }
-                }
+                }             
             }
 
             return result;
@@ -223,12 +226,12 @@ namespace Image
         {
             bool check = true;
 
-            if (m < 2 && n < 2)
+            if(m < 2 && n < 2)
             {
                 if (m == 1 && n == 1 && (callName == "DiskProcess" || callName == "DiamondProcess"))
                 {
                     check = true;
-                }
+                }             
                 else
                 {
                     check = false;
@@ -237,16 +240,16 @@ namespace Image
                     Console.WriteLine("Line: > 1, Square: > 1, Rectangle: > [1 1], Diamond: > 0, Disk: > 0, Octagon: nonnegative multiple of 3.");
                 }
             }
-            else if (m % 3 != 0 && callName == "OctagonProcess")
+            else if(m % 3 != 0 && callName == "OctagonProcess")
             {
                 check = false;
                 Console.WriteLine("Octagon imput parameter must be a nonnegative multiple of 3.\n"
                     + "Return zeros. Structure element: " + callName);
-            }
+            }           
 
             return check;
         }
-    }
+    }    
 
     public enum LineStructElementDegree
     {

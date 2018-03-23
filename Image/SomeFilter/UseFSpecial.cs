@@ -8,6 +8,10 @@ using Image.ColorSpaces;
 
 namespace Image
 {
+    //public delegate double[,] AverageDel(uint side);
+    //AverageDel def = new AverageDel(FSpecial.Average);
+    //UseFSpecial.ApplyFilter(image, def(5), FSpecialColorSpace.HSV, FSpecialFilterType.unsharp);
+
     public static class UseFSpecial
     {       
         private static List<string> SharpVariants = new List<string>()
@@ -26,6 +30,20 @@ namespace Image
             string outName = defPath + imgName + SharpVariants.ElementAt((int)cSpace) + filterType.ToString() + imgExtension;
             Helpers.SaveOptions(image, outName, imgExtension);
         }
+
+        public static void ApplyFilter(Bitmap img, double[,] filter, string filterData, FSpecialColorSpace cSpace, FSpecialFilterType filterType)
+        {
+            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
+            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
+            string defPath      = GetImageInfo.MyPath("FSpecial");
+
+            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            image = FSpecialHelper(img, filter, cSpace, filterType);
+
+            string outName = defPath + imgName + SharpVariants.ElementAt((int)cSpace) + filterType.ToString() + filterData + imgExtension;
+            Helpers.SaveOptions(image, outName, imgExtension);
+        }
+
 
         //
         public static Bitmap ApplyFilterBitmap(Bitmap img, double[,] filter, FSpecialColorSpace cSpace, FSpecialFilterType filterType)
@@ -109,7 +127,45 @@ namespace Image
             }
 
             return Result;
+        }
+
+
+        #region Fspecial for filter info and tiple C# 7.0 using        
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) AverageFilter(uint size)
+        {
+            return (FSpecial.Average(size), "_sideSize_" + size, FSpecialFilterType.average);
         }        
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) GaussianFilter(uint size, double sigma)
+        {
+            return (FSpecial.Gaussian(size, sigma), "_sideSize_" + size + "_sigma_" + sigma, FSpecialFilterType.gaussian);
+        }
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) LaplacianFilter(double alpha)
+        {
+            return (FSpecial.Laplacian(alpha), "_alpha_" + alpha, FSpecialFilterType.laplacian);
+        }
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) LaplacofGaussFilter(uint size, double sigma)
+        {
+            return (FSpecial.LaplacofGauss(size, sigma), "_sideSize_" + size + "_sigma_" + sigma, FSpecialFilterType.laplacofGauss);
+        }
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) UnsharpFilter(double alpha)
+        {
+            return (FSpecial.Unsharp(alpha), "_alpha_" + alpha, FSpecialFilterType.unsharp);
+        }
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) MotionFilter(uint Len, double Theta)
+        {
+            return (FSpecial.Motion(Len, Theta), "_PixLen_" + Len + "_angle_" + Theta, FSpecialFilterType.motion);
+        }
+
+        public static (double[,] filter, string filterData, FSpecialFilterType filterType) DiskFilter(double radius)
+        {
+            return (FSpecial.Disk(radius), "_radius_" + radius, FSpecialFilterType.disk);
+        }
+        #endregion        
     }       
 
     public enum FSpecialColorSpace

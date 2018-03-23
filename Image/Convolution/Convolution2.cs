@@ -144,6 +144,7 @@ namespace Image
                 result = d.VecorToArrayRowByRow(inArray.GetLength(0), inArray.GetLength(1), tempResults.ToArray());
             }
 
+            result.DecimalCorrection();
             return result;
         }
 
@@ -338,6 +339,7 @@ namespace Image
                 result = d.VecorToArrayRowByRow(sameRowPart, sameColPart, tempResults.ToArray());
             }
 
+            result.DecimalCorrection();
             return result;
         }
     }

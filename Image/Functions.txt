@@ -235,15 +235,17 @@
 	  Method UseFSpecial.ApplyFilterBitmap(); do the same as above
 	  but return bitmap object after process without saving into file
 	  
-	  (Can be not available)
+	  
 	  If want to add filter parameters into output filename:
 	  
 	  Parameters: filter - filter window, filterData - filter parameters, FSpecialColorSpace - choose color space, FSpecialFilterType - select type of generated filter
 12.2) UseFSpecial.ApplyFilter(Bitmap img, double[,] filter, string filterData, FSpecialColorSpace cSpace, FSpecialFilterType filterType);
 	  
-	  var d = UseFSpecial.Average(5);
-      UseFSpecial.ApplyFilter(image, d.Item1, d.Item2, FSpecialColorSpace.HSV, d.Item3);
-	  
+	  var dat = UseFSpecial.Average(5);
+      UseFSpecial.ApplyFilter(image, dat.filter, dat.filterData, FSpecialColorSpace.HSV, dat.filterType);
+			or
+	  var (filter, filterData, filterType) = UseFSpecial.AverageFilter(3);
+	  UseFSpecial.ApplyFilter(image, filter, filterData, FSpecialColorSpace.HSV, filterType);
       -----------------------------------------------------------------------------------------------------------
 	  ImageFilter.cs
 	  Contain realization of image filter for int and double at input.
@@ -379,19 +381,27 @@
 	  
 	  Return bitmap object after morph operation
 	  Parameters: MorphOp operation, structerElement - created Structure Element
-18.1) MorphOperationsCall.MorphOperationBitmap(image, MothOp.Dilate, int[,] structerElement);
+18.1) MorphOperationsCall.MorphOperationBitmap(image, MothOp.Dilate, int[,] structureElement);
 	  
 	  Save image from file after morph operation
 	  Parameters: MorphOp operation, structerElement - created Structure Element
-18.2) MorphOperationsCall.MorphOperation(image, MothOp.Erode, int[,] structerElement);
+18.2) MorphOperationsCall.MorphOperation(image, MothOp.Erode, int[,] structureElement);
 	  
 	  Return int[,] object after morph operation
 	  Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
-18.3) MorphOperationsCall.MorphOperationArray(int[,] arr, MothOp.imOpen, int[,] structerElement);
+18.3) MorphOperationsCall.MorphOperationArray(int[,] arr, MothOp.imOpen, int[,] structureElement);
 	  
 	  Save arr int[,] after morph operation into file
 	  Parameters: arr - input array, MorphOp operation, structerElement - created Structure Element
-18.4) MorphOperationsCall.MorphOperationArray2File(int[,] arr, MothOp.inClose, int[,] structerElement);
+18.4) MorphOperationsCall.MorphOperationArray2File(int[,] arr, MothOp.inClose, int[,] structureElement);
+	  
+
+	  If want to add structure element parameters into output filename:
+
+	  Parameters: MorphOp operation, structerElement - created Structure Element, elementParameters -
+18.5) var structure = MorphOperationsCall.LineStructure(3, LineStructElementDegree.horizontal);
+      MorphOperationsCall.MorphOperation(image, MorphOp.Erode, structure.structerElement, structure.elementInf);
+	  MorphOperationsCall.MorphOperationArray2File(arr, MorphOp.Dilate, structure.structerElement, structure.elementInf);
 	  
 	  ----------------------------------------------------------------------------------------------------------
 	  BWMorph.cs
@@ -484,7 +494,7 @@
 31)   MoreSomeLittle.CheckerBoard(50, 8, 7, OutType.OneBpp);   
       
 	  Make CheckerBoard on image alternating the ones grayscale and RGB
-      Image for test - imgfortest\pepper.jpg or another RGB image
+      Image for test - imgfortest\papper.jpg or another RGB image
 	  Parameters: n - size in pixels for board cell, WildBoardVariant - CheckerBoard starts form black or white cell
 32)   MoreSomeLittle.WildBoard(image, 50, WildBoardVariant.Variant2);   
 	  
