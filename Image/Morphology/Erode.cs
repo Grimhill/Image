@@ -25,7 +25,7 @@ namespace Image
 
             if (arr.Length < structElement.Length || arr.GetLength(0) < structElement.GetLength(0) || arr.GetLength(1) < structElement.GetLength(1))
             {
-                Console.WriteLine("Cannot operate with image; less then structure element. Returned array with zeros. Method: ErodeMe");
+                Console.WriteLine("Cannot operate with image, less then structure element. Returned array with zeros. Method: ErodeMe");
                 return result;
             }
 
@@ -186,6 +186,10 @@ namespace Image
                 temp = padArr.PadArray(arr, padsizeR, padsizeC, PadType.replicate, Direction.both);
             }
 
+            //some some some... don`t know...
+            int strSum = structElement.Cast<int>().ToArray().Sum();
+            bool nonBinary = false; if (temp.Cast<int>().ToArray().Max() > 1) { nonBinary = true; }
+
             //obtain part of image array for erode by structure element
             try
             {
@@ -204,13 +208,19 @@ namespace Image
                         int[,] convolution = new int[structElement.GetLength(0), structElement.GetLength(1)];
                         convolution = toConv.ArrayMultElements(structElement);
 
-                        result[i - 1, j - 1] = convolution.Cast<int>().Where(f => f > 0).Min();
+                        int[] convCast = convolution.Cast<int>().ToArray();
+                        if (convCast.All(s => s == 0)) result[i - 1, j - 1] = 0;
+                        //suppose we work with non-binary image
+                        else if (nonBinary) result[i - 1, j - 1] = convolution.Cast<int>().Where(f => f > 0).Min();
+                        //suppose we work with binary image. It`s important! Fail result if we here count with binary array represented as 0/255
+                        else if (convCast.Sum() != strSum) result[i - 1, j - 1] = 0;
+                        else result[i - 1, j - 1] = convolution.Cast<int>().Where(f => f > 0).Min();
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Problem; most likely OutOfRangeException. Erode method. \nHere message: " +
+                Console.WriteLine("Problem, most likely OutOfRangeException. Erode method. \nHere message: " +
                     e.Message);
             }
 

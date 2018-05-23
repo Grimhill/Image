@@ -72,6 +72,7 @@
     <Compile Include="Helpers\GetImageInfo.cs" />
     <Compile Include="Helpers\Helpers.cs" />
     <Compile Include="Helpers\MoreHelpers.cs" />
+    <Compile Include="Morphology\BWhitmiss.cs" />
     <Compile Include="Morphology\BWMorph.cs" />
     <Compile Include="Morphology\Dilate.cs" />
     <Compile Include="Morphology\Erode.cs" />
@@ -126,6 +127,7 @@
     <Content Include="imgfortest\segmentation\lines.png" />
     <Content Include="imgfortest\segmentation\pic.3_24b.tif" />
     <Content Include="imgfortest\segmentation\pic.4_24b.tif" />
+    <Content Include="imgfortest\segmentation\rice.png" />
     <Content Include="imgfortest\segmentation\segmentation.png" />
     <Content Include="imgfortest\pepper.jpg" />
     <Content Include="imgfortest\Sharp\pic_toSharp.png" />

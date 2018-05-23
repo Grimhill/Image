@@ -25,7 +25,7 @@ namespace Image
 
             if (arr.Length < structElement.Length || arr.GetLength(0) < structElement.GetLength(0) || arr.GetLength(1) < structElement.GetLength(1))
             {
-                Console.WriteLine("Cannot operate with image; less then structure element. Returned array with zeros. Method: DilatMe");
+                Console.WriteLine("Cannot operate with image, less then structure element. Returned array with zeros. Method: DilatMe");
                 return result;
             }
 
@@ -201,7 +201,7 @@ namespace Image
             }
             catch (Exception e)
             {
-                Console.WriteLine("Problem; most likely OutOfRangeException. Dilate Method. \nHere message: " +
+                Console.WriteLine("Problem, most likely OutOfRangeException. Dilate Method. \nHere message: " +
                     e.Message);
             }
 

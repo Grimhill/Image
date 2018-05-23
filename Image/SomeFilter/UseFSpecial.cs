@@ -130,7 +130,7 @@ namespace Image
         }
 
 
-        #region Fspecial for filter info and tiple C# 7.0 using        
+        #region Fspecial for filter info and tuple C# 7.0 using        
         public static (double[,] filter, string filterData, FSpecialFilterType filterType) AverageFilter(uint size)
         {
             return (FSpecial.Average(size), "_sideSize_" + size, FSpecialFilterType.average);

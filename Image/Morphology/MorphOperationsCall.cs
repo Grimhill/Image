@@ -13,28 +13,29 @@ namespace Image
 
         //morph operation result into file
         public static void MorphOperation(Bitmap img, MorphOp operation, int[,] structureElement)
-        {          
-            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
-            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
-            string defPath      = GetImageInfo.MyPath("Morph");           
-
-            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-            image = MorphOperationProcess(img, operation, structureElement);
-
-            string outName = defPath + imgName + "_" + operation.ToString() + imgExtension;
-            Helpers.SaveOptions(image, outName, imgExtension);
+        {
+            MorphOperationShakpaProcess(img, operation, structureElement, string.Empty);
         }
 
         public static void MorphOperation(Bitmap img, MorphOp operation, int[,] structureElement, string elementInf)
+        {
+            MorphOperationShakpaProcess(img, operation, structureElement, elementInf);
+        }
+
+        private static void MorphOperationShakpaProcess(Bitmap img, MorphOp operation, int[,] structureElement, string elementInf)
         {
             string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
             string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
             string defPath      = GetImageInfo.MyPath("Morph");
 
+            string outName = string.Empty;
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             image = MorphOperationProcess(img, operation, structureElement);
 
-            string outName = defPath + imgName + "_" + operation.ToString() + elementInf + imgExtension;
+            if (string.IsNullOrEmpty(elementInf))
+                outName = defPath + imgName + "_" + operation.ToString() + imgExtension;
+            else
+                outName = defPath + imgName + "_" + operation.ToString() + elementInf + imgExtension;
             Helpers.SaveOptions(image, outName, imgExtension);
         }
 
@@ -43,7 +44,7 @@ namespace Image
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             bool type = true;
 
-            //array; where store color components result after operations
+            //array, where store color components result after operations
             int[,] resultR = new int[img.Height, img.Width];
             int[,] resultG = new int[img.Height, img.Width];
             int[,] resultB = new int[img.Height, img.Width];
@@ -87,36 +88,33 @@ namespace Image
         //array after some morph operation to file
         public static void MorphOperationArray2File(int[,] arr, MorphOp operation, int[,] structureElement)
         {
-            string defPath = GetImageInfo.MyPath("Morph");
-
-            Bitmap image = new Bitmap(arr.GetLength(1), arr.GetLength(0), PixelFormat.Format24bppRgb);
-            int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];            
-
-            result = MorphOperationHelper(arr, operation, structureElement);
-
-            image = Helpers.SetPixels(image, result, result, result);
-            string outName = defPath + "_Array2File_" + operation.ToString() + ".png";
-
-            image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image);
-            Helpers.SaveOptions(image, outName, ".png");
+            MorphOperationArray2FileShapka(arr, operation, structureElement, string.Empty);
         }
 
         public static void MorphOperationArray2File(int[,] arr, MorphOp operation, int[,] structureElement, string elementInf)
         {
+            MorphOperationArray2FileShapka(arr, operation, structureElement, elementInf);
+        }
+
+        private static void MorphOperationArray2FileShapka(int[,] arr, MorphOp operation, int[,] structureElement, string elementInf)
+        {
             string defPath = GetImageInfo.MyPath("Morph");
+            string outName = string.Empty;
 
             Bitmap image = new Bitmap(arr.GetLength(1), arr.GetLength(0), PixelFormat.Format24bppRgb);
             int[,] result = new int[arr.GetLength(0), arr.GetLength(1)];
 
             result = MorphOperationHelper(arr, operation, structureElement);
-
             image = Helpers.SetPixels(image, result, result, result);
-            string outName = defPath + "_Array2File_" + operation.ToString() + elementInf + ".png";
+
+            if (string.IsNullOrEmpty(elementInf))
+                outName = defPath + "_Array2File_" + operation.ToString() + ".png";
+            else
+                outName = defPath + "_Array2File_" + operation.ToString() + elementInf + ".png";
 
             image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image);
             Helpers.SaveOptions(image, outName, ".png");
         }
-
 
         //call and process selected morph opeartion at image array(-s)
         private static int[,] MorphOperationHelper(int [,] arr, MorphOp operation, int[,] structureElement)

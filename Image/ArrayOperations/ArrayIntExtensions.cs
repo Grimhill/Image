@@ -55,6 +55,23 @@ namespace Image.ArrayOperations
             return z;
         }
 
+        //Sum array elements with const
+        public static int[,] ArraySumWithConst(this int[,] x, double conts)
+        {
+            int rows = x.GetLength(0);
+            int cols = x.GetLength(1);
+            int[,] z = new int[rows, cols];
+
+            for (int k = 0; k < rows; k++)
+            {
+                for (int m = 0; m < cols; m++)
+                {
+                    z[k, m] = x[k, m] + (int)conts;
+                }
+            }
+            return z;
+        }
+
         //mult array elements with const
         public static int[,] ArrayMultByConst(this int[,] x, double conts)
         {
