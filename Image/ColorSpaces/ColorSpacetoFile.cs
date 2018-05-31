@@ -184,9 +184,9 @@ namespace Image
                     case "rgb2hsv":
                         var hsvResult = RGBandHSV.RGB2HSV(colorPlanes);
 
-                        colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageArrayToUint8();
-                        colorPlaneTwo   = (hsvResult[1].Color).ImageArrayToUint8();
-                        colorPlaneThree = (hsvResult[2].Color).ImageArrayToUint8();
+                        colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageDoubleToUint8();
+                        colorPlaneTwo   = (hsvResult[1].Color).ImageDoubleToUint8();
+                        colorPlaneThree = (hsvResult[2].Color).ImageDoubleToUint8();
 
                         outName = defPath + "_rgb2hsv.jpeg";
                         break;
@@ -206,9 +206,9 @@ namespace Image
                     case "rgb2cmy":
                         var cmyResult = RGBandCMY.RGB2CMY(colorPlanes);
 
-                        colorPlaneOne   = (cmyResult[0].Color).ImageArrayToUint8();
-                        colorPlaneTwo   = (cmyResult[1].Color).ImageArrayToUint8();
-                        colorPlaneThree = (cmyResult[2].Color).ImageArrayToUint8();
+                        colorPlaneOne   = (cmyResult[0].Color).ImageDoubleToUint8();
+                        colorPlaneTwo   = (cmyResult[1].Color).ImageDoubleToUint8();
+                        colorPlaneThree = (cmyResult[2].Color).ImageDoubleToUint8();
 
                         outName = defPath + "_rgb2cmy.jpeg";
                         break;
@@ -302,9 +302,9 @@ namespace Image
                     case "rgb2hsv":
                         var hsvResult = RGBandHSV.RGB2HSV(img);
 
-                        colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageArrayToUint8();
-                        colorPlaneTwo   = (hsvResult[1].Color).ImageArrayToUint8();
-                        colorPlaneThree = (hsvResult[2].Color).ImageArrayToUint8();
+                        colorPlaneOne   = (hsvResult[0].Color).ArrayDivByConst(360).ImageDoubleToUint8();
+                        colorPlaneTwo   = (hsvResult[1].Color).ImageDoubleToUint8();
+                        colorPlaneThree = (hsvResult[2].Color).ImageDoubleToUint8();
 
                         outName = defPath + imgName + "_rgb2hsv" + imgExtension;
                         break;
@@ -346,9 +346,9 @@ namespace Image
                     case "rgb2cmy":
                         var cmyResult = RGBandCMY.RGB2CMY(img);
 
-                        colorPlaneOne   = (cmyResult[0].Color).ImageArrayToUint8();
-                        colorPlaneTwo   = (cmyResult[1].Color).ImageArrayToUint8();
-                        colorPlaneThree = (cmyResult[2].Color).ImageArrayToUint8();
+                        colorPlaneOne   = (cmyResult[0].Color).ImageDoubleToUint8();
+                        colorPlaneTwo   = (cmyResult[1].Color).ImageDoubleToUint8();
+                        colorPlaneThree = (cmyResult[2].Color).ImageDoubleToUint8();
 
                         outName = defPath + imgName + "_rgb2cmy" + imgExtension;
                         break;

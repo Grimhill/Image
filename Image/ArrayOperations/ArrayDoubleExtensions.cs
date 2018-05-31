@@ -651,7 +651,7 @@ namespace Image.ArrayOperations
         }        
 
         //array in double view, devided by 255 to uint8(byte) array
-        public static int[,] ImageArrayToUint8(this double[,] x)
+        public static int[,] ImageDoubleToUint8(this double[,] x)
         {
             int rows = x.GetLength(0);
             int cols = x.GetLength(1);

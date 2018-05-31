@@ -168,7 +168,7 @@ namespace Image
 
             var temp = noise.ArrayMultByConst(Math.Sqrt(variance)).ArraySumWithConst(1);
 
-            result = arr.ImageUint8ToDouble().ArrayMultElements(temp).ImageArrayToUint8();
+            result = arr.ImageUint8ToDouble().ArrayMultElements(temp).ImageDoubleToUint8();
 
             return result;
         }

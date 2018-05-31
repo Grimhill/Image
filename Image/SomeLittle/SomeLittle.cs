@@ -52,90 +52,7 @@ namespace Image
             return image;
         }
 
-        #endregion
-
-        #region GammaCorrection
-        //make gamma correction of image or image color plane
-
-        private static List<string> GammaVariant = new List<string>()
-        { "_GammaCorrectionR", "_GammaCorrectionG", "_GammaCorrectionB", "_GammaCorrection" };
-
-        //higher multCoeff and gamma - lighter image after correction   
-        public static void GammaCorrectionFun(Bitmap img, GammaPlane plane, double multCoeff, double gamma) //multCoeff = 40 gamma = 0.3
-        {
-            string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
-            string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
-            string defPath      = GetImageInfo.MyPath("Rand");
-
-            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-
-            image = GammaCorrectionHelper(img, plane, multCoeff, gamma);
-
-            int index = 0;
-            foreach (var n in Enum.GetValues(typeof(GammaPlane)).Cast<GammaPlane>())
-            {
-                if (Depth == 8) { index = 3; break; }//ugly
-                if (n == plane) { index = (int)n; break; };                
-            }
-
-            string outName = defPath + imgName + GammaVariant.ElementAt(index) + "c_" + multCoeff + "_gamma_" + gamma + imgExtension;
-            Helpers.SaveOptions(image, outName, imgExtension);
-        }
-
-        public static Bitmap GammaCorrectionFunBitmap(Bitmap img, GammaPlane plane, double multCoeff, double gamma)
-        {
-            return GammaCorrectionHelper(img, plane, multCoeff, gamma);
-        }
-
-        private static Bitmap GammaCorrectionHelper(Bitmap img, GammaPlane plane, double multCoeff, double gamma)
-        {
-            Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
-            double Depth = System.Drawing.Image.GetPixelFormatSize(img.PixelFormat);
-
-            int[,] resultR = new int[img.Height, img.Width];
-            int[,] resultG = new int[img.Height, img.Width];
-            int[,] resultB = new int[img.Height, img.Width];
-            List<ArraysListInt> ColorList = Helpers.GetPixels(img);
-
-            if (!Checks.BinaryInput(img))
-            { 
-                switch (plane)
-                {
-                    case GammaPlane.GammaR:
-                        resultR = ColorList[0].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //R plane  
-                        resultG = ColorList[1].Color; resultB = ColorList[2].Color;
-                        break;
-
-                    case GammaPlane.GammaG:
-                        resultG = ColorList[1].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //G plane  
-                        resultR = ColorList[0].Color; resultB = ColorList[2].Color;
-                        break;
-
-                    case GammaPlane.GammaB:
-                        resultB = ColorList[2].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //B plane
-                        resultR = ColorList[0].Color; resultG = ColorList[1].Color;
-                        break;
-
-                    case GammaPlane.GammaRGB:
-                        resultR = ColorList[0].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //R plane            
-                        resultG = ColorList[1].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //G plane         
-                        resultB = ColorList[2].Color.ArrayToDouble().PowArrayElements(gamma).ArrayMultByConst(multCoeff).ArrayToUint8(); //B plane
-                        break;
-                }
-
-                image = Helpers.SetPixels(image, resultR, resultG, resultB);
-
-                if (Depth == 8)
-                { image = PixelFormatWorks.Bpp24Gray2Gray8bppBitMap(image); }
-               
-            }
-            else { Console.WriteLine("What did you expected to make gamma correction with binaty image? Return black square."); }
-
-            return image;
-        }
-
-        #endregion
+        #endregion    
 
         #region Mirror
         //obtain mirror of image from selected side
@@ -327,7 +244,7 @@ namespace Image
             return InvertColorPlaneHelper(img, variant);
         }
 
-        public static Bitmap InvertColorPlaneHelper(Bitmap img, InveseVariant variant)
+        private static Bitmap InvertColorPlaneHelper(Bitmap img, InveseVariant variant)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
             int[,] resultR = new int[img.Height, img.Width];

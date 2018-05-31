@@ -37,6 +37,8 @@
       Contrast for black & white image
       Image for test - imgfortest\contrast\Contrast_24.jpg or Contrast_8.png
       
+	  gamma < 1 - more bright, > 1 - less bright
+
 	  Parameters: all default
 2.1)  ContrastBlackandWhite.ContrastBW(image);    
 	  
@@ -62,6 +64,8 @@
 	  Image for test - imgfortest\contrast\contrastRGB.png
 	  If don`t want to change contrast for some plane in\out parametes - set them in - 0, out - 1
       
+	  gamma < 1 - more bright, > 1 - less bright
+
 	  Parameters: low_in & high_in contrast limits [0..1] for RGB components     
 2.6)  ContrastColorImage.ContrastRGB(image, 0.2, 0.6, 0.3, 0.7, 0);
 	  
@@ -140,7 +144,7 @@
 	  Parameters: 
 6.1)  GrayThresh.GlobalThreshold(image);
 	  
-	  image for test - imgfortest\segmentation\Graythresh\rice.png
+	  image for test - imgfortest\segmentation\rice.png
 	  Processing with adaptive Threshold (based on global and morph imopen)
 	  Parameters: strucureElement - look at morph section. Recommended rectangle
 6.2)  GrayThresh.AdaptiveThreshold(image, structureElement);
@@ -180,10 +184,10 @@
       recommend apply filter several times
 	  
       Image for test - imgfortest\salt pepper\Salt_8.png or Salt_24.jpg || Pepper_8.png or Pepper_24.jpg    
-	  Parameters: m & n - filter dimentions, not more 3x3,SaltPepperfilterType - select filter type
+	  Parameters: m & n - filter dimentions, recommended not more 3x3,SaltPepperfilterType - select filter type
 10.1) SaltPepperFilter.SaltPepperfilter(image, 2, 2, SaltPepperfilterType.hmean);
 	  
-	  Parameters: m & n - filter dimentions, not more 3x3, Q - filter order, SaltPepperfilterType - select filter type, unsharp - make or not sharp after filter
+	  Parameters: m & n - filter dimentions, recommended not more 3x3, Q - filter order, SaltPepperfilterType - select filter type, unsharp - make or not sharp after filter
 10.2) SaltPepperFilter.SaltPepperfilter(image, 2, 2, 1.5, SaltPepperfilterType.hmean, false); 
 	  
 	  Method SaltPepperFilter.SaltPepperfilterBitmap(); do the same as above
@@ -462,6 +466,32 @@
 	  but return bitmap object after process without saving into file	
 	  
 	  ***********************************************************************************************************
+	  Brightness conversion directory
+
+	  Image Brightness Conversion functions
+
+	  image for test - imgfortest\Contrast_8.png
+	  formula: S = 1/(1 + (m/r)^E); r - image array, m - coef, E - controls function incline
+	  m recomended average value of the color plane (default value)	  
+	  Parameters: GammaPlane - if RGB for which plane make correction. Doenst matter which plane choosen for 8bit and 24bpp BW
+21.1) BrightTransformation.StretchContrast(Bitmap img, BrightConvPlane plane, double m, double e)
+
+	  image for test - imgfortest\LogTrans.png
+	  formula: s = c * log(1 + r), r - pixel values. c - constant, c > 0
+	  Parameters: GammaPlane - if RGB for which plane make correction. Doenst matter which plane choosen for 8bit and 24bpp BW, multCoeff - constant
+	  m & E - constants, look above
+21.2) BrightTransformation.LogTransformation(Bitmap img, BrightConvPlane plane, double multCoeff)
+
+	  image for test - imgfortest\GammaCorrection_8.png
+	  formula: s = c * r^gamma, r - pixel values. c & gama - const, c & gamma > 0
+	  gamma < 1 - more bright, > 1 - less bright
+	  Parameters: GammaPlane - if RGB for which plane make correction. Doenst matter which plane choosen for 8bit and 24bpp BW, multCoeff & gamma - constants 
+21.3) BrightTransformation.GammaCorrection(Bitmap img, BrightConvPlane plane, double multCoeff, double gamma)
+
+	  Methods BrightTransformation.StretchContrastBitmap() do the same as above
+	  but return bitmap object after process without saving into file	
+	  ***********************************************************************************************************
+
 	  SomeLittle directory	  
 	  
 	  SomeLittle.cs
@@ -469,12 +499,7 @@
       
 	  Make negative from image or back image from negative
 	  Image for test - some image
-21)   SomeLittle.MakeNegativeAndBack(image);     
-   	  
-      Higher c and gamma - lighter image after correction  
-	  Image for test - imgfortest\GammaCorrection_8.png
-	  Parameters: formula S = c*r^gamma. r - image array, GammaPlane - if RGB for which plane make correction. Doenst matter which choosen for 8bit and 24bpp BW
-22)   SomeLittle.GammaCorrectionFun(image, 40, 0.3);
+22)   SomeLittle.MakeNegativeAndBack(image); 
       
 	  Mirror image from side
 	  Image for test - some image
@@ -491,6 +516,10 @@
 25)   SomeLittle.InverseBinary(image, OutType.OneBpp);
 	  
       Invert some color plane(-s) or binary image
+	  Computes the complement of the image
+      In the complement of a binary image, zeros become ones and ones become zeros; black and white are reversed. 
+      In the complement of an intensity or RGB image, each pixel value is subtracted from the maximum pixel value
+
 	  Image for test - some image (of course for binary inversion - binary image)
 	  Parameters: InveseVariant - which color plane(-s) invert
 26)   SomeLittle.InvertColorPlane(image, InveseVariant.InverseR);

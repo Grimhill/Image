@@ -66,7 +66,7 @@ namespace Image
 
                     case HisteqColorSpace.HSV:
                         var hsv = RGBandHSV.RGB2HSV(img);
-                        var hsv_temp = HisteqHelper((hsv[2].Color).ImageArrayToUint8());
+                        var hsv_temp = HisteqHelper((hsv[2].Color).ImageDoubleToUint8());
 
                         //Filter by V - Value (Brightness/яркость)                 
                         //artificially if V > 1; make him 1

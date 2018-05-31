@@ -50,6 +50,7 @@
     <Compile Include="ArrayOperations\ArrayDoubleExtensions.cs" />
     <Compile Include="ArrayOperations\ArrayIntExtensions.cs" />
     <Compile Include="ArrayOperations\VectorExtensions.cs" />
+    <Compile Include="Brightness conversion\BrightTransformation.cs" />
     <Compile Include="ColorSpaces\ColorSpacePlane.cs" />
     <Compile Include="ColorSpaces\ColorSpacetoFile.cs" />
     <Compile Include="ColorSpaces\RGBandCMY.cs" />
@@ -113,6 +114,7 @@
     <Content Include="imgfortest\difference\2.jpeg" />
     <Content Include="imgfortest\dragon.jpg" />
     <Content Include="imgfortest\GammaCorrection_8.png" />
+    <Content Include="imgfortest\LogTrans.png" />
     <Content Include="imgfortest\Morphology\pic.1.png" />
     <Content Include="imgfortest\Morphology\pic.2.png" />
     <Content Include="imgfortest\Morphology\pic.3.png" />

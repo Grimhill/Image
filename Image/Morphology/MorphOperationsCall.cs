@@ -14,15 +14,15 @@ namespace Image
         //morph operation result into file
         public static void MorphOperation(Bitmap img, MorphOp operation, int[,] structureElement)
         {
-            MorphOperationShakpaProcess(img, operation, structureElement, string.Empty);
+            MorphOperationShapkaProcess(img, operation, structureElement, string.Empty);
         }
 
         public static void MorphOperation(Bitmap img, MorphOp operation, int[,] structureElement, string elementInf)
         {
-            MorphOperationShakpaProcess(img, operation, structureElement, elementInf);
+            MorphOperationShapkaProcess(img, operation, structureElement, elementInf);
         }
 
-        private static void MorphOperationShakpaProcess(Bitmap img, MorphOp operation, int[,] structureElement, string elementInf)
+        private static void MorphOperationShapkaProcess(Bitmap img, MorphOp operation, int[,] structureElement, string elementInf)
         {
             string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
             string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);

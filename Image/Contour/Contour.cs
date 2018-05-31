@@ -78,12 +78,12 @@ namespace Image
                     //gradient for one color component B&W result
                     if (!type)
                     {
-                        resultR = Gradient.Grad(filt[0].Color, filt[1].Color).ImageArrayToUint8();
+                        resultR = Gradient.Grad(filt[0].Color, filt[1].Color).ImageDoubleToUint8();
                     }
                     else
                     {
                         resultR = Gradient.Grad(filt[0].Color, filt[1].Color, filt[2].Color,
-                            filt[3].Color, filt[4].Color, filt[5].Color).ImageArrayToUint8();
+                            filt[3].Color, filt[4].Color, filt[5].Color).ImageDoubleToUint8();
                     }
                     resultG = resultR; resultB = resultR; //Black & White result                  
                 }
@@ -92,12 +92,12 @@ namespace Image
                     //gradient for one color component B&W result
                     if (!type)
                     {
-                        resultR = Gradient.Grad(filt[0].Color, filt[1].Color).ArrayMultByConst(2).ImageArrayToUint8();
+                        resultR = Gradient.Grad(filt[0].Color, filt[1].Color).ArrayMultByConst(2).ImageDoubleToUint8();
                     }
                     else
                     {
                         resultR = Gradient.Grad(filt[0].Color, filt[1].Color, filt[2].Color,
-                           filt[3].Color, filt[4].Color, filt[5].Color).ArrayMultByConst(2).ImageArrayToUint8();
+                           filt[3].Color, filt[4].Color, filt[5].Color).ArrayMultByConst(2).ImageDoubleToUint8();
                     }
                     resultG = resultR; resultB = resultR; //Black & White result                   
                 }

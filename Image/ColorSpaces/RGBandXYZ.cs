@@ -234,9 +234,9 @@ namespace Image.ColorSpaces
                 }
             }
 
-            rgbResult.Add(new ArraysListInt() { Color = R.ImageArrayToUint8() });
-            rgbResult.Add(new ArraysListInt() { Color = G.ImageArrayToUint8() });
-            rgbResult.Add(new ArraysListInt() { Color = B.ImageArrayToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = R.ImageDoubleToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = G.ImageDoubleToUint8() });
+            rgbResult.Add(new ArraysListInt() { Color = B.ImageDoubleToUint8() });
 
             return rgbResult;
         }

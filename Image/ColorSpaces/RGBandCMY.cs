@@ -159,9 +159,9 @@ namespace Image.ColorSpaces
 
             //formula R = (1 - C) * 255
             //C\M\Y in 0.. 1 range
-            R = c.ConstSubArrayElements(1).ImageArrayToUint8();
-            G = m.ConstSubArrayElements(1).ImageArrayToUint8();
-            B = y.ConstSubArrayElements(1).ImageArrayToUint8();
+            R = c.ConstSubArrayElements(1).ImageDoubleToUint8();
+            G = m.ConstSubArrayElements(1).ImageDoubleToUint8();
+            B = y.ConstSubArrayElements(1).ImageDoubleToUint8();
 
             rgbResult.Add(new ArraysListInt() { Color = R });
             rgbResult.Add(new ArraysListInt() { Color = G });

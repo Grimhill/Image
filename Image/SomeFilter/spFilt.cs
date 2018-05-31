@@ -14,14 +14,14 @@ namespace Image
 
         //SPFILT Performs linear and nonlinear spatial filtering for salt and pepper noize
         //unsharp for chmean
-        public static void SaltPepperfilter(Bitmap img, int m, int n, double fOrder, SaltPepperfilterType spfiltType, bool unsharp)
+        public static void SaltPepperfilter(Bitmap img, int m, int n, double filterOrder, SaltPepperfilterType spfiltType, bool unsharp)
         {
-            SaltPepperFilterHelper(img, m, n, fOrder, spfiltType, unsharp);
+            SaltPepperFilterHelper(img, m, n, filterOrder, spfiltType, unsharp);
         }
 
-        public static Bitmap SaltPepperfilterBitmap(Bitmap img, int m, int n, double fOrder, SaltPepperfilterType spfiltType, bool unsharp)
+        public static Bitmap SaltPepperfilterBitmap(Bitmap img, int m, int n, double filterOrder, SaltPepperfilterType spfiltType, bool unsharp)
         {
-            return SaltPepperFilterProcess(img, m, n, fOrder, spfiltType, unsharp);          
+            return SaltPepperFilterProcess(img, m, n, filterOrder, spfiltType, unsharp);          
         }
 
         public static void SaltPepperfilter(Bitmap img, int m, int n, SaltPepperfilterType spfiltType)
@@ -36,7 +36,7 @@ namespace Image
                 SaltPepperFilterHelper(img, m, n, 0, spfiltType, false);
         }      
 
-        private static void SaltPepperFilterHelper(Bitmap img, int m, int n, double fOrder, SaltPepperfilterType spfiltType, bool unsharp)
+        private static void SaltPepperFilterHelper(Bitmap img, int m, int n, double filterOrder, SaltPepperfilterType spfiltType, bool unsharp)
         {
             string imgExtension = GetImageInfo.Imginfo(Imageinfo.Extension);
             string imgName      = GetImageInfo.Imginfo(Imageinfo.FileName);
@@ -49,7 +49,7 @@ namespace Image
             Helpers.SaveOptions(image, outName, imgExtension);           
         }
 
-        private static Bitmap SaltPepperFilterProcess(Bitmap img, int m, int n, double fOrder, SaltPepperfilterType spfiltType, bool unsharp)
+        private static Bitmap SaltPepperFilterProcess(Bitmap img, int m, int n, double filterOrder, SaltPepperfilterType spfiltType, bool unsharp)
         {
             Bitmap image = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
@@ -84,48 +84,29 @@ namespace Image
                     //help with salt noize
                     case SaltPepperfilterType.gmean:
                         filter = arrGen.ArrOfSingle(m, n, 1);
-
-                        var r_gmean = (ImageFilter.Filter_double((Rc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();
-                        var g_gmean = (ImageFilter.Filter_double((Gc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();
-                        var b_gmean = (ImageFilter.Filter_double((Bc.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements();
-
-                        resultR = r_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
-                        resultG = g_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
-                        resultB = b_gmean.PowArrayElements(((double)1 / (double)m / (double)n)).ImageArrayToUint8();
+                        
+                        resultR = GmeanCount(Rc, filter, m, n);
+                        resultG = GmeanCount(Gc, filter, m, n);
+                        resultB = GmeanCount(Bc, filter, m, n);
                         break;
 
                     //harmonic mean filter
                     //help with salt noize
                     case SaltPepperfilterType.hmean:
-                        filter = arrGen.ArrOfSingle(m, n, 1);
+                        filter = arrGen.ArrOfSingle(m, n, 1);                        
 
-                        var r_harmean = ImageFilter.Filter_double(Rc.ImageUint8ToDouble().ArraySumWithConst((2.2204 
-                            * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);
-                        var g_harmean = ImageFilter.Filter_double(Gc.ImageUint8ToDouble().ArraySumWithConst((2.2204 
-                            * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);
-                        var b_harmean = ImageFilter.Filter_double(Bc.ImageUint8ToDouble().ArraySumWithConst((2.2204 
-                            * Math.Pow(10, -16))).ConstDivByArrayElements(1), filter, PadType.replicate);
-
-                        resultR = r_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
-                        resultG = g_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
-                        resultB = b_harmean.ConstDivByArrayElements(((double)m * (double)n)).ImageArrayToUint8();
+                        resultR = HmeanCount(Rc, filter, m, n);
+                        resultG = HmeanCount(Gc, filter, m, n);
+                        resultB = HmeanCount(Bc, filter, m, n);
                         break;
 
                     //contraharmonic mean filter Q>0 for pepper & <0 for salt
                     case SaltPepperfilterType.chmean:
-                        filter = arrGen.ArrOfSingle(m, n, 1);
+                        filter = arrGen.ArrOfSingle(m, n, 1);                        
 
-                        var r_charmean = ImageFilter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements((fOrder + 1)), filter, PadType.replicate);
-                        var g_charmean = ImageFilter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements((fOrder + 1)), filter, PadType.replicate);
-                        var b_charmean = ImageFilter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements((fOrder + 1)), filter, PadType.replicate);
-
-                        r_charmean = r_charmean.ArraydivElements(ImageFilter.Filter_double(Rc.ImageUint8ToDouble().PowArrayElements(fOrder), filter, PadType.replicate));
-                        g_charmean = g_charmean.ArraydivElements(ImageFilter.Filter_double(Gc.ImageUint8ToDouble().PowArrayElements(fOrder), filter, PadType.replicate));
-                        b_charmean = b_charmean.ArraydivElements(ImageFilter.Filter_double(Bc.ImageUint8ToDouble().PowArrayElements(fOrder), filter, PadType.replicate));
-
-                        resultR = r_charmean.ImageArrayToUint8();
-                        resultG = g_charmean.ImageArrayToUint8();
-                        resultB = b_charmean.ImageArrayToUint8();
+                        resultR = CharmeanCount(Rc, filter, filterOrder);
+                        resultG = CharmeanCount(Gc, filter, filterOrder);
+                        resultB = CharmeanCount(Bc, filter, filterOrder);
                         break;
 
                     default:
@@ -150,7 +131,35 @@ namespace Image
 
             return image;
         }
-    }
+        
+        private static int[,] GmeanCount(int[,] colorPlane, double[,] filter, int m, int n)
+        {
+            //colorPlaneArray must be in range [0..1] (ImageUint8ToDouble function)
+            //f = exp(imfilter(log(colorPlaneArray), filter, 'replicate')) ^ (1 / m / n);
+            var gmean = (ImageFilter.Filter_double((colorPlane.ImageUint8ToDouble().LogArrayElements()), filter, PadType.replicate)).ExpArrayElements()
+                .PowArrayElements(((double)1 / (double)m / (double)n)).ImageDoubleToUint8();
+            return gmean;
+        }
+
+        private static int[,] HmeanCount(int[,] colorPlane, double[,] filter, int m, int n)
+        {
+            //colorPlaneArray must be in range [0..1] (ImageUint8ToDouble function)
+            //f = m * n / imfilter(1 / (colorPlaneArray + eps), filter, 'replicate');
+            var harmean = ImageFilter.Filter_double(colorPlane.ImageUint8ToDouble().ArraySumWithConst((2.2204 * Math.Pow(10, -16)))
+                .ConstDivByArrayElements(1), filter, PadType.replicate).ConstDivByArrayElements(((double)m * (double)n)).ImageDoubleToUint8();
+            return harmean;
+        }
+
+        private static int[,] CharmeanCount(int[,] colorPlane, double[,] filter, double filterOrder)
+        {
+            //colorPlaneArray must be in range [0..1] (ImageUint8ToDouble function)
+            //f = imfilter(colorPlaneArray ^ (filterOrder + 1), filter, 'replicate');
+            //f = f / (imfilter(colorPlaneArray ^ filterOrder, filter, 'replicate') + eps);
+            var charmean = ImageFilter.Filter_double(colorPlane.ImageUint8ToDouble().PowArrayElements((filterOrder + 1)), filter, PadType.replicate)
+                .ArraydivElements(ImageFilter.Filter_double(colorPlane.ImageUint8ToDouble().PowArrayElements(filterOrder), filter, PadType.replicate)).ImageDoubleToUint8();
+            return charmean;
+        }
+    }   
 
     public enum SaltPepperfilterType
     {
@@ -160,3 +169,4 @@ namespace Image
         chmean
     }
 }
+
